@@ -181,7 +181,7 @@ textarea {
 .loader-container img{
   width: 70px;
   height: 70px;
-  animation: heartPulse 1s linear infinite;
+  animation: heartPulse 3s linear infinite;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
 }
 

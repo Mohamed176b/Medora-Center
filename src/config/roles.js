@@ -8,7 +8,7 @@ export const PAGE_ROLES = {
   siteSettings: ["super-admin", "admin", "viewer"],
   blogManagement: ["super-admin", "admin", "editor", "viewer"],
   contactMessages: ["super-admin", "admin", "moderator", "viewer"],
-  analytics: ["super-admin", "admin", "editor", "moderator", "viewer"],
+  analytics: ["super-admin", "admin", "viewer"],
   testimonials: ["super-admin", "admin", "moderator", "viewer"],
   adminsManagement: ["super-admin", "viewer"],
   usersManagement: ["super-admin", "viewer"],

@@ -10,9 +10,31 @@ import {
 } from "../../../redux/slices/adminSlice";
 import BlogForm from "./BlogForm";
 import BlogList from "./BlogList";
+import { useCallback } from "react";
 import useAdminState from "../../../hooks/useAdminState";
 
 const BlogManagement = () => {
+  const [blogViewsMap, setBlogViewsMap] = useState({});
+
+  // Fetch blog views for all posts
+  const fetchBlogViews = useCallback(async (posts) => {
+    if (!posts || posts.length === 0) {
+      setBlogViewsMap({});
+      return;
+    }
+    const { data: viewsData, error } = await supabase
+      .from("blog_post_views")
+      .select("post_id");
+    if (error) {
+      setBlogViewsMap({});
+      return;
+    }
+    const map = {};
+    viewsData?.forEach((view) => {
+      map[view.post_id] = (map[view.post_id] || 0) + 1;
+    });
+    setBlogViewsMap(map);
+  }, []);
   const { isAuthorized, unauthorizedUI } = useAuthorization(
     PAGE_ROLES.blogManagement
   );
@@ -40,14 +62,19 @@ const BlogManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Fetch data on component mount only if not already in store
+  // جلب عدد المشاهدات فقط عند تغير معرفات المقالات
   useEffect(() => {
     if (posts.length === 0) {
       dispatch(fetchAllBlogPosts());
+    } else {
+      // استخراج قائمة المعرفات فقط
+      const postIds = posts.map((p) => p.id).join(',');
+      fetchBlogViews(posts);
     }
     if (categories.length === 0) {
       dispatch(fetchAllBlogCategories());
     }
-  }, [dispatch, posts.length, categories.length]);
+  }, [dispatch, posts.length, categories.length, fetchBlogViews, posts.map(p => p.id).join(",")]);
 
   const handleAddPost = () => {
     setCurrentPost(null);
@@ -172,6 +199,7 @@ const BlogManagement = () => {
         onEditPost={handleEditPost}
         fetchPosts={() => dispatch(fetchAllBlogPosts())}
         handleViewPost={handleViewPost}
+        blogViewsMap={blogViewsMap}
       />
     </div>
   );

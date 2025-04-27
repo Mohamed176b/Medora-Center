@@ -1,0 +1,235 @@
+.admin-dashboard.admin-home-custom {
+  /* الألوان */
+  --main-color: var(--primary-color);
+  --main-color-dark: var(--for-primary-color);
+  --secondary-color: var(--secondary-color);
+  --secondary-color-dark: var(--for-secondary-color);
+  --third-color: var(--third-color);
+  --third-color-dark: var(--for-third-color);
+  --card-bg: #fff;
+  --card-shadow: 0 8px 32px var(--main-color, #d40d37)09;
+  --icon-bg: #f8e7eb;
+  --icon-size: 2.5rem;
+  --card-radius: 20px;
+
+  padding: 36px 16px 32px 16px;
+  background: var(--background-color, #f4f4f8);
+  min-height: 100vh;
+  
+}
+
+.admin-home-custom .admin-welcome {
+  background: linear-gradient(90deg, var(--main-color) 0%, var(--main-color-dark) 100%);
+  color: #fff;
+  padding: 28px 24px 20px 24px;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(212,13,55,0.09);
+  margin-bottom: 32px;
+  text-align: center;
+  
+}
+
+.admin-home-custom .admin-welcome h2 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.admin-home-custom .admin-section {
+  margin-bottom: 36px;
+  
+}
+
+.admin-home-custom .admin-section h3 {
+  color: var(--main-color-dark);
+  font-size: 1.23rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: 0.4px;
+}
+
+.admin-home-custom .admin-section-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.admin-home-custom .admin-user-card,
+.admin-home-custom .admin-appointment-card,
+.admin-home-custom .admin-doctor-card,
+.admin-home-custom .admin-service-card,
+.admin-home-custom .admin-message-card,
+.admin-home-custom .admin-review-card,
+.admin-home-custom .admin-blog-card {
+  background: var(--card-bg, #fff);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 20px 22px 16px 22px;
+  min-width: 260px;
+  min-height: 80px;
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: none;
+  position: relative;
+  
+}
+
+.admin-home-custom .admin-user-card:hover,
+.admin-home-custom .admin-appointment-card:hover,
+.admin-home-custom .admin-doctor-card:hover,
+.admin-home-custom .admin-service-card:hover,
+.admin-home-custom .admin-message-card:hover,
+.admin-home-custom .admin-review-card:hover,
+.admin-home-custom .admin-blog-card:hover {
+  /* transform: translateY(-8px) scale(1.035); */
+  box-shadow: 0 12px 44px rgba(212,13,55,0.13);
+  z-index: 2;
+}
+
+.admin-home-custom .admin-doctor-card.inactive,
+.admin-home-custom .admin-service-card.inactive {
+  opacity: 0.68;
+  filter: grayscale(0.25);
+  border-left: 4px solid #d40d37;
+}
+
+.admin-home-custom .admin-section-list.analytics-peek {
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.admin-home-custom .analytics-card {
+  background: linear-gradient(90deg, #f8e7eb 0%, #fff 100%);
+  color: var(--main-color-dark);
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(212,13,55,0.07);
+  padding: 18px 28px;
+  font-size: 1.13rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 180px;
+  
+}
+
+/* أيقونات داخل البطاقات */
+.admin-home-custom .admin-section h3 i, .admin-home-custom .analytics-card i {
+  color: var(--main-color, #d40d37);
+  font-size: 1.25em;
+  margin-left: 7px;
+}
+
+/* نصوص مختصرة */
+.admin-home-custom .admin-user-card > div, .admin-home-custom .admin-appointment-card > div, .admin-home-custom .admin-doctor-card > div, .admin-home-custom .admin-service-card > div, .admin-home-custom .admin-message-card > div, .admin-home-custom .admin-review-card > div, .admin-home-custom .admin-blog-card > div {
+  margin-bottom: 5px;
+  font-size: 1.04rem;
+  color: var(--text-color, #222);
+}
+
+.admin-home-custom .admin-user-card > div:last-child,
+.admin-home-custom .admin-appointment-card > div:last-child,
+.admin-home-custom .admin-doctor-card > div:last-child,
+.admin-home-custom .admin-service-card > div:last-child,
+.admin-home-custom .admin-message-card > div:last-child,
+.admin-home-custom .admin-review-card > div:last-child,
+.admin-home-custom .admin-blog-card > div:last-child {
+  margin-bottom: 0;
+}
+
+/* أنيميشنات */
+@keyframes fadeInBg {
+  from { background: #fff; }
+  to { background: var(--background-color, #f4f4f8); }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes cardPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive */
+/* كروت التحليلات السريعة */
+.admin-home-custom .admin-stats-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.admin-home-custom .admin-stat-card {
+  background: var(--card-bg, #fff);
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(212,13,55,0.09);
+  padding: 24px 18px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 160px;
+  min-height: 120px;
+  flex: 1 1 160px;
+  transition: none;
+}
+.admin-home-custom .admin-stat-card i {
+  color: var(--main-color, #d40d37);
+  font-size: 2.1rem;
+  margin-bottom: 10px;
+}
+.admin-home-custom .admin-stat-card > div {
+  font-size: 1.08rem;
+  color: #444;
+  margin-bottom: 8px;
+}
+.admin-home-custom .admin-stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--main-color, #d40d37);
+  margin-top: 5px;
+}
+.admin-home-custom .admin-stat-card:hover {
+  box-shadow: 0 8px 32px rgba(212,13,55,0.15);
+}
+
+@media (max-width: 700px) {
+  .admin-home-custom .admin-section-list {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-home-custom .admin-user-card,
+  .admin-home-custom .admin-appointment-card,
+  .admin-home-custom .admin-doctor-card,
+  .admin-home-custom .admin-service-card,
+  .admin-home-custom .admin-message-card,
+  .admin-home-custom .admin-review-card,
+  .admin-home-custom .admin-blog-card,
+  .admin-home-custom .analytics-card {
+    min-width: 0;
+    width: 100%;
+    padding: 16px 10px;
+  }
+  .admin-home-custom .admin-welcome {
+    padding: 18px 10px 14px 10px;
+    font-size: 1.1rem;
+  }
+}
+

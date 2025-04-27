@@ -170,4 +170,41 @@ INSERT INTO blog_categories (name, slug) VALUES
 ('عام', 'general'),
 ('صحة', 'health'),
 ('نصائح طبية', 'medical-advice'),
-('أخبار', 'news'); 
+('أخبار', 'news');
+
+-- Create blog_post_views table
+CREATE TABLE blog_post_views (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
+  viewer_ip TEXT NOT NULL,
+  viewed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
+);
+
+-- Create index for faster lookups
+CREATE INDEX blog_post_views_post_id_idx ON blog_post_views(post_id);
+CREATE INDEX blog_post_views_viewer_ip_idx ON blog_post_views(viewer_ip);
+
+-- Enable Row Level Security
+ALTER TABLE blog_post_views ENABLE ROW LEVEL SECURITY;
+
+-- Super Admin and Admin: Full access
+CREATE POLICY "Super Admin and Admin full access to blog_post_views"
+  ON blog_post_views FOR ALL
+  USING (EXISTS (
+    SELECT 1 FROM dashboard_users 
+    WHERE id = auth.uid() AND role IN ('super-admin', 'admin')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM dashboard_users 
+    WHERE id = auth.uid() AND role IN ('super-admin', 'admin')
+  ));
+
+-- Everyone can insert views
+CREATE POLICY "Everyone can insert blog post views"
+  ON blog_post_views FOR INSERT
+  WITH CHECK (true);
+
+-- Everyone can read views
+CREATE POLICY "Everyone can read blog post views"
+  ON blog_post_views FOR SELECT
+  USING (true);

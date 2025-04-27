@@ -11,6 +11,36 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const trackPostView = async (postId) => {
+    try {
+      // Get viewer's IP address using a public API
+      const response = await fetch("https://api.ipify.org?format=json");
+      const { ip } = await response.json();
+
+      // Check if this IP has viewed this post in the last 24 hours
+      const twentyFourHoursAgo = new Date(
+        Date.now() - 24 * 60 * 60 * 1000
+      ).toISOString();
+      const { data: existingView } = await supabase
+        .from("blog_post_views")
+        .select("id")
+        .eq("post_id", postId)
+        .eq("viewer_ip", ip)
+        .gte("viewed_at", twentyFourHoursAgo)
+        .single();
+
+      if (!existingView) {
+        // Insert new view
+        await supabase
+          .from("blog_post_views")
+          .insert({ post_id: postId, viewer_ip: ip });
+      }
+    } catch (error) {
+      // Silently fail to not disrupt user experience
+      console.error("Error tracking post view:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -41,6 +71,9 @@ const BlogDetail = () => {
             categories: data.categories.map((category) => category.category),
           };
           setPost(transformedPost);
+
+          // Track the view after setting the post
+          await trackPostView(data.id);
         } else {
           setError("لم يتم العثور على المدونة");
         }

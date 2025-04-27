@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
+
 import styles from "../../../style/BlogManagement.module.css";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../../redux/slices/toastSlice";
@@ -13,6 +14,7 @@ const BlogList = ({
   onEditPost,
   fetchPosts,
   handleViewPost,
+  blogViewsMap,
 }) => {
   const dispatch = useDispatch();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -82,6 +84,8 @@ const BlogList = ({
       if (postToDelete.image_url) {
         await deleteImageFromStorage(postToDelete.image_url);
       }
+
+
 
       // Delete from blog_posts_categories first (junction table)
       const { error: categoriesError } = await supabase
@@ -261,6 +265,7 @@ const BlogList = ({
             <th>التصنيفات</th>
             <th>تاريخ الإنشاء</th>
             <th>تاريخ النشر</th>
+            <th>عدد المشاهدات</th>
             <th>الحالة</th>
             <th>الإجراءات</th>
           </tr>
@@ -281,6 +286,9 @@ const BlogList = ({
                 {post.is_published
                   ? formatDate(post.published_at)
                   : "غير منشور"}
+              </td>
+              <td data-label="عدد المشاهدات">
+                {blogViewsMap ? (blogViewsMap[post.id] || 0) : 0}
               </td>
               <td data-label="الحالة">
                 <span

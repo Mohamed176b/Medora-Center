@@ -1,9 +1,465 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { supabase } from "../../../supabase/supabaseClient";
+import {
+  fetchAllUsersData,
+  fetchAllDoctorsData,
+  fetchAllServicesData,
+  fetchAllMessagesData,
+  fetchAllTestimonialsData,
+  fetchAllAppointmentsData,
+  fetchAllBlogPosts,
+} from "../../../redux/slices/adminSlice";
+import "../../../style/Analytics.css";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
+import Loader from "../../common/Loader";
+import useAuthorization from "../../../hooks/useAuthorization";
+import { PAGE_ROLES } from "../../../config/roles";
 
 const Analytics = () => {
-  return (
-    <div>Analytics</div>
-  )
-}
+  const { isAuthorized, unauthorizedUI } = useAuthorization(
+    PAGE_ROLES.analytics
+  );
+  const admin = useSelector((state) => state.admin);
+  const currentRole = admin?.admin?.role || admin?.admin?.admin?.role;
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+  const [siteViews, setSiteViews] = useState(0);
 
-export default Analytics
+  // Get data from Redux store
+  const users = useSelector((state) => state.admin.allUsersData);
+  const doctors = useSelector((state) => state.admin.allDoctorsData);
+  const services = useSelector((state) => state.admin.allServicesData);
+  const messages = useSelector((state) => state.admin.allMessagesData);
+  const testimonials = useSelector((state) => state.admin.allTestimonialsData);
+  const appointments = useSelector((state) => state.admin.allAppointmentsData);
+  const blogPosts = useSelector((state) => state.admin.allBlogPosts);
+
+  const [overviewData, setOverviewData] = useState({
+    patientsCount: 0,
+    doctorsCount: 0,
+    servicesCount: 0,
+    monthlyBookings: 0,
+    newMessages: 0,
+    reviewedTestimonials: 0,
+  });
+
+  const [bookingsData, setBookingsData] = useState({
+    dailyTrend: [],
+    statusDistribution: [],
+    topServices: [],
+  });
+
+  const [engagementData, setEngagementData] = useState({
+    newUsers: 0,
+    messages: { patients: 0, guests: 0 },
+    testimonials: { reviewed: 0, pending: 0 },
+  });
+
+  const [blogData, setBlogData] = useState({
+    totalPosts: 0,
+    totalViews: 0,
+    topPosts: [],
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+
+        // Always fetch fresh data since this is an analytics dashboard
+        await Promise.all([
+          dispatch(fetchAllUsersData()),
+          dispatch(fetchAllDoctorsData()),
+          dispatch(fetchAllServicesData()),
+          dispatch(fetchAllMessagesData()),
+          dispatch(fetchAllTestimonialsData()),
+          dispatch(fetchAllAppointmentsData()),
+          dispatch(fetchAllBlogPosts()),
+        ]);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading analytics data:", error);
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [dispatch]); // Only depend on dispatch since we want fresh data on every mount
+
+  // جلب عدد مشاهدات الموقع من جدول site_views
+  useEffect(() => {
+    const fetchSiteViews = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('site_views')
+          .select('*', { count: 'exact', head: true });
+        if (!error) setSiteViews(count || 0);
+      } catch (e) {
+        setSiteViews(0);
+      }
+    };
+    fetchSiteViews();
+  }, []);
+
+  // Update data processing after data changes
+  useEffect(() => {
+    if (
+      !loading &&
+      users &&
+      doctors &&
+      services &&
+      appointments &&
+      messages &&
+      testimonials
+    ) {
+      // Process overview data
+      setOverviewData({
+        patientsCount: users.length || 0,
+        doctorsCount: doctors.length || 0,
+        servicesCount: services.length || 0,
+        monthlyBookings: appointments.filter((appt) => {
+          const date = new Date(appt.created_at);
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          return date >= thirtyDaysAgo;
+        }).length,
+        newMessages: messages.filter((msg) => !msg.is_read).length,
+        reviewedTestimonials: testimonials.filter((t) => t.is_reviewed).length,
+      });
+
+      // Process booking analytics
+      if (appointments.length > 0) {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        // Daily trend
+        const dailyTrend = [];
+        const statusCounts = {
+          pending: 0,
+          confirmed: 0,
+          cancelled: 0,
+          completed: 0,
+        };
+        const serviceBookings = {};
+
+        appointments.forEach((booking) => {
+          if (new Date(booking.created_at) >= thirtyDaysAgo) {
+            // Count by status
+            statusCounts[booking.status]++;
+
+            // Count by service
+            const serviceName = booking.services?.title || "Unknown";
+            serviceBookings[serviceName] =
+              (serviceBookings[serviceName] || 0) + 1;
+
+            // Group by day for trend
+            const date = new Date(booking.created_at).toLocaleDateString(
+              "ar-EG"
+            );
+            const existingDay = dailyTrend.find((day) => day.date === date);
+            if (existingDay) {
+              existingDay.bookings++;
+            } else {
+              dailyTrend.push({ date, bookings: 1 });
+            }
+          }
+        });
+
+        // Convert status counts to chart data
+        const statusDistribution = Object.entries(statusCounts).map(
+          ([status, count]) => ({
+            status,
+            count,
+          })
+        );
+
+        // Get top 3 services
+        const topServices = Object.entries(serviceBookings)
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3);
+
+        setBookingsData({
+          dailyTrend: dailyTrend.sort(
+            (a, b) => new Date(a.date) - new Date(b.date)
+          ),
+          statusDistribution,
+          topServices,
+        });
+      }
+
+      // Process user engagement data
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      setEngagementData({
+        newUsers: users.filter(
+          (user) => new Date(user.created_at) >= sevenDaysAgo
+        ).length,
+        messages: {
+          patients: messages.filter((msg) => msg.patient_id).length,
+          guests: messages.filter((msg) => !msg.patient_id).length,
+        },
+        testimonials: {
+          reviewed: testimonials.filter((t) => t.is_reviewed).length,
+          pending: testimonials.filter((t) => !t.is_reviewed).length,
+        },
+      });
+
+      // Process blog data
+      const processBlogData = async () => {
+        try {
+          const { data: viewsData } = await supabase
+            .from("blog_post_views")
+            .select("post_id");
+
+          const viewsCount = viewsData?.length || 0;
+          const postViews = {};
+          viewsData?.forEach((view) => {
+            postViews[view.post_id] = (postViews[view.post_id] || 0) + 1;
+          });
+
+          const topPosts = blogPosts
+            .map((post) => ({
+              ...post,
+              views: postViews[post.id] || 0,
+            }))
+            .sort((a, b) => b.views - a.views)
+            .slice(0, 3);
+
+          setBlogData({
+            totalPosts: blogPosts.length,
+            totalViews: viewsCount,
+            topPosts,
+          });
+        } catch (error) {
+          console.error("Error processing blog data:", error);
+        }
+      };
+
+      processBlogData();
+    }
+  }, [loading, users, doctors, services, appointments, messages, testimonials]);
+
+  if (!isAuthorized) {
+    return unauthorizedUI;
+  }
+  if (loading) {
+    return <Loader />;
+  }
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+  return (
+    <div className="analytics-container">
+      <h1 className="analytics-title">لوحة التحليلات</h1>
+
+      {/* Overview Cards */}
+      <section className="overview-section">
+        <h2>نظرة سريعة</h2>
+        <div className="stats-grid">
+        {currentRole !== "admin" && (
+          <div className="stat-card">
+            <i className="fa-solid fa-users"></i>
+            <div>
+              <div className="stat-card-title">عدد المرضى</div>
+              <div className="stat-card-value">{overviewData.patientsCount}</div>
+            </div>
+          </div>
+          )}
+          <div className="stat-card">
+            <i className="fa-solid fa-user-md"></i>
+            <div>
+              <div className="stat-card-title">عدد الأطباء</div>
+              <div className="stat-card-value">{overviewData.doctorsCount}</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <i className="fa-solid fa-eye"></i>
+            <div>
+              <div className="stat-card-title">مشاهدات الموقع</div>
+              <div className="stat-card-value">{siteViews}</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <i className="fa-solid fa-eye"></i>
+            <div>
+              <div className="stat-card-title">مشاهدات المقالات</div>
+              <div className="stat-card-value">{blogData.totalViews}</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <i className="fa-solid fa-calendar-check"></i>
+            <div>
+              <div className="stat-card-title">الحجوزات هذا الشهر</div>
+              <div className="stat-card-value">{overviewData.monthlyBookings}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Analytics */}
+      <section className="booking-analytics-section">
+        <h2>تحليلات الحجوزات</h2>
+
+        <div className="charts-grid">
+          {/* Daily Bookings Trend */}
+          <div className="chart-container">
+            <h3>تطور الحجوزات</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={bookingsData.dailyTrend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="bookings" stroke="#d40d37" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Booking Status Distribution */}
+          <div className="chart-container">
+            <h3>توزيع حالات الحجوزات</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={bookingsData.statusDistribution}
+                  dataKey="count"
+                  nameKey="status"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {bookingsData.statusDistribution.map((entry, index) => (
+                    <Cell
+                      key={entry.status}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Top Services */}
+          <div className="chart-container">
+            <h3>أكثر الخدمات حجزاً</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={bookingsData.topServices}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#d40d37" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Analytics */}
+      <section className="blog-analytics-section">
+        <h2>تحليلات المحتوى</h2>
+        <div className="top-posts-table">
+          <h3>أكثر المقالات قراءة</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>المشاهدات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {blogData.topPosts?.map((post) => (
+                <tr key={post.id}>
+                  <td>{post.title}</td>
+                  <td>{post.views}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* User Engagement Section */}
+      <section className="engagement-section">
+        <h2>تفاعل المستخدمين</h2>
+        <div className="engagement-grid">
+          {/* New Users Card */}
+          {currentRole !== "admin" && (
+          <div className="engagement-card">
+            <div className="engagement-header">
+              <i className="fas fa-user-plus"></i>
+              <h3>المستخدمون الجدد</h3>
+              <p className="period">آخر 7 أيام</p>
+            </div>
+            <div className="engagement-value">{engagementData.newUsers}</div>
+          </div>
+          )}
+          {/* Messages Distribution */}
+          <div className="engagement-card">
+            <div className="engagement-header">
+              <i className="fas fa-envelope"></i>
+              <h3>توزيع الرسائل</h3>
+            </div>
+            <div className="messages-stats">
+              <div className="message-stat">
+                <span className="label">المرضى:</span>
+                <span className="value">
+                  {engagementData.messages.patients}
+                </span>
+              </div>
+              <div className="message-stat">
+                <span className="label">الزوار:</span>
+                <span className="value">{engagementData.messages.guests}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Testimonials Status */}
+          <div className="engagement-card">
+            <div className="engagement-header">
+              <i className="fas fa-comments"></i>
+              <h3>حالة التقييمات</h3>
+            </div>
+            <div className="testimonials-stats">
+              <div className="testimonial-stat">
+                <span className="label">تمت المراجعة:</span>
+                <span className="value approved">
+                  {engagementData.testimonials.reviewed}
+                </span>
+              </div>
+              <div className="testimonial-stat">
+                <span className="label">في الانتظار:</span>
+                <span className="value pending">
+                  {engagementData.testimonials.pending}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Analytics;

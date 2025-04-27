@@ -1,0 +1,284 @@
+.analytics-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.analytics-title {
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.analytics-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+/* Overview Section */
+.overview-section {
+  margin-bottom: 3rem;
+}
+
+.overview-section h2,
+.booking-analytics-section h2,
+.blog-analytics-section h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  position: relative;
+  padding-right: 1rem;
+}
+
+.overview-section h2::before,
+.booking-analytics-section h2::before,
+.blog-analytics-section h2::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-card i {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.stat-card h3 {
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Charts Section */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.chart-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container h3 {
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+/* Blog Analytics Table */
+.top-posts-table {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.top-posts-table h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.top-posts-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.top-posts-table th,
+.top-posts-table td {
+  padding: 1rem;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+}
+
+.top-posts-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.top-posts-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* User Engagement Section */
+.engagement-section {
+  margin-bottom: 3rem;
+}
+
+.engagement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.engagement-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.engagement-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.engagement-header i {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.engagement-header h3 {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.period {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.engagement-value {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  text-align: center;
+}
+
+.messages-stats,
+.testimonials-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-stat,
+.testimonial-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.message-stat .label,
+.testimonial-stat .label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.message-stat .value,
+.testimonial-stat .value {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.testimonial-stat .value.approved {
+  color: #4CAF50;
+}
+
+.testimonial-stat .value.pending {
+  color: #FFC107;
+}
+
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .stat-card p {
+    font-size: 1.2rem;
+  }
+  
+  .engagement-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .engagement-header i {
+    font-size: 1.5rem;
+  }
+  
+  .engagement-value {
+    font-size: 2rem;
+  }
+}
+
+/* RTL Support for Charts */
+.recharts-wrapper {
+  direction: ltr;
+}
+
+/* Custom Tooltip Styles */
+.recharts-tooltip-wrapper {
+  direction: rtl;
+}
+
+.recharts-default-tooltip {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  padding: 0.5rem !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}

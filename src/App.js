@@ -80,6 +80,7 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+
     const checkSession = async () => {
       try {
         // Check if user is logged in

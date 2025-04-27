@@ -59,12 +59,6 @@ const AdminLayout = () => {
         roles: PAGE_ROLES.servicesManagement,
       },
       {
-        path: "/admin/analytics",
-        icon: "fa-chart-bar",
-        label: "التحليلات",
-        roles: PAGE_ROLES.analytics,
-      },
-      {
         path: "/admin/contactMessages",
         icon: "fa-envelope",
         label: "الرسائل",
@@ -77,16 +71,22 @@ const AdminLayout = () => {
         roles: PAGE_ROLES.testimonials,
       },
       {
-        path: "/admin/siteSettings",
-        icon: "fa-cog",
-        label: "الإعدادات",
-        roles: PAGE_ROLES.siteSettings,
+        path: "/admin/analytics",
+        icon: "fa-chart-bar",
+        label: "التحليلات",
+        roles: PAGE_ROLES.analytics,
       },
       {
         path: "/admin/blogManagement",
         icon: "fa-blog",
         label: "المدونة",
         roles: PAGE_ROLES.blogManagement,
+      },
+      {
+        path: "/admin/siteSettings",
+        icon: "fa-cog",
+        label: "الإعدادات",
+        roles: PAGE_ROLES.siteSettings,
       },
       {
         path: "/",
@@ -132,7 +132,7 @@ const AdminLayout = () => {
   useEffect(() => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }, [location.key]);
   const toggleSidebar = () => {

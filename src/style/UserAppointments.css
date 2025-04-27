@@ -1,0 +1,460 @@
+.user-appointments-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+.user-appointments-container .appointments-header {
+  text-align: center;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-appointments-container .appointments-header h1 {
+  color: #2a5a8c;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.user-appointments-container .appointments-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.user-appointments-container .new-appointment-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-appointments-container h2 {
+  color: #2a5a8c;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.user-appointments-container .form-group {
+  margin-bottom: 15px;
+}
+
+.user-appointments-container .form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.user-appointments-container .form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.user-appointments-container .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+}
+
+.user-appointments-container .form-group input,
+.user-appointments-container .form-group select,
+.user-appointments-container .form-group textarea {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: 'Cairo', sans-serif;
+}
+
+.user-appointments-container .form-group textarea {
+  resize: vertical;
+}
+
+.user-appointments-container .note-box {
+  background-color: #f8f4e5;
+  border-right: 4px solid var(--third-color);
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.user-appointments-container .note-box p {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.user-appointments-container .note-box i {
+  color: var(--third-color);
+  margin-left: 8px;
+}
+
+.user-appointments-container .form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.user-appointments-container .submit-button {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.user-appointments-container .submit-button:hover {
+  background-color: var(--for-primary-color);
+}
+
+.user-appointments-container .submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.user-appointments-container .cancel-button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-appointments-container .cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.user-appointments-container .cancel-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.user-appointments-container .appointments-list {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-appointments-container .no-data-message {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-style: italic;
+}
+
+.user-appointments-container .appointment-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.user-appointments-container .appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.user-appointments-container .appointment-header h3 {
+  margin: 0;
+  color: var(--third-color);
+  font-size: 18px;
+}
+
+.user-appointments-container .appointment-status {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.user-appointments-container .status-pending {
+  background-color: var(--third-color);
+}
+
+.user-appointments-container .status-confirmed {
+  background-color: var(--secondary-color);
+}
+
+.user-appointments-container .status-cancelled {
+  background-color: var(--primary-color);
+}
+
+.user-appointments-container .status-completed {
+  background-color: #2a5a8c;
+}
+
+.user-appointments-container .appointment-details {
+  margin-bottom: 15px;
+}
+
+/* Doctor Details Styling */
+.user-appointments-container .doctor-details {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  align-items: center;
+}
+
+.user-appointments-container .doctor-image {
+  min-width: 70px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--secondary-color);
+}
+
+.user-appointments-container .doctor-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-appointments-container .doctor-info {
+  flex: 1;
+}
+
+.user-appointments-container .doctor-info .detail-item {
+  margin-bottom: 5px;
+}
+
+.user-appointments-container .doctor-info .detail-label {
+  color: #555;
+  font-weight: 600;
+}
+
+.user-appointments-container .doctor-info .detail-value {
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+/* End Doctor Details Styling */
+
+.user-appointments-container .detail-item {
+  margin-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.user-appointments-container .detail-label {
+  font-weight: 600;
+  color: #555;
+  margin-left: 8px;
+}
+
+.user-appointments-container .detail-value {
+  color: #444;
+}
+
+.user-appointments-container .time-pending .detail-value {
+  color: #888;
+  font-style: italic;
+}
+
+.user-appointments-container .time-not-set {
+  color: #888;
+  font-style: italic;
+  background-color: #f9f9f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border-right: 2px solid var(--primary-color);
+}
+
+.user-appointments-container .time-item {
+  align-items: center;
+}
+
+.user-appointments-container .appointment-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.user-appointments-container .edit-button,
+.user-appointments-container .delete-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-appointments-container .edit-button {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+}
+
+.user-appointments-container .edit-button:hover {
+  background-color: var(--for-secondary-color);
+}
+
+.user-appointments-container .delete-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.user-appointments-container .delete-button:hover {
+  background-color: var(--for-primary-color);
+}
+
+.user-appointments-container .edit-button i,
+.user-appointments-container .delete-button i {
+  margin-left: 5px;
+}
+
+.user-appointments-container .edit-button:disabled,
+.user-appointments-container .delete-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-appointments-container .delete-confirm {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-appointments-container .delete-confirm p {
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.user-appointments-container .confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.user-appointments-container .confirm-delete {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-appointments-container .confirm-delete:hover {
+  background-color: var(--for-primary-color);
+}
+
+.user-appointments-container .cancel-delete {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-appointments-container .cancel-delete:hover {
+  background-color: #e0e0e0;
+}
+
+.user-appointments-container .appointment-note {
+  background-color: #e8f4f8;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border-right: 3px solid #2a5a8c;
+}
+
+.user-appointments-container .appointment-note p {
+  color: #444;
+  font-size: 14px;
+  margin: 0;
+}
+
+.user-appointments-container .appointment-footer {
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px dashed #eaeaea;
+}
+
+.user-appointments-container .cancel-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.user-appointments-container .cancel-note i {
+  color: var(--primary-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .user-appointments-container .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .user-appointments-container .appointment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .user-appointments-container .appointment-status {
+    align-self: flex-start;
+  }
+  
+  .user-appointments-container .form-actions {
+    flex-direction: column;
+  }
+  
+  .user-appointments-container .appointment-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .user-appointments-container .doctor-details {
+    flex-direction: column;
+  }
+  
+  .user-appointments-container .doctor-image {
+    margin: 0 auto;
+  }
+} 

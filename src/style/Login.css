@@ -1,0 +1,393 @@
+.login-container {
+  align-items: center;
+  animation: gradientBG 15s ease infinite;
+  background: linear-gradient(135deg,  var(--third-color),var(--primary-color), var(--for-primary-color),  var(--for-secondary-color));
+  background-size: 400% 400%;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+}
+
+.login-form {
+  background-color: #33333386;
+  color: var(--background-color);
+  width: 400px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--background-color);
+  backdrop-filter: blur(10px);
+
+  transition: all 0.5s ease;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 0px 30px;
+  overflow: hidden;
+}
+.login-form:hover {
+  transform: translateY(-7px);
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.login-form h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.login-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.login-form form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.login-form form input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--background-color);
+  width: calc(100% - 24px);
+  border: 2px solid transparent;
+
+} 
+.login-form form input:focus {
+  outline: none;
+  border: 2px solid var(--primary-color);
+}
+.login-form form input::placeholder {
+  color: var(--background-color);
+} 
+.login-form form input:focus::placeholder {
+  color: var(--background-color);
+}
+.login-form form input:hover {
+  border: 2px solid var(--primary-color);
+}
+.login-form form button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-color), var(--for-primary-color));
+  color: var(--background-color);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  margin-top: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.login-form form button:hover {
+  background: linear-gradient(135deg, var(--for-primary-color), var(--primary-color));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+.login-form form button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.social-login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+.social-login-container p {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--background-color);
+  position: relative;
+}
+
+.social-login-container p::before {
+  content: "";
+  width: 70%;
+  height: 1px;
+  background-color: var(--background-color);
+  position: absolute;
+  top: 50%;
+  left: -85%;
+}
+
+.social-login-container p::after {
+  content: "";
+  width: 70%;
+  height: 1px;
+  background-color: var(--background-color);
+  position: absolute;
+  top: 50%;
+  right: -85%;
+}
+
+.social-login-container .social-login {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+.social-login-container .social-login button {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--background-color);
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+.social-login-container .social-login button:hover {
+  background-color: var(--for-primary-color);
+}
+.social-login-container .social-login button i {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.register-link {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--background-color);
+  margin-top: 10px;
+}
+
+.register-link a {
+  color: var(--background-color);
+}
+
+.register-link a:hover {
+  color: var(--for-primary-color);
+}
+
+.forgot-password {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--background-color);
+  margin-top: 5px;
+  align-self: flex-end;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: var(--for-primary-color);
+}
+
+.reset-info {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--background-color);
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions button {
+  margin-top: 0 !important;
+}
+
+.cancel-button {
+  background-color: #777 !important;
+}
+
+.cancel-button:hover {
+  background-color: #555 !important;
+}
+
+/* Login Tabs */
+.login-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--background-color);
+  position: relative;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.login-tab {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  color: var(--background-color);
+  letter-spacing: 0.5px;
+}
+
+.login-tab::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color), var(--third-color));
+  bottom: 0;
+  left: -100%;
+  transition: all 0.4s ease;
+}
+
+.login-tab.active::before {
+  left: 0;
+}
+
+.login-tab::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.login-tab.active::after {
+  opacity: 1;
+}
+
+.login-tab.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-bottom: 3px solid transparent; /* Hide this border since we're using the indicator */
+  color: var(--background-color);
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.login-tab:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tab content animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.tab-content {
+  animation-duration: 0.4s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1.0);
+  width: 100%;
+  opacity: 0;
+}
+
+.tab-content.user-tab {
+  animation-name: slideInFromLeft;
+}
+
+.tab-content.admin-tab {
+  animation-name: slideInFromRight;
+}
+
+/* Tab indicator animation */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color), var(--third-color), var(--for-primary-color));
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  border-radius: 3px;
+  box-shadow: 0 1px 5px var(--primary-color);
+  z-index: 2;
+  animation: pulse 2s infinite;
+}
+
+.tab-content-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  min-height: 320px; /* Maintain consistent height during transitions */
+  margin-top: 5px;
+}
+
+.tab-content h2 {
+  position: relative;
+  display: inline-block;
+}
+
+.tab-content h2::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(to right, var(--primary-color), transparent);
+  bottom: -5px;
+  left: 0;
+}
+
+/* Add pulsing effect to active tab */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.login-tab.pulse {
+  animation: pulse 1.5s infinite;
+}
+.login-container label {
+  color: var(--background-color) !important;
+}
+/* End Login Tabs */ 

@@ -1,0 +1,151 @@
+/* Common styles for Privacy Policy, Terms and Sitemap pages */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  transform: translateX(50%);
+  width: 100px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+.content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  line-height: 1.8;
+}
+
+/* Privacy Policy & Terms Styles */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.listItem {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.listItem::before {
+  content: "•";
+  color: var(--primary-color);
+  margin-left: 0.5rem;
+}
+
+/* Sitemap Styles */
+.sitemapGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.sitemapSection {
+  margin-bottom: 2rem;
+}
+
+.sitemapTitle {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.sitemapList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sitemapLink {
+  color: var(--text-color);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.sitemapLink:hover {
+  background-color: var(--background-color);
+  color: var(--primary-color);
+  transform: translateX(-5px);
+}
+
+.sitemapLink i {
+  margin-left: 0.5rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .sitemapGrid {
+    grid-template-columns: 1fr;
+  }
+}

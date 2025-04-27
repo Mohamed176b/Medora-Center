@@ -1,0 +1,271 @@
+.user-interactions-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+.user-interactions-container .interactions-header {
+  text-align: center;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-interactions-container .interactions-header h1 {
+  color: #2a5a8c;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.user-interactions-container .tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.user-interactions-container .tab-button {
+  padding: 10px 25px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-interactions-container .tab-button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.user-interactions-container .loading-container {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #555;
+}
+
+/* Messages styling */
+.user-interactions-container .messages-section, .user-interactions-container .testimonials-section {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.user-interactions-container .new-message-form, .user-interactions-container .new-testimonial-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-interactions-container .new-message-form h2, .user-interactions-container .new-testimonial-form h2,
+.user-interactions-container .messages-list h2, .user-interactions-container .testimonials-list h2 {
+  color: #2a5a8c;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.user-interactions-container .form-group {
+  margin-bottom: 15px;
+}
+
+.user-interactions-container .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+}
+
+.user-interactions-container .form-group input, .user-interactions-container .form-group textarea {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: 'Cairo', sans-serif;
+}
+
+.user-interactions-container .form-group textarea {
+  resize: vertical;
+}
+
+.user-interactions-container .send-button {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-interactions-container .send-button:hover {
+  background-color: var(--for-primary-color);
+}
+
+.user-interactions-container .send-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.user-interactions-container .messages-list, .user-interactions-container .testimonials-list {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-interactions-container .no-data-message {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-style: italic;
+}
+
+.user-interactions-container .message-item, .user-interactions-container .testimonial-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-interactions-container .message-header, .user-interactions-container .testimonial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-interactions-container .message-header h3 {
+  margin: 0;
+  color: var(--third-color);
+}
+
+.user-interactions-container .delete-button {
+  padding: 5px 10px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.user-interactions-container .delete-button:hover {
+  background-color: var(--for-primary-color);
+}
+
+.user-interactions-container .delete-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.user-interactions-container .message-content, .user-interactions-container .testimonial-content {
+  margin: 10px 0;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.user-interactions-container .message-footer, .user-interactions-container .testimonial-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* Testimonials specific styling */
+.user-interactions-container .rating-input {
+  display: flex;
+  gap: 10px;
+  direction: ltr;
+}
+
+.user-interactions-container .rating-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.user-interactions-container .rating-label input {
+  margin: 0;
+  width: auto;
+}
+
+/* New Star Rating Styles */
+.user-interactions-container .star-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0;
+}
+
+.user-interactions-container .rating-star {
+  font-size: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.user-interactions-container .rating-star:hover {
+  transform: scale(1.2);
+}
+
+.user-interactions-container .rating-star.filled {
+  color: var(--third-color);
+}
+
+.user-interactions-container .rating-star.empty {
+  color: #ddd;
+}
+
+.user-interactions-container .rating-text {
+  margin-right: 10px;
+  font-size: 16px;
+  color: #666;
+}
+
+.user-interactions-container .testimonial-rating {
+  display: flex;
+  gap: 3px;
+}
+
+.user-interactions-container .star {
+  color: var(--third-color);
+  font-size: 18px;
+}
+
+.user-interactions-container .star.empty {
+  color: #ccc;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .user-interactions-container .tabs {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .user-interactions-container .message-header, .user-interactions-container .testimonial-header,
+  .user-interactions-container .message-footer, .user-interactions-container .testimonial-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .user-interactions-container .delete-button {
+    align-self: flex-start;
+  }
+} 

@@ -1,0 +1,192 @@
+:root {
+  --primary-color: #d40d37; 
+  --secondary-color: #4CAF50; 
+  --background-color: #f4f4f4;
+  --text-color: #333;
+  --for-primary-color: #b30c31;
+  --third-color: #ff9800;
+  --for-third-color: #e18905;
+  --for-secondary-color: #3e8d40;
+}
+body {
+  font-family: "Tajawal", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "Tajawal", sans-serif;
+}
+
+input {
+  border: none;
+  outline: none;
+  font-family: "Tajawal", sans-serif;
+}
+select,
+textarea {
+  font-family: "Tajawal", sans-serif;
+}
+
+#root {
+  position: relative;
+
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--primary-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--for-primary-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--for-third-color);
+}
+
+::-webkit-scrollbar-button {
+  background-color: var(--for-primary-color);
+}
+
+::selection {
+  background-color: var(--for-primary-color);
+}
+
+.toast {
+  position: fixed;
+  left: 15px;
+  bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+  color: var(--background-color);
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  animation: toast-animation 0.5s ease forwards;
+}
+
+.toast-exit {
+  animation: toast-exit-animation 0.5s ease forwards;
+}
+
+.toast-success {
+  background-color: var(--secondary-color);
+  border: 1px solid var(--for-secondary-color);
+}
+
+.toast-error {
+  background-color: var(--primary-color);
+  border: 1px solid var(--for-primary-color);
+  }
+
+.toast-info {
+  background-color: var(--third-color);
+  border: 1px solid var(--for-third-color);
+}
+
+@keyframes toast-animation {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-exit-animation {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+@keyframes heartPulse {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat {
+  display: inline-block;
+  animation: heartbeat 1.5s infinite ease-in-out;
+}
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1002;
+}
+
+.loader-container img{
+  width: 70px;
+  height: 70px;
+  animation: heartPulse 1s linear infinite;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
+}
+
+.leaflet-top, .leaflet-bottom {
+  z-index: 999  !important;
+}
+
+

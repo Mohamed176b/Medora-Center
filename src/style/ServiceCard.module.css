@@ -1,0 +1,193 @@
+.serviceCard {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.serviceCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.serviceIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(212, 13, 55, 0.1) 0%, rgba(212, 13, 55, 0.05) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+.serviceIcon::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px dashed var(--primary-color);
+  opacity: 0.3;
+  animation: spin 15s linear infinite;
+}
+
+.serviceIcon::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 13, 55, 0.1) 0%, rgba(212, 13, 55, 0) 70%);
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.serviceCard:hover .serviceIcon {
+  transform: scale(1.1) rotate(5deg);
+  background: linear-gradient(135deg, rgba(212, 13, 55, 0.15) 0%, rgba(212, 13, 55, 0.1) 100%);
+}
+
+.serviceCard:hover .serviceIcon::after {
+  opacity: 1;
+  animation: pulse 2s infinite;
+}
+
+.serviceIcon svg {
+  font-size: 2rem;
+  color: var(--primary-color);
+  transition: all 0.5s ease;
+}
+
+.serviceCard:hover .serviceIcon svg {
+  transform: scale(1.2);
+  animation: bounce 0.5s ease;
+}
+
+.serviceTitle {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.serviceDescription {
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  min-height: 80px;
+}
+
+.bookButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.bookButton:hover {
+  background-color: var(--for-primary-color);
+  transform: translateX(-5px);
+}
+
+.bookButton i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.bookButton:hover i {
+  transform: translateX(-5px);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .serviceIcon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .serviceIcon svg {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .serviceCard {
+    padding: 1.5rem;
+  }
+
+  .serviceIcon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .serviceIcon svg {
+    font-size: 1.5rem;
+  }
+
+  .serviceTitle {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .serviceIcon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .serviceIcon svg {
+    font-size: 1.3rem;
+  }
+}

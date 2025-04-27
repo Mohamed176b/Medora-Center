@@ -1,0 +1,991 @@
+.services-management {
+  padding: 20px;
+  direction: rtl;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.services-management .section-title {
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 15px;
+}
+.services-management .section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+/* Header styles */
+.services-management .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.services-management .headerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.services-management .addBtn {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.services-management .addBtn:hover {
+  background-color: var(--for-secondary-color);
+}
+
+.services-management .filterToggleBtn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.services-management .filterToggleBtn:hover {
+  background-color: var(--for-primary-color);
+}
+
+/* Filter Section Styles */
+.services-management .filterSection {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-height: 1000px;
+  overflow: hidden;
+}
+
+.services-management .filterSection.visible {
+  max-height: 1000px;
+  opacity: 1;
+  margin-bottom: 20px;
+}
+
+.services-management .filterSection.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin-bottom: 0;
+  border: none;
+}
+
+.services-management .filterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.services-management .filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.services-management .filterLabel {
+  font-weight: 600;
+  color: var(--text-color);
+  min-width: 60px;
+}
+
+.services-management .filterSelect {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-family: inherit;
+  min-width: 120px;
+}
+
+.services-management .searchBox {
+  flex: 1;
+  position: relative;
+  min-width: 200px;
+}
+
+.services-management .searchInput {
+  width: calc(100% - 49px);
+  padding: 8px 12px;
+  padding-left: 35px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.services-management .searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+}
+
+.services-management .filterActions {
+  display: flex;
+  gap: 10px;
+}
+
+.services-management .resetButton {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.services-management .resetButton:hover {
+  background-color: #e0e0e0;
+}
+
+.services-management .resetButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Styles */
+.services-management .form-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.services-management .form-container h3 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--secondary-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.services-management .form-group {
+  margin-bottom: 15px;
+}
+
+.services-management .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.services-management .form-group input[type="text"],
+.services-management .form-group input[type="number"],
+.services-management .form-group textarea,
+.services-management .icon-search {
+  width: calc(100% - 20px);
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: "Tajawal", sans-serif;
+  transition: border-color 0.3s;
+}
+
+.services-management .form-group input:focus,
+.services-management .form-group textarea:focus,
+.services-management .icon-search:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(212, 13, 55, 0.2);
+}
+
+.services-management .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.services-management .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.services-management .checkbox-label input {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+}
+
+.services-management .form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.services-management .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", sans-serif;
+}
+
+.services-management .btn-primary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.services-management .btn-primary:hover {
+  background-color: var(--for-primary-color);
+}
+
+.services-management .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.services-management .btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.services-management .btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Icon Search and Selection */
+.services-management .icon-search {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.services-management .icons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 10px;
+  background-color: #fafafa;
+}
+
+.services-management .icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.services-management .icon-item:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.services-management .icon-item.selected {
+  background-color: rgba(212, 13, 55, 0.1);
+  border: 1px solid var(--primary-color);
+}
+
+.services-management .icon-item svg {
+  font-size: 24px;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.services-management .icon-name {
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  color: var(--text-color);
+}
+
+.services-management .icon-cell {
+  text-align: center;
+}
+
+.services-management .icon-cell svg {
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+/* Services List */
+.services-management .services-list {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.services-management .services-list h3 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--secondary-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.services-management .no-data {
+  text-align: center;
+  color: #6c757d;
+  padding: 20px;
+  font-size: 16px;
+}
+
+.services-management .services-loader-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+}
+
+.services-management .table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.services-management .services-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.services-management .services-table th,
+.services-management .services-table td {
+  padding: 12px 15px;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+}
+
+.services-management .services-table th {
+  background-color: #f8f9fa;
+  color: var(--primary-color);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.services-management .services-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.services-management .services-table tbody tr:hover {
+  background-color: rgba(212, 13, 55, 0.03);
+}
+
+.services-management .services-table .inactive-service {
+  background-color: rgba(0, 0, 0, 0.02);
+  color: #6c757d;
+  opacity: 0.7;
+}
+
+.services-management .icon-cell {
+  text-align: center;
+  width: 60px;
+}
+
+.services-management .icon-cell svg {
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+.services-management .description-cell {
+  max-width: 300px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.services-management .status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 80px;
+}
+
+.services-management .status-badge.active {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: var(--secondary-color);
+}
+
+.services-management .status-badge.inactive {
+  background-color: rgba(212, 13, 55, 0.15);
+  color: var(--primary-color);
+}
+
+.services-management .actions-cell {
+  white-space: nowrap;
+  width: 140px;
+}
+
+.services-management .edit-button,
+.services-management .delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", sans-serif;
+  font-weight: 500;
+}
+
+.services-management .edit-button {
+  background-color: var(--third-color);
+  color: white;
+  margin-left: 8px;
+}
+
+.services-management .edit-button:hover {
+  background-color: var(--for-third-color);
+}
+
+.services-management .delete-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.services-management .delete-button:hover {
+  background-color: var(--for-primary-color);
+}
+
+/* Order Controls */
+.services-management .order-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.services-management .hint {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.services-management .order-actions-cell {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.services-management .order-button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: var(--primary-color);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.services-management .order-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.services-management .order-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* No Results Message */
+.services-management .noResults {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-color);
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.services-management .noResults i {
+  font-size: 3rem;
+  color: var(--primary-color);
+  opacity: 0.5;
+}
+
+.services-management .noResults p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .services-management {
+    padding: 15px;
+  }
+  
+  .services-management .section-title {
+    font-size: 22px;
+  }
+  
+  .services-management .icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .services-management .form-container,
+  .services-management .services-list {
+    padding: 15px;
+  }
+  
+  .services-management .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .services-management .btn {
+    width: 100%;
+  }
+  
+  .services-management .description-cell {
+    max-width: 200px;
+  }
+  
+  .services-management .icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+  }
+  
+  .services-management .icon-item svg {
+    font-size: 20px;
+  }
+  
+  .services-management .icon-name {
+    font-size: 10px;
+  }
+  
+  .services-management .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .services-management .header .section-title {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .services-management .headerActions {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .services-management .addBtn,
+  .services-management .filterToggleBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .services-management .filterRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .services-management .filterGroup {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .services-management .filterSelect {
+    width: 100%;
+  }
+  
+  .services-management .searchBox {
+    width: 100%;
+  }
+  
+  .services-management .filterActions {
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .services-management .resetButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .services-management {
+    padding: 10px;
+  }
+  
+  .services-management .section-title {
+    font-size: 20px;
+  }
+  
+  .services-management table th,
+  .services-management table td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .services-management .description-cell {
+    max-width: 150px;
+  }
+  
+  .services-management .btn-edit,
+  .services-management .btn-delete {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .services-management .icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 6px;
+    padding: 10px;
+  }
+  
+  .services-management .icon-item {
+    padding: 8px 5px;
+  }
+  
+  .services-management .icon-item svg {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+  
+  .services-management .icon-name {
+    font-size: 9px;
+  }
+  
+  .services-management .status {
+    padding: 3px 6px;
+    font-size: 11px;
+    min-width: 70px;
+  }
+}
+
+/* Mobile Styles */
+@media (min-width: 769px) {
+  .services-management .filterToggleBtn {
+    display: none;
+  }
+}
+
+/* Responsive table for mobile */
+@media screen and (max-width: 768px) {
+  .services-management .section-title::after {
+    right: 50%;
+    transform: translateX(50%);
+  }
+  .services-management .services-table {
+    border: 0;
+  }
+  
+  .services-management .services-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .services-management .services-table tr {
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .services-management .services-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    text-align: right;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .services-management .services-table td:last-child {
+    border-bottom: 0;
+  }
+  
+  .services-management .services-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-left: 10px;
+    white-space: nowrap;
+    color: var(--primary-color);
+  }
+  
+  .services-management .services-table .icon-cell {
+    justify-content: center;
+    width: auto;
+  }
+  
+  .services-management .services-table .icon-cell::before {
+    display: none;
+  }
+  
+  .services-management .services-table .description-cell {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .services-management .services-table .description-cell::before {
+    margin-bottom: 5px;
+  }
+  
+  .services-management .services-table .actions-cell,
+  .services-management .services-table .order-actions-cell {
+    justify-content: flex-start;
+    width: auto;
+  }
+  
+  /* Make sure order actions cell is displayed independently */
+  .services-management .services-table .order-actions-cell {
+    border-bottom: 1px solid #eee;
+  }
+  
+  .services-management .services-table tr:last-child .order-actions-cell {
+    border-bottom: 0;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .services-management .services-table td {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .services-management .edit-button,
+  .services-management .delete-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .services-management .status-badge {
+    padding: 3px 8px;
+    font-size: 11px;
+    min-width: 70px;
+  }
+}
+
+/* Responsive adjustments for order buttons */
+@media screen and (max-width: 768px) {
+  .services-management .services-table td.order-actions-cell {
+    justify-content: flex-start;
+  }
+  
+  .services-management .services-table td.order-actions-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-left: 10px;
+    white-space: nowrap;
+    color: var(--primary-color);
+  }
+  
+  .services-management .order-button {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .services-management .order-button {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+}
+
+.order-actions-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.order-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.order-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.order-button:hover {
+  background-color: #e9e9e9;
+}
+
+.order-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.order-up {
+  color: #28a745;
+}
+
+.order-down {
+  color: #dc3545;
+}
+
+/* Order buttons container styles */
+.order-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+@media screen and (max-width: 768px) {
+  .order-buttons-container {
+    justify-content: flex-start;
+    margin-right: auto;
+  }
+}
+
+/* Fix for conflict between services page and doctors page styles */
+/* Adding more specific selectors to prevent style overrides */
+
+/* Order buttons colors */
+.services-management .order-button.order-up {
+  color: #28a745;
+}
+
+.services-management .order-button.order-down {
+  color: #dc3545;
+}
+
+/* Ensure table header styles are specific to the services table */
+.services-management .services-table th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Make button styles more specific */
+.services-management .edit-button,
+.services-management .delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", sans-serif;
+  font-weight: 500;
+}
+
+/* Ensure responsive container is properly scoped */
+.services-management .table-responsive {
+  overflow-x: auto;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Make order buttons container more specific */
+.services-management .order-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* More specific selectors for order buttons */
+.services-management .order-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.services-management .order-button:hover {
+  background-color: #e9e9e9;
+}
+
+.services-management .order-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* More specific selectors for media queries */
+@media screen and (max-width: 768px) {
+  .services-management .order-buttons-container {
+    justify-content: flex-start;
+    margin-right: auto;
+  }
+} 

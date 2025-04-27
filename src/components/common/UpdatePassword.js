@@ -1,0 +1,249 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { updatePassword } from "../../supabase/authUtils";
+import useToast from "../../hooks/useToast";
+import "../../style/UpdatePassword.css";
+
+const UpdatePassword = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordErrors, setPasswordErrors] = useState({
+    length: true,
+    uppercase: true,
+    lowercase: true,
+    number: true,
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  // التحقق من قوة كلمة المرور
+  const validatePassword = (password) => {
+    const errors = {
+      length: password.length < 8,
+      uppercase: !/[A-Z]/.test(password),
+      lowercase: !/[a-z]/.test(password),
+      number: !/[0-9]/.test(password),
+    };
+
+    setPasswordErrors(errors);
+
+    // إذا لم تكن هناك أخطاء، فإن كلمة المرور صالحة
+    return !Object.values(errors).some((error) => error);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    // التحقق من كلمة المرور عند تغييرها
+    if (name === "newPassword") {
+      validatePassword(value);
+    }
+  };
+
+  const toggleTooltip = () => {
+    setShowTooltip(!showTooltip);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // التحقق من صحة كلمة المرور
+    const isPasswordValid = validatePassword(passwordData.newPassword);
+    if (!isPasswordValid) {
+      toast("كلمة المرور لا تطابق المعايير المطلوبة", "error");
+      setShowTooltip(true);
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast("كلمات المرور غير متطابقة", "error");
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const result = await updatePassword(passwordData.newPassword);
+      if (result.success) {
+        toast(result.message, "success");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        toast(result.error || "حدث خطأ أثناء تحديث كلمة المرور", "error");
+      }
+    } catch (error) {
+      toast("حدث خطأ أثناء تحديث كلمة المرور", "error");
+      console.error(error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <div className="update-password-container">
+      <div className="update-password-form">
+        <h2>تحديث كلمة المرور</h2>
+        <p className="update-info">
+          يرجى إدخال كلمة المرور الجديدة التي تريد استخدامها.
+        </p>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group password-field">
+            <div className="password-label-wrapper">
+              <label htmlFor="newPassword">كلمة المرور الجديدة</label>
+              <button
+                type="button"
+                className="info-button"
+                onClick={toggleTooltip}
+              >
+                <i className="fas fa-info-circle"></i>
+              </button>
+            </div>
+            <input
+              type="password"
+              id="newPassword"
+              name="newPassword"
+              value={passwordData.newPassword}
+              onChange={handleChange}
+              required
+              className={
+                passwordData.newPassword &&
+                !Object.values(passwordErrors).every((val) => !val)
+                  ? "input-error"
+                  : ""
+              }
+            />
+            {showTooltip && (
+              <div className="mobile-tooltip">
+                <div className="tooltip-content-mobile">
+                  <div className="tooltip-header">
+                    <span>متطلبات كلمة المرور</span>
+                    <button
+                      type="button"
+                      onClick={toggleTooltip}
+                      className="close-tooltip"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <ul style={{ paddingRight: "15px", margin: "10px 0" }}>
+                    <li
+                      className={
+                        !passwordErrors.length ? "valid-requirement" : ""
+                      }
+                    >
+                      {!passwordErrors.length ? "✓" : "•"} 8 أحرف على الأقل
+                    </li>
+                    <li
+                      className={
+                        !passwordErrors.uppercase ? "valid-requirement" : ""
+                      }
+                    >
+                      {!passwordErrors.uppercase ? "✓" : "•"} حرف كبير واحد على
+                      الأقل
+                    </li>
+                    <li
+                      className={
+                        !passwordErrors.lowercase ? "valid-requirement" : ""
+                      }
+                    >
+                      {!passwordErrors.lowercase ? "✓" : "•"} حرف صغير واحد على
+                      الأقل
+                    </li>
+                    <li
+                      className={
+                        !passwordErrors.number ? "valid-requirement" : ""
+                      }
+                    >
+                      {!passwordErrors.number ? "✓" : "•"} رقم واحد على الأقل
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+            {passwordData.newPassword && (
+              <div className="password-strength-indicator">
+                <div className="password-requirements">
+                  <span
+                    className={
+                      !passwordErrors.length
+                        ? "requirement-met"
+                        : "requirement-not-met"
+                    }
+                  >
+                    {!passwordErrors.length ? "✓" : "•"} 8 أحرف
+                  </span>
+                  <span
+                    className={
+                      !passwordErrors.uppercase
+                        ? "requirement-met"
+                        : "requirement-not-met"
+                    }
+                  >
+                    {!passwordErrors.uppercase ? "✓" : "•"} حرف كبير
+                  </span>
+                  <span
+                    className={
+                      !passwordErrors.lowercase
+                        ? "requirement-met"
+                        : "requirement-not-met"
+                    }
+                  >
+                    {!passwordErrors.lowercase ? "✓" : "•"} حرف صغير
+                  </span>
+                  <span
+                    className={
+                      !passwordErrors.number
+                        ? "requirement-met"
+                        : "requirement-not-met"
+                    }
+                  >
+                    {!passwordErrors.number ? "✓" : "•"} رقم
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="form-group password-field">
+            <label htmlFor="confirmPassword">تأكيد كلمة المرور الجديدة</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={passwordData.confirmPassword}
+              onChange={handleChange}
+              required
+              className={
+                passwordData.confirmPassword &&
+                passwordData.newPassword !== passwordData.confirmPassword
+                  ? "input-error"
+                  : ""
+              }
+            />
+            {passwordData.confirmPassword &&
+              passwordData.newPassword !== passwordData.confirmPassword && (
+                <span className="error-message">كلمات المرور غير متطابقة</span>
+              )}
+          </div>
+          <button type="submit" disabled={isUpdating}>
+            {isUpdating ? "جاري التحديث..." : "تحديث كلمة المرور"}
+          </button>
+        </form>
+        <div className="back-to-login">
+          <button onClick={() => navigate("/login")}>
+            العودة إلى صفحة تسجيل الدخول
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UpdatePassword;

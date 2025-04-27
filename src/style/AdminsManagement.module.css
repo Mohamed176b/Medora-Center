@@ -1,0 +1,613 @@
+.adminsManagement {
+  padding: 20px;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header h1 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+.header h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+.addBtn {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.addBtn:hover {
+  background-color: var(--for-secondary-color);
+}
+
+.filterToggleBtn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filterToggleBtn:hover {
+  background-color: var(--for-primary-color);
+}
+
+.disabledBtn {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.disabledBtn:hover {
+  background-color: #cccccc;
+}
+
+.adminsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.adminsTable th {
+  background-color: var(--primary-color);
+  color: white;
+  text-align: right;
+  padding: 12px 16px;
+}
+
+.adminsTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.adminsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.adminsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.editBtn, .deleteBtn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.editBtn {
+  background-color: var(--third-color);
+  color: white;
+}
+
+.editBtn:hover {
+  background-color: var(--for-third-color);
+}
+
+.deleteBtn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.deleteBtn:hover {
+  background-color: var(--for-primary-color);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 100%;
+  direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h2 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+.closeBtn {
+  background: none;
+  font-size: 24px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.formGroup label {
+  font-weight: bold;
+}
+
+.formGroup input, .formGroup select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: "Tajawal", sans-serif;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.saveBtn {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.saveBtn:hover {
+  background-color: var(--for-secondary-color);
+}
+
+.cancelBtn {
+  background-color: #f0f0f0;
+  color: var(--text-color);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.cancelBtn:hover {
+  background-color: #e0e0e0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+.superAdmin {
+  background-color: var(--primary-color);
+}
+
+.admin {
+  background-color: var(--secondary-color);
+}
+
+.editor {
+  background-color: var(--third-color);
+}
+
+.moderator {
+  background-color: #3498db;
+}
+
+.viewer {
+  background-color: #95a5a6;
+}
+
+.active {
+  background-color: var(--secondary-color);
+}
+
+.inactive {
+  background-color: var(--primary-color);
+}
+
+.noAdmins {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  color: #666;
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.error {
+  color: var(--primary-color);
+  background-color: rgba(212, 13, 55, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  border-right: 3px solid var(--primary-color);
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.helpText {
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.adminCard {
+  display: none;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.adminCardRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.adminCardLabel {
+  font-weight: bold;
+  color: #666;
+}
+
+.adminCardValue {
+  text-align: left;
+}
+
+.adminCardActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* فلترة وبحث */
+.filterSection {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  max-height: 1000px;
+  overflow: hidden;
+}
+
+.filterSection.visible {
+  max-height: 1000px;
+  opacity: 1;
+  margin-bottom: 20px;
+}
+
+.filterSection.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin-bottom: 0;
+  border: none;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  flex: 1;
+}
+
+.filterLabel {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.filterSelect {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+  background-color: white;
+  font-size: 14px;
+  width: 100%;
+}
+
+.searchBox {
+  flex: 2;
+  min-width: 300px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchInput {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  padding: 0 40px 0 10px;
+  font-size: 14px;
+  width: auto;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 15px;
+  top: 35px;
+  color: #777;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: flex-end;
+}
+
+.filterButton {
+  padding: 8px 15px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resetButton {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.resetButton:hover {
+  background-color: #e0e0e0;
+}
+
+.noResults {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+  color: #666;
+}
+
+/* Mobile Styles */
+@media (min-width: 769px) {
+  .filterToggleBtn {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filterGroup,
+  .searchBox {
+    min-width: 100%;
+  }
+  
+  .filterRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* تجاوب نظام الفلترة */
+@media screen and (max-width: 767px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  .header h1::after {
+    right: 50%;
+    transform: translateX(50%);
+  }
+  
+  .headerActions {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .filterToggleBtn, 
+  .addBtn, 
+  .disabledBtn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .filterSection.visible {
+    margin-top: 10px;
+  }
+  
+  .adminsTable {
+    display: none;
+  }
+  
+  .adminCard {
+    display: block;
+  }
+  
+  .modalContent {
+    padding: 15px;
+    width: 100%;
+  }
+  
+  .formActions {
+    justify-content: space-between;
+  }
+  
+  .saveBtn, .cancelBtn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .filterSection {
+    padding: 12px;
+  }
+
+  .filterRow {
+    flex-direction: column;
+    gap: 10px;
+    align-items: unset;
+  }
+
+  .filterGroup {
+    min-width: auto;
+  }
+
+  .searchBox {
+    min-width: auto;
+  }
+
+  .filterActions {
+    justify-content: space-between;
+  }
+
+  .filterButton {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .adminsTable th, .adminsTable td {
+    padding: 8px;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .editBtn, .deleteBtn {
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+  }
+  
+  .modalContent {
+    width: 90%;
+    max-width: 600px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .adminsManagement {
+    padding: 30px;
+  }
+  
+  .modalContent {
+    width: 500px;
+  }
+}
+.adminsTableContainer {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+.adminsTableContainer h2 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--secondary-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+}

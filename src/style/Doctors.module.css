@@ -1,0 +1,208 @@
+.doctors-container {
+  direction: rtl;
+  padding: 4rem 2rem;
+  margin: 2rem auto;
+  background-color: white;
+  /* max-width: 1400px; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.doctors-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.doctors-container h1 {
+  color: var(--primary-color);
+  font-size: 2.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.doctors-container h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  transform: translateX(50%);
+  width: 120px;
+  height: 4px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+.doctors-intro {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+  text-align: center;
+  padding: 1rem;
+  background-color: rgba(var(--primary-color-rgb), 0.05);
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.doctors-loader-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+}
+
+.no-data {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-color);
+  font-size: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+}
+
+.doctor-card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.doctor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-image-container {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+}
+
+.doctor-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.doctor-card:hover .doctor-image {
+  transform: scale(1.05);
+}
+
+.doctor-no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 5rem;
+  font-weight: bold;
+}
+
+.doctor-info {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-name {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.doctor-specialization {
+  color: var(--secondary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.doctor-bio {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.doctor-contact {
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+
+.doctor-email, 
+.doctor-phone {
+  margin-bottom: 5px;
+  color: var(--text-color);
+}
+
+.doctor-contact span {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .doctors-container {
+    padding: 15px;
+  }
+  
+  .doctors-container h1 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .doctors-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .doctor-image-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctors-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .doctors-container h1 {
+    font-size: 1.5rem;
+  }
+  
+  .doctor-image-container {
+    height: 220px;
+  }
+}

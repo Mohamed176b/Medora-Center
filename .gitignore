@@ -18,6 +18,7 @@
 .env.test.local
 .env.production.local
 .vscode
+.env
 medora-center1-firebase-adminsdk-fbsvc-6523b14132.json
 npm-debug.log*
 yarn-debug.log*

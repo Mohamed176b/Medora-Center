@@ -135,6 +135,16 @@ const Footer = () => {
               </Link>
             </li>
             <li>
+              <Link to="/contact">
+                <i className="fas fa-angle-left"></i>تواصل معنا
+              </Link>
+            </li>
+            <li>
+              <Link to="/booking">
+                <i className="fas fa-angle-left"></i>الحجوزات
+              </Link>
+            </li>
+            <li>
               <Link to="/blog">
                 <i className="fas fa-angle-left"></i>المدونة
               </Link>
@@ -147,7 +157,7 @@ const Footer = () => {
           <ul>
             {services.slice(0, 5).map((service) => (
               <li key={service.id}>
-                <Link to="/services">
+                <Link to={"/services/" + service.slug}>
                   <FontAwesomeIcon icon={getIconComponent(service.icon)} />
                   {service.title}
                 </Link>

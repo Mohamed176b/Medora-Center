@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
 import styles from "../../../style/DoctorManagement.module.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../redux/slices/toastSlice";
 import ButtonLoader from "../../admin/siteSettings/ButtonLoader";
-import { fetchDoctorsData } from "../../../redux/slices/siteDataSlice";
+import { fetchServicesData } from "../../../redux/slices/siteDataSlice";
 
 const DoctorForm = ({
   editMode,
@@ -15,18 +15,25 @@ const DoctorForm = ({
 }) => {
   const dispatch = useDispatch();
   const [saving, setSaving] = useState(false);
+  const services = useSelector((state) => state.siteData?.servicesData) || [];
+
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
-    specialization: "",
     bio: "",
     is_active: true,
+    services: [],
   });
 
   const [doctorImage, setDoctorImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const imageInputRef = useRef(null);
+
+  // جلب الخدمات عند تحميل النموذج
+  useEffect(() => {
+    dispatch(fetchServicesData());
+  }, [dispatch]);
 
   useEffect(() => {
     if (editMode && currentDoctor) {
@@ -34,9 +41,10 @@ const DoctorForm = ({
         full_name: currentDoctor.full_name,
         email: currentDoctor.email,
         phone: currentDoctor.phone || "",
-        specialization: currentDoctor.specialization || "",
         bio: currentDoctor.bio || "",
         is_active: currentDoctor.is_active,
+        services:
+          currentDoctor.doctor_services?.map((ds) => ds.service_id) || [],
       });
       setImagePreview(currentDoctor.image_url);
     } else {
@@ -49,9 +57,9 @@ const DoctorForm = ({
       full_name: "",
       email: "",
       phone: "",
-      specialization: "",
       bio: "",
       is_active: true,
+      services: [],
     });
     setDoctorImage(null);
     setImagePreview(null);
@@ -157,62 +165,99 @@ const DoctorForm = ({
         imageUrl = await uploadDoctorImage();
       }
 
-      let result;
-
       if (editMode) {
-        // Update existing doctor
-        const updates = {
-          ...formData,
+        // تحديث بيانات الطبيب
+        const { full_name, email, phone, bio, is_active, services } = formData;
+        const doctorUpdates = {
+          full_name,
+          email,
+          phone,
+          bio,
+          is_active,
           updated_at: new Date(),
         };
 
-        // Only update image if a new one was uploaded
         if (imageUrl) {
-          updates.image_url = imageUrl;
+          doctorUpdates.image_url = imageUrl;
         }
 
-        const { data, error } = await supabase
+        // تحديث بيانات الطبيب
+        const { error: updateError } = await supabase
           .from("doctors")
-          .update(updates)
+          .update(doctorUpdates)
           .eq("id", currentDoctorId)
           .select()
           .single();
 
-        if (error) throw error;
-        result = data;
+        if (updateError) throw updateError;
 
-        dispatch(
-          showToast({
-            message: "تم تحديث بيانات الطبيب بنجاح",
-            type: "success",
-          })
-        );
-        dispatch(fetchDoctorsData());
+        // حذف جميع الخدمات القديمة
+        const { error: deleteServicesError } = await supabase
+          .from("doctor_services")
+          .delete()
+          .eq("doctor_id", currentDoctorId);
+
+        if (deleteServicesError) throw deleteServicesError;
+
+        // إضافة الخدمات الجديدة
+        if (services && services.length > 0) {
+          const doctorServicesData = services.map((serviceId) => ({
+            doctor_id: currentDoctorId,
+            service_id: serviceId,
+          }));
+
+          const { error: insertServicesError } = await supabase
+            .from("doctor_services")
+            .insert(doctorServicesData);
+
+          if (insertServicesError) throw insertServicesError;
+        }
       } else {
-        // Create new doctor
+        // إنشاء طبيب جديد
+        const { full_name, email, phone, bio, is_active, services } = formData;
         const newDoctor = {
-          ...formData,
+          full_name,
+          email,
+          phone,
+          bio,
+          is_active,
           image_url: imageUrl,
         };
 
-        const { data, error } = await supabase
+        // إضافة الطبيب
+        const { data: insertedDoctor, error: insertError } = await supabase
           .from("doctors")
           .insert([newDoctor])
           .select()
           .single();
 
-        if (error) throw error;
-        result = data;
+        if (insertError) throw insertError;
 
-        dispatch(
-          showToast({
-            message: "تم إضافة الطبيب بنجاح",
-            type: "success",
-          })
-        );
+        // إضافة الخدمات للطبيب الجديد
+        if (services && services.length > 0) {
+          const doctorServicesData = services.map((serviceId) => ({
+            doctor_id: insertedDoctor.id,
+            service_id: serviceId,
+          }));
+
+          const { error: insertServicesError } = await supabase
+            .from("doctor_services")
+            .insert(doctorServicesData);
+
+          if (insertServicesError) throw insertServicesError;
+        }
       }
 
-      // Reset form and refresh doctor list
+      dispatch(
+        showToast({
+          message: editMode
+            ? "تم تحديث بيانات الطبيب بنجاح"
+            : "تم إضافة الطبيب بنجاح",
+          type: "success",
+        })
+      );
+
+      // تحديث قائمة الأطباء
       resetFormData();
       resetForm();
       fetchDoctors();
@@ -278,18 +323,6 @@ const DoctorForm = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="specialization">التخصص</label>
-            <input
-              type="text"
-              id="specialization"
-              name="specialization"
-              value={formData.specialization}
-              onChange={handleChange}
-              disabled={saving}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
             <label htmlFor="bio">نبذة عن الطبيب</label>
             <textarea
               id="bio"
@@ -331,6 +364,37 @@ const DoctorForm = ({
                 </div>
               )}
             </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="services">الخدمات المقدمة*</label>
+            <select
+              multiple
+              id="services"
+              name="services"
+              value={formData.services}
+              onChange={(e) => {
+                const selectedServices = Array.from(
+                  e.target.selectedOptions,
+                  (option) => Number(option.value)
+                );
+                setFormData((prev) => ({
+                  ...prev,
+                  services: selectedServices,
+                }));
+              }}
+              className={styles.serviceSelect}
+              disabled={saving}
+            >
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.title}
+                </option>
+              ))}
+            </select>
+            <small className={styles.helpText}>
+              يمكنك اختيار أكثر من خدمة باستخدام زر Ctrl (أو Command على Mac)
+            </small>
           </div>
 
           <div className={styles.formGroup}>

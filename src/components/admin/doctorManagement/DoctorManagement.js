@@ -92,8 +92,10 @@ const DoctorManagement = () => {
         (doctor) =>
           doctor.full_name?.toLowerCase().includes(query) ||
           doctor.email?.toLowerCase().includes(query) ||
-          doctor.specialization?.toLowerCase().includes(query) ||
-          doctor.phone?.toLowerCase().includes(query)
+          doctor.phone?.toLowerCase().includes(query) ||
+          doctor.doctor_services?.some((ds) =>
+            ds.services?.title?.toLowerCase().includes(query)
+          )
       );
     }
 

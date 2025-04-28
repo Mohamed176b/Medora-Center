@@ -4,13 +4,13 @@ import { supabase } from "../../../supabase/supabaseClient";
 import Markdown from "react-markdown";
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
-
+import { useNavigate } from "react-router-dom";
 const BlogDetail = () => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
   const trackPostView = async (postId) => {
     try {
       // Get viewer's IP address using a public API
@@ -133,11 +133,18 @@ const BlogDetail = () => {
             <i className="far fa-calendar-alt"></i>{" "}
             {formatDate(post.published_at)}
           </div>
-          {post.categories?.length > 0 && (
-            <div className={styles["blog-detail-category"]}>
-              <i className="fas fa-tag"></i> {post.categories[0].name}
+          {post.categories.slice(0, 2).map((category) => (
+            <div
+              key={category.id}
+              className={styles["blog-detail-category"]}
+              onClick={() => {
+                navigate(`/blog/category/${category.id}`);
+              }}
+            >
+              <i className="fas fa-tag"></i>
+              {category.name}
             </div>
-          )}
+          ))}
         </div>
       </div>
 

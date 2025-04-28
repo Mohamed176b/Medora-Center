@@ -83,14 +83,28 @@ const fetchAllDoctorsData = createAsyncThunk(
     try {
       const { data, error } = await supabase
         .from("doctors")
-        .select("*")
+        .select(
+          `
+          *,
+          doctor_services(
+            service_id,
+            services(*)
+          )
+        `
+        )
         .order("full_name", { ascending: true });
 
       if (error) {
         throw error;
       }
 
-      return data;
+      // Transform the services from the nested structure
+      const transformedDoctors = data.map((doctor) => ({
+        ...doctor,
+        services: doctor.doctor_services?.[0]?.services || null,
+      }));
+
+      return transformedDoctors;
     } catch (error) {
       return rejectWithValue(error.message);
     }

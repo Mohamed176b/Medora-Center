@@ -111,7 +111,24 @@
 .doctor-card:hover .doctor-image {
   transform: scale(1.05);
 }
-
+.doctor-service {
+  cursor: pointer;
+  color: var(--for-third-color);
+  font-weight: 700;
+  font-size: 12px;
+  background-color: var(--background-color);
+  width: fit-content;
+  padding: 2px 5px;
+  margin-left: 3px;
+  border-radius: 15px;
+  height: fit-content;
+  border: 1px transparent solid;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+.doctor-service:hover {
+  border: 1px var(--for-third-color) solid;
+}
 .doctor-no-image {
   width: 100%;
   height: 100%;
@@ -153,6 +170,7 @@
   line-height: 1.6;
   margin-bottom: 15px;
   flex-grow: 1;
+  margin-top: 10px;
 }
 
 .doctor-contact {

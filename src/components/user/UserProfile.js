@@ -161,7 +161,18 @@ const UserProfile = () => {
   if (!user) {
     return <Loader />;
   }
-
+  // استخراج بيانات مزود الدخول من جلسة supabase
+  let supabaseProvider = null;
+  for (let key in localStorage) {
+    if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
+      try {
+        const session = JSON.parse(localStorage.getItem(key));
+        supabaseProvider = session?.user?.app_metadata?.provider;
+      } catch {}
+      break;
+    }
+  }
+  const isGoogleProvider = supabaseProvider === "google";
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -310,85 +321,86 @@ const UserProfile = () => {
             </form>
           )}
         </div>
-
-        <div className="profile-info">
-          <h2>إعدادات الحساب</h2>
-          <div className="account-actions">
-            {!showChangePassword ? (
-              <>
-                <button
-                  className="action-button"
-                  onClick={() => setShowChangePassword(true)}
-                >
-                  تغيير كلمة المرور
-                </button>
-                <button
-                  className="action-button reset-password-button"
-                  onClick={handleResetPassword}
-                  disabled={isResettingPassword}
-                >
-                  {isResettingPassword
-                    ? "جاري إرسال رابط إعادة التعيين..."
-                    : "إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني"}
-                </button>
-              </>
-            ) : (
-              <div className="change-password-form">
-                <h3>تغيير كلمة المرور</h3>
-                <form onSubmit={handleUpdatePassword}>
-                  <div className="form-group">
-                    <label htmlFor="newPassword">كلمة المرور الجديدة</label>
-                    <input
-                      type="password"
-                      id="newPassword"
-                      name="newPassword"
-                      value={passwordData.newPassword}
-                      onChange={handlePasswordChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="confirmPassword">
-                      تأكيد كلمة المرور الجديدة
-                    </label>
-                    <input
-                      type="password"
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={passwordData.confirmPassword}
-                      onChange={handlePasswordChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-actions">
-                    <button
-                      type="submit"
-                      className="action-button"
-                      disabled={isUpdatingPassword}
-                    >
-                      {isUpdatingPassword
-                        ? "جاري التحديث..."
-                        : "تحديث كلمة المرور"}
-                    </button>
-                    <button
-                      type="button"
-                      className="action-button cancel-button"
-                      onClick={() => {
-                        setShowChangePassword(false);
-                        setPasswordData({
-                          newPassword: "",
-                          confirmPassword: "",
-                        });
-                      }}
-                    >
-                      إلغاء
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
+        {!isGoogleProvider && (
+          <div className="profile-info">
+            <h2>إعدادات الحساب</h2>
+            <div className="account-actions">
+              {!showChangePassword ? (
+                <>
+                  <button
+                    className="action-button"
+                    onClick={() => setShowChangePassword(true)}
+                  >
+                    تغيير كلمة المرور
+                  </button>
+                  <button
+                    className="action-button reset-password-button"
+                    onClick={handleResetPassword}
+                    disabled={isResettingPassword}
+                  >
+                    {isResettingPassword
+                      ? "جاري إرسال رابط إعادة التعيين..."
+                      : "إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني"}
+                  </button>
+                </>
+              ) : (
+                <div className="change-password-form">
+                  <h3>تغيير كلمة المرور</h3>
+                  <form onSubmit={handleUpdatePassword}>
+                    <div className="form-group">
+                      <label htmlFor="newPassword">كلمة المرور الجديدة</label>
+                      <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword">
+                        تأكيد كلمة المرور الجديدة
+                      </label>
+                      <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-actions">
+                      <button
+                        type="submit"
+                        className="action-button"
+                        disabled={isUpdatingPassword}
+                      >
+                        {isUpdatingPassword
+                          ? "جاري التحديث..."
+                          : "تحديث كلمة المرور"}
+                      </button>
+                      <button
+                        type="button"
+                        className="action-button cancel-button"
+                        onClick={() => {
+                          setShowChangePassword(false);
+                          setPasswordData({
+                            newPassword: "",
+                            confirmPassword: "",
+                          });
+                        }}
+                      >
+                        إلغاء
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

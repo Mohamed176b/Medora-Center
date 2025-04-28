@@ -43,6 +43,7 @@ const Appointments = () => {
     status: "",
     appointment_day: "",
     appointment_time: "",
+    service_id: "", // إضافة service_id
   });
 
   // Fetch data on component mount
@@ -84,7 +85,6 @@ const Appointments = () => {
       setLoading(false);
     }
   };
-
 
   // Filter appointments based on search term and status filter
   useEffect(() => {
@@ -141,6 +141,7 @@ const Appointments = () => {
       status: appointment.status || "pending",
       appointment_day: appointment.appointment_day || "",
       appointment_time: appointment.appointment_time || "",
+      service_id: appointment.service_id || "", // إضافة service_id من الموعد
     });
     setIsModalOpen(true);
   };
@@ -169,6 +170,18 @@ const Appointments = () => {
     try {
       setSubmitting(true);
 
+      // إذا تم اختيار طبيب، تأكد من أنه يقدم الخدمة المطلوبة
+      if (formData.doctor_id) {
+        const selectedDoctor = doctors.find((d) => d.id === formData.doctor_id);
+        const hasService = selectedDoctor?.doctor_services?.some(
+          (ds) => ds.service_id === currentAppointment.service_id
+        );
+
+        if (!hasService) {
+          throw new Error("الطبيب المختار لا يقدم الخدمة المطلوبة");
+        }
+      }
+
       const { error } = await supabase
         .from("appointments")
         .update({
@@ -186,7 +199,7 @@ const Appointments = () => {
       allAppointmentsData();
     } catch (error) {
       console.error("Error updating appointment:", error);
-      toast("حدث خطأ أثناء تحديث الموعد", "error");
+      toast(error.message || "حدث خطأ أثناء تحديث الموعد", "error");
     } finally {
       setSubmitting(false);
     }

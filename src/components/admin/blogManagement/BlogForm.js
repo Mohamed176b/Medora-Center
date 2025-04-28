@@ -75,7 +75,41 @@ const BlogForm = ({
     </div>
   ) : null;
 
-  useEffect(() => {
+  // استمع لحدث checkUnsavedChanges من AdminLayout
+useEffect(() => {
+  const handleUnsavedChanges = (e) => {
+    if (hasUnsavedChanges) {
+      setShowExitDialog(true);
+      setContinueCallback(() => e.detail.onContinue);
+    } else {
+      e.detail.onContinue();
+    }
+  };
+  window.addEventListener("checkUnsavedChanges", handleUnsavedChanges);
+  return () => {
+    window.removeEventListener("checkUnsavedChanges", handleUnsavedChanges);
+  };
+}, [hasUnsavedChanges]);
+
+// توحيد منطق التأكيد عند الخروج أو التنقل
+useEffect(() => {
+  const handleBeforeUnload = (e) => {
+    if (hasUnsavedChanges) {
+      // رسالة توضيحية للمستخدم
+      const message = 'لديك تغييرات غير محفوظة. إذا غادرت الصفحة الآن، قد تبقى بعض الصور أو المرفقات ولن يتم حذفها تلقائيًا.';
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [hasUnsavedChanges]);
+
+useEffect(() => {
     if (editMode && currentPost) {
       setFormData({
         title: currentPost.title || "",
@@ -107,21 +141,6 @@ const BlogForm = ({
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
-
-  // إضافة مراقبة التغييرات في المسار
-  useEffect(() => {
-    const unlisten = navigate((nextLocation) => {
-      if (hasUnsavedChanges) {
-        setShowExitDialog(true);
-        return false;
-      }
-      return true;
-    });
-
-    return () => {
-      if (unlisten) unlisten();
-    };
-  }, [hasUnsavedChanges, navigate]);
 
   // Add event listener for navigation changes
   useEffect(() => {
@@ -549,7 +568,7 @@ const BlogForm = ({
       // Save the post with the image URL
       await handleSubmit(null, true, imageUrl);
 
-      if (continueCallback) {
+      if (continueCallback && !showExitDialog) {
         continueCallback();
       }
     } catch (error) {
@@ -565,9 +584,26 @@ const BlogForm = ({
     }
   };
 
-  const handleDiscardChanges = () => {
+  const handleDiscardChanges = async () => {
+    // حذف صورة المقالة الرئيسية إذا كانت غير محفوظة
+    if (imagePreview && selectedFile) {
+      // إذا تم رفع الصورة مؤقتًا على التخزين
+      await deleteImageFromStorage(formData.image_url);
+      setImagePreview("");
+      setSelectedFile(null);
+    }
+    // حذف جميع الصور المرفقة المؤقتة
+    if (attachedImages && attachedImages.length > 0) {
+      for (const img of attachedImages) {
+        if (img.path) {
+          await deleteImageFromStorage(img.url);
+        }
+      }
+      setAttachedImages([]);
+    }
     setShowExitDialog(false);
-    if (continueCallback) {
+    setHasUnsavedChanges(false);
+    if (continueCallback && !showExitDialog) {
       continueCallback();
     }
   };
@@ -840,7 +876,7 @@ const BlogForm = ({
   };
 
   return (
-    <div className={styles["blog-form"]}>
+    <div className={`blog-form ${styles["blog-form"]}`}>
       <h2 className={styles["form-title"]}>
         {editMode ? "تعديل المقالة" : "إضافة مقالة جديدة"}
       </h2>

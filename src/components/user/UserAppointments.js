@@ -49,11 +49,10 @@ const UserAppointments = () => {
     if (!doctors.length) {
       dispatch(fetchDoctorsData());
     }
-    if (!appointments || appointments.length === 0) {
+    if (user && (!appointments || appointments.length === 0)) {
       dispatch(fetchUserAppointments(user.id));
     }
   }, [dispatch, user]);
-
 
   // Rest of state management functions
   const resetForm = () => {
@@ -124,6 +123,7 @@ const UserAppointments = () => {
             "success"
           );
           resetForm();
+          dispatch(fetchUserAppointments(user.id));
         }
       }
     } catch (error) {
@@ -395,9 +395,10 @@ const UserAppointments = () => {
                           </div>
                           {appointment.doctor_details.specialization && (
                             <div className="detail-item">
-                              <span className="detail-label">التخصص:</span>
+                              <span className="detail-label">الخدمة:</span>
                               <span className="detail-value">
-                                {appointment.doctor_details.specialization}
+                                {appointment.doctor_details.services?.title ||
+                                  "غير محدد"}
                               </span>
                             </div>
                           )}

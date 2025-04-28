@@ -7,7 +7,11 @@ import "../../../style/AboutUs.css";
 import Loader from "../../common/Loader";
 import DoctorCard from "../../common/DoctorCard";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchDoctorsData, fetchHomeCntent, fetchAboutContent } from "../../../redux/slices/siteDataSlice";
+import {
+  fetchDoctorsData,
+  fetchHomeCntent,
+  fetchAboutContent,
+} from "../../../redux/slices/siteDataSlice";
 const AboutUs = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -25,7 +29,7 @@ const AboutUs = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     if (!doctors || doctors.length === 0) {
       loadDoctors();
@@ -42,7 +46,7 @@ const AboutUs = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     if (!homeData || homeData.length === 0) {
       loadHome();
@@ -59,14 +63,13 @@ const AboutUs = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     if (!aboutData || aboutData.length === 0) {
       loadAbout();
     } else {
       setLoading(false);
     }
-
   }, [dispatch]);
 
   if (loading) {
@@ -94,15 +97,7 @@ const AboutUs = () => {
           <div className="doctors-grid">
             {doctors && doctors.length > 0 ? (
               doctors.map((doctor) => (
-                <DoctorCard
-                  key={doctor.id}
-                  doctor={{
-                    ...doctor,
-                    full_name: doctor.name || doctor.full_name || "",
-                    specialization:
-                      doctor.specialty || doctor.specialization || "",
-                  }}
-                />
+                <DoctorCard key={doctor.id} doctor={doctor} />
               ))
             ) : (
               <p>لا يوجد أطباء لعرضهم حالياً</p>

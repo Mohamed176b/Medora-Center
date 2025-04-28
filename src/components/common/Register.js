@@ -5,6 +5,7 @@ import {
   registerUser,
   signInWithGoogle,
   handleGoogleRedirect,
+  getUserProviderByEmail,
 } from "../../supabase/authUtils";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/userSlice";
@@ -130,13 +131,23 @@ const Register = () => {
 
     setLoading(true);
     try {
+      // تحقق أولاً من أن الإيميل غير مسجل مسبقًا ببروفايدر Google
+      const provider = await getUserProviderByEmail(formData.email);
+      if (provider === 'google') {
+        toast("هذا البريد الإلكتروني مسجل مسبقًا عبر Google. يرجى تسجيل الدخول باستخدام Google.", "error");
+        setLoading(false);
+        return;
+      }
       const result = await registerUser(
         formData.email,
         formData.password,
         formData.name
       );
 
-      if (result.success) {
+      if (result.success && result.emailConfirmationSent) {
+        toast("تم إرسال رابط التحقق إلى بريدك الإلكتروني", "success");
+        navigate("/login");
+      } else if (result.success) {
         dispatch(
           setUser({
             id: result.user.id,
@@ -144,14 +155,8 @@ const Register = () => {
             name: formData.name,
           })
         );
-
-        if (result.emailConfirmationSent) {
-          toast("تم إرسال رابط التحقق إلى بريدك الإلكتروني", "success");
-          navigate("/login");
-        } else {
-          toast("تم تسجيل الحساب بنجاح", "success");
-          navigate("/profile");
-        }
+        toast("تم تسجيل الحساب بنجاح", "success");
+        navigate("/profile");
       } else {
         toast(result.error || "حدث خطأ أثناء التسجيل", "error");
       }

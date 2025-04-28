@@ -3,7 +3,24 @@
   max-width: 1400px;
   margin: 0 auto;
 }
-
+.analytics-container h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  position: relative;
+  padding-right: 1rem;
+}
+.analytics-container h2::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
 .analytics-title {
   color: var(--primary-color);
   margin-bottom: 2rem;

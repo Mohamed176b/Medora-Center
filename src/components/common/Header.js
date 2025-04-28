@@ -18,12 +18,15 @@ const Header = () => {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const { isAdminAuthenticated, admin } = useSelector((state) => state.admin);
 
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen((prev) => !prev);
+  }, []);
   const handleNavigation = useCallback(
     (path) => {
-      setMobileMenuOpen(false);
+      toggleMobileMenu();
       navigate(path);
     },
-    [navigate]
+    [navigate, toggleMobileMenu]
   );
   useEffect(() => {
     window.scrollTo({
@@ -32,9 +35,6 @@ const Header = () => {
     });
   }, [location.key]);
 
-  const toggleMobileMenu = useCallback(() => {
-    setMobileMenuOpen((prev) => !prev);
-  }, []);
 
   const handleUserLogout = async () => {
     setIsLoggingOut(true);
@@ -127,11 +127,12 @@ const Header = () => {
                   : location.pathname === link.path;
 
                 return (
-                  <Link to={link.path} key={link.path}>
-                    <li
-                      key={link.path}
-                      className={`nav ${isActive ? "active" : ""}`}
-                    >
+                  <Link
+                    to={link.path}
+                    key={link.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <li className={`nav ${isActive ? "active" : ""}`}>
                       <i className={`fa ${link.icon}`}></i>
                       <span>{link.label}</span>
                     </li>

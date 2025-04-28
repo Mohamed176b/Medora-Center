@@ -213,11 +213,10 @@ const Home = () => {
           <p>نقدم مجموعة متكاملة من الخدمات الطبية بأعلى معايير الجودة</p>
         </div>
         <div className="services-grid">
-          {services.map((service) => (
+          {services.slice(0, 3).map((service) => (
             <ServiceCard
               key={service.id}
               service={service}
-              onClick={() => navigate(`/services`)}
             />
           ))}
         </div>
@@ -283,13 +282,18 @@ const Home = () => {
                         <span
                           key={categoryRelation.category.id}
                           className={styles["blog-card-category"]}
+                          onClick={() => {
+                            navigate(`/blog/category/${categoryRelation.category.id}`);
+                          }}
                         >
                           <i className="fas fa-tag"></i>
                           {categoryRelation.category.name}
                         </span>
                       ))}
                       {post.categories.length > 2 && (
-                        <span className={styles["blog-card-category"]}>
+                        <span
+                          className={styles["blog-card-category"]}
+                        >
                           +{post.categories.length - 2}
                         </span>
                       )}
@@ -411,9 +415,11 @@ const Home = () => {
               </div>
             </div>
             <div className="map-container">
-              {contactInfo.latitude && contactInfo.longitude ? (
+              {loading || !contactInfo || contactInfo.latitude === undefined || contactInfo.longitude === undefined ? (
+                <Loader />
+              ) : (
                 <MapContainer
-                  center={[contactInfo.latitude, contactInfo.longitude]}  
+                  center={[contactInfo.latitude, contactInfo.longitude]}
                   zoom={15}
                   style={{ height: "100%", width: "100%" }}
                 >
@@ -423,17 +429,6 @@ const Home = () => {
                   />
                   <Marker
                     position={[contactInfo.latitude, contactInfo.longitude]}
-                  />
-                </MapContainer>
-              ) : (
-                <MapContainer
-                  center={[24.7136, 46.6753]} // Default coordinates for Riyadh
-                  zoom={15}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   />
                 </MapContainer>
               )}

@@ -150,6 +150,10 @@
 
 .contact-form-container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
 }
 
 .contact-form {

@@ -214,8 +214,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-}
+  cursor: pointer;
+  border: 1px solid transparent;
 
+}
+.blog-card-category:hover {
+  border: 1px solid var(--for-primary-color);
+}
 .read-more {
   margin-top: auto;
   display: inline-flex;
@@ -365,8 +370,13 @@
   border-radius: 20px;
   padding: 0.3rem 0.8rem;
   color: var(--primary-color);
-}
+  cursor: pointer;
+  border: 1px solid transparent;
 
+}
+.blog-detail-category:hover {
+  border: 1px solid var(--for-primary-color);
+}
 .blog-detail-image {
   margin-bottom: 2rem;
   border-radius: 8px;

@@ -32,9 +32,7 @@ const Services = () => {
     }
   }, [dispatch]);
 
-  const handleServiceClick = () => {
-    navigate("/booking");
-  };
+
 
   if (loading) {
     return <Loader />;
@@ -56,7 +54,6 @@ const Services = () => {
             <ServiceCard
               key={service.id}
               service={service}
-              onClick={handleServiceClick}
             />
           ))}
       </div>

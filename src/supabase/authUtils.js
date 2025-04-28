@@ -1,5 +1,37 @@
 import { supabase } from "./supabaseClient";
 
+// دالة للتحقق من مزود المستخدم حسب الإيميل
+export const getUserProviderByEmail = async (email) => {
+  try {
+    // Supabase لا توفر API مباشرة لهذا، لكن يمكن محاولة تسجيل الدخول بكلمة مرور خاطئة للتحقق من وجود المستخدم ونوع الخطأ
+    const { error } = await supabase.auth.signInWithPassword({ email, password: 'invalid-password-for-check' });
+    if (!error) {
+      // لا يجب أن يحدث هذا أبدًا لأن كلمة المرور خاطئة
+      return 'email';
+    }
+    if (error.message && error.message.includes('Invalid login credentials')) {
+      // المستخدم موجود بمزود الإيميل/باسورد
+      return 'email';
+    }
+    if (error.message && error.message.includes('Signups not allowed for this instance')) {
+      // حالة غير متوقعة
+      return null;
+    }
+    if (error.message && error.message.includes('User has not signed up')) {
+      // المستخدم غير موجود
+      return null;
+    }
+    if (error.message && error.message.includes('identity provider')) {
+      // مستخدم Google
+      return 'google';
+    }
+    // fallback: لا يمكن تحديد المزود
+    return null;
+  } catch (e) {
+    return null;
+  }
+};
+
 export const registerUser = async (email, password, name) => {
   try {
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -13,7 +45,20 @@ export const registerUser = async (email, password, name) => {
       },
     });
 
-    if (authError) throw authError;
+    if (authError) {
+      // معالجة حالة الإيميل مسجل مسبقًا
+      if (
+        authError.message &&
+        (authError.message.includes("already registered") ||
+          authError.message.includes("User already exists") ||
+          authError.message.includes("User already registered") ||
+          authError.message.includes("Email rate limit exceeded") ||
+          authError.message.includes("duplicate key value violates unique constraint"))
+      ) {
+        return { success: false, error: "البريد الإلكتروني مستخدم بالفعل. إذا لم تصلك رسالة التحقق سابقًا يمكنك طلب إعادة إرسالها من صفحة تسجيل الدخول." };
+      }
+      throw authError;
+    }
 
     localStorage.setItem(
       "user",
@@ -29,6 +74,7 @@ export const registerUser = async (email, password, name) => {
       user: authData.user,
       emailConfirmationSent: true,
     };
+
   } catch (error) {
     console.error("Registration error:", error.message);
     return { success: false, error: error.message };
@@ -55,6 +101,14 @@ export const signInUser = async (email, password) => {
       .select("*")
       .eq("id", data.user.id)
       .single();
+
+    // تحقق من حالة النشاط
+    if (profileData && profileData.is_active === false) {
+      // If the user is inactive, sign out and clear session/localStorage to prevent repeated requests and errors
+      await supabase.auth.signOut();
+      localStorage.removeItem("user");
+      return { success: false, error: 'حسابك غير نشط. يرجى التواصل مع الدعم.' };
+    }
 
     if (profileError && profileError.code === "PGRST116") {
       const userData = await supabase.auth.getUser();
@@ -123,6 +177,9 @@ export const signInWithGoogle = async (source = "login") => {
       options: {
         redirectTo:
           window.location.origin + `/login?provider=google&source=${source}`,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
 
@@ -212,6 +269,15 @@ export const handleGoogleRedirect = async () => {
       throw profileError;
     }
 
+    // تحقق من حالة النشاط
+    if (profileData && profileData.is_active === false) {
+      // If the user is inactive, sign out and clear session/localStorage to prevent repeated requests and errors
+      await supabase.auth.signOut();
+      localStorage.removeItem("user");
+      return { success: false, error: 'حسابك غير نشط. يرجى التواصل مع الدعم.' };
+    }
+
+    // إذا وصلنا هنا، الحساب نشط، يمكن الحفظ
     localStorage.setItem("user", JSON.stringify(profileData));
 
     return {

@@ -2,8 +2,9 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Icons from "@fortawesome/free-solid-svg-icons";
 import styles from "../../style/ServiceCard.module.css";
-
-const ServiceCard = ({ service, onClick }) => {
+import { useNavigate } from "react-router-dom";
+const ServiceCard = ({ service }) => {
+  const navigate = useNavigate();
   if (!service) {
     return null;
   }
@@ -23,17 +24,24 @@ const ServiceCard = ({ service, onClick }) => {
       return Icons.faClinicMedical;
     }
   };
-
+  const handleServiceClick = () => {
+    navigate(`/services/${service.slug}`);
+  };
   return (
-    <div className={styles.serviceCard} onClick={onClick}>
-      <div className={styles.serviceIcon}>
+    <div className={styles.serviceCard}>
+      <div className={styles.serviceIcon} onClick={handleServiceClick}>
         <FontAwesomeIcon icon={getIconComponent(service.icon)} />
       </div>
-      <h3 className={styles.serviceTitle}>{service.title || "خدمة طبية"}</h3>
+      <h3 className={styles.serviceTitle}  onClick={handleServiceClick}>{service.title || "خدمة طبية"}</h3>
       <p className={styles.serviceDescription}>
         {service.description || "وصف الخدمة غير متوفر"}
       </p>
-      <button className={styles.bookButton}>
+      <button
+        className={styles.bookButton}
+        onClick={() => {
+          navigate("/booking");
+        }}
+      >
         احجز موعد
         <i className="fas fa-arrow-left"></i>
       </button>

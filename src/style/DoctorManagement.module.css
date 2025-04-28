@@ -129,6 +129,25 @@
   min-width: 120px;
 }
 
+.serviceSelect {
+  min-height: 120px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.serviceSelect:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(212, 13, 55, 0.2);
+}
+
+.serviceSelect option {
+  padding: 8px;
+}
+
 .searchBox {
   flex: 1;
   position: relative;
@@ -719,206 +738,22 @@
 }
 
 @media (max-width: 768px) {
-  .doctor-management-container {
-    padding: 15px;
+  .doctorImageContainer {
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 6px auto;
   }
-  
-  .doctor-management-container h1 {
-    font-size: 1.8rem;
+  .doctorImageContainer img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
   }
-  
-  .image-preview {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .filterRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filterGroup {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .filterSelect {
-    width: 100%;
-  }
-  
-  .searchBox {
-    width: 100%;
-  }
-  
-  .filterActions {
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-  
-  .resetButton {
-    width: 100%;
-  }
-
-  .modalContent {
-    width: 90%;
-    padding: 15px;
-  }
-}
-
-/* Doctor Cards for Mobile */
-.doctorCardsContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.doctorCard {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.doctorCard:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-  transform: translateY(-3px);
-}
-
-.inactiveCard {
-  opacity: 0.7;
-}
-
-.doctorCardHeader {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eee;
-}
-
-.doctorImageContainer {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-left: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.doctorCardImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.doctorCardNoImage {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background-color: #ecf0f1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #95a5a6;
-  font-size: 1.5rem;
-}
-
-.doctorCardInfo {
-  flex: 1;
-}
-
-.doctorCardName {
-  margin: 0 0 5px 0;
-  font-size: 1.2rem;
-  color: var(--text-color);
-}
-
-.statusBadge {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.statusBadge.active {
-  background-color: rgba(76, 175, 80, 0.15);
-  color: var(--secondary-color);
-}
-
-.statusBadge.inactive {
-  background-color: rgba(212, 13, 55, 0.15);
-  color: var(--primary-color);
-}
-
-.doctorCardDetails {
-  padding: 15px;
-}
-
-.doctorCardRow {
-  display: flex;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.doctorCardRow:last-child {
-  margin-bottom: 0;
-}
-
-.doctorCardLabel {
-  font-weight: 600;
-  color: var(--text-color);
-  width: 120px;
-  flex-shrink: 0;
-}
-
-.doctorCardValue {
-  color: #555;
-  word-break: break-word;
-}
-
-.doctorCardActions {
-  display: flex;
-  padding: 10px 15px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #eee;
-  gap: 10px;
-}
-
-.doctorCardActions button {
-  flex: 1;
-  padding: 8px 0;
-  font-size: 14px;
-  border-radius: 4px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-/* Make the table more responsive */
-@media (max-width: 1024px) {
-  .doctors-table th, 
-  .doctors-table td {
-    padding: 10px;
-    font-size: 14px;
-  }
-  
-  .doctor-thumbnail {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .no-image {
-    width: 40px;
-    height: 40px;
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 768px) {
   .doctor-management-container {
     padding: 15px;
   }
@@ -967,6 +802,49 @@
   /* Handle single column layout for cards on very small screens */
   .doctorCardsContainer {
     grid-template-columns: 1fr;
+  }
+  .doctorCardActions {
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100%;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 10px;
+  }
+  .doctorCardActions button {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 0;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .doctorCardActions button i {
+    font-size: 1.3em;
+    margin-left: 7px;
+    margin-right: 0;
+  }
+  .doctorCardActions .editButton {
+    background: var(--third-color);
+    color: #fff;
+  }
+  .doctorCardActions .editButton:hover {
+    background: var(--for-third-color);
+    color: #fff;
+  }
+  .doctorCardActions .deleteButton {
+    background: var(--primary-color);
+    color: #fff;
+    margin-top: 10px;
+  }
+  .doctorCardActions .deleteButton:hover {
+    background: var(--for-primary-color);
+    color: #fff;
   }
 }
 
@@ -1028,9 +906,15 @@
   }
   
   .doctorImageContainer {
+    border-radius: 50%;
     margin-left: 0;
+    overflow: hidden;
   }
-  
+  .doctorImageContainer img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
   .doctorCardRow {
     flex-direction: column;
     gap: 5px;
@@ -1039,4 +923,154 @@
   .doctorCardLabel {
     width: 100%;
   }
-} 
+}
+
+/* تحسين جذري لبطاقات الأطباء على الجوال */
+@media (max-width: 480px) {
+  .doctorCardsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 0;
+  }
+  .doctorCard {
+    box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    border-radius: 14px;
+    padding: 14px 6px 18px 6px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .doctorCardHeader {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+    text-align: center;
+  }
+  .doctorImageContainer {
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 6px auto;
+  }
+  .doctorImageContainer img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .doctorCardInfo h3,
+  .doctorCardName {
+    font-size: 1.05rem;
+    margin: 0 0 2px 0;
+    text-align: center;
+  }
+  .doctorCardRow {
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    align-items: flex-start;
+  }
+  .doctorCardLabel {
+    width: 100%;
+    font-size: 13px;
+    color: var(--text-color);
+    font-weight: 500;
+  }
+  .doctorCardValue {
+    font-size: 13px;
+    color: var(--text-secondary);
+    word-break: break-word;
+  }
+  .doctorCardActions {
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .doctorCardActions button {
+    font-size: 13px;
+    padding: 8px 0;
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: 6px;
+  }
+}
+
+/* Make the table more responsive */
+
+/* تحسين أزرار الإجراءات في بطاقات الأطباء على الجوال */
+@media (max-width: 480px) {
+  .doctorCardActions {
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100%;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 10px;
+  }
+  .doctorCardActions button {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 0;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .doctorCardActions button i {
+    font-size: 1.3em;
+    margin-left: 7px;
+    margin-right: 0;
+  }
+  .doctorCardActions .editButton {
+    background: var(--third-color);
+    color: #fff;
+  }
+  .doctorCardActions .editButton:hover {
+    background: var(--for-third-color);
+    color: #fff;
+  }
+  .doctorCardActions .deleteButton {
+    background: var(--primary-color);
+    color: #fff;
+    margin-top: 10px;
+  }
+  .doctorCardActions .deleteButton:hover {
+    background: var(--for-primary-color);
+    color: #fff;
+  }
+}
+
+@media (max-width: 1024px) {
+  .doctors-table th, 
+  .doctors-table td {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .doctor-thumbnail {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .no-image {
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+  }
+}

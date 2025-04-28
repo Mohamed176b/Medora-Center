@@ -34,15 +34,20 @@ const ProtectedUserDashboardRoute = ({ children }) => {
 
         const result = await checkUserSession();
 
-        if (result.success && result.profile) {
+        if (result.success && result.profile && result.profile.is_active === true) {
           dispatch(
             setUser({
               id: result.user.id,
               email: result.user.email,
               name: result.profile.full_name,
+              is_active: result.profile.is_active,
+              ...result.profile,
             })
           );
           setSessionChecked(true);
+        } else if (result.profile && result.profile.is_active === false) {
+          setError('حسابك غير نشط. يرجى التواصل مع الدعم.');
+          navigate("/login");
         } else {
           navigate("/login");
         }

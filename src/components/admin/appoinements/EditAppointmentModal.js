@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Loader from "../../common/Loader";
 
 const EditAppointmentModal = ({
@@ -11,6 +11,18 @@ const EditAppointmentModal = ({
   onSubmit,
   submitting,
 }) => {
+  // فلترة الأطباء بناءً على الخدمة المختارة
+  const filteredDoctors = useMemo(() => {
+
+    if (!currentAppointment?.service_id) return doctors;
+
+    return doctors.filter((doctor) =>
+      doctor.doctor_services?.some(
+        (ds) => ds.service_id === currentAppointment.service_id
+      )
+    );
+  }, [doctors, currentAppointment?.service_id]);
+
   if (!isOpen || !currentAppointment) return null;
 
   return (
@@ -57,13 +69,17 @@ const EditAppointmentModal = ({
                 onChange={onInputChange}
               >
                 <option value="">-- اختر الطبيب --</option>
-                {doctors.map((doctor) => (
+                {filteredDoctors.map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
                     {doctor.full_name}
-                    {doctor.specialization && ` (${doctor.specialization})`}
                   </option>
                 ))}
               </select>
+              {filteredDoctors.length === 0 && (
+                <small className="help-text">
+                  لا يوجد أطباء متاحين لهذه الخدمة
+                </small>
+              )}
             </div>
 
             <div className="form-group">
@@ -72,7 +88,6 @@ const EditAppointmentModal = ({
                 name="status"
                 value={formData.status}
                 onChange={onInputChange}
-                required
               >
                 <option value="pending">قيد الانتظار</option>
                 <option value="confirmed">مؤكد</option>
@@ -88,7 +103,6 @@ const EditAppointmentModal = ({
                 name="appointment_day"
                 value={formData.appointment_day}
                 onChange={onInputChange}
-                required
               />
             </div>
 

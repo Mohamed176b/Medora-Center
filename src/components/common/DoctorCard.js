@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "../../style/Doctors.module.css";
-
+import { useNavigate } from "react-router-dom";
 const DoctorCard = ({ doctor }) => {
+  const navigate = useNavigate(); 
   return (
     <div className={styles["doctor-card"]}>
       <div className={styles["doctor-image-container"]}>
@@ -19,9 +20,25 @@ const DoctorCard = ({ doctor }) => {
       </div>
       <div className={styles["doctor-info"]}>
         <h3 className={styles["doctor-name"]}>{doctor.full_name}</h3>
-        <p className={styles["doctor-specialization"]}>
-          {doctor.specialization || "طبيب"}
-        </p>
+        <div>
+        {doctor.doctor_services?.length > 0 ? (
+          doctor.doctor_services.map((serviceObj, idx) => {
+            const service = serviceObj.services || serviceObj;
+            if (!service) return null;
+            return (
+              <span
+                className={styles["doctor-service"]}
+                key={service.id || idx}
+                onClick={() => navigate("/services/" + service.slug)}
+              >
+                {service.title}
+              </span>
+            );
+          })
+        ) : (
+          <span className={styles["doctor-service"]}>لا توجد خدمات</span>
+        )}
+        </div>
         {doctor.bio && <p className={styles["doctor-bio"]}>{doctor.bio}</p>}
         <div className={styles["doctor-contact"]}>
           {doctor.email && (

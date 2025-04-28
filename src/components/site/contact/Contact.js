@@ -277,6 +277,17 @@ const Contact = () => {
         </div>
 
         <div className="contact-form-container">
+        {contactInfo.email && (
+                <div className="info-card">
+                  <div className="info-card-icon">
+                    <i className="fas fa-envelope"></i>
+                  </div>
+                  <div className="info-card-content">
+                    <h3>تواصل معنا عبر الايميل</h3>
+                    <p>{contactInfo.email}</p>
+                  </div>
+                </div>
+              )}
           <div className="contact-form">
             <h2>أرسل لنا رسالة</h2>
             <form onSubmit={handleSubmit}>

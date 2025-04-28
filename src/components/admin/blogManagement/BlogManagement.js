@@ -142,10 +142,15 @@ const BlogManagement = () => {
     <div className={styles["blog-management-container"]}>
       <div className={styles["blog-management-header"]}>
         <h1>إدارة المدونة</h1>
-        <button className={styles["add-button"]} onClick={handleAddPost}>
-          <i className="fas fa-plus"></i>
-          إضافة مقالة جديدة
-        </button>
+        <button 
+            className={styles["add-button"]}
+            onClick={handleAddPost}
+            disabled={showForm}
+            style={showForm ? {opacity: 0.6, cursor: 'not-allowed', pointerEvents: 'none'} : {}}
+          >
+            <i className="fas fa-plus"></i>
+            إضافة مقالة جديدة
+          </button>
       </div>
 
       <div className={styles["filter-bar"]}>

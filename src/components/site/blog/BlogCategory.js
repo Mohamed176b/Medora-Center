@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllBlogData,
@@ -7,24 +7,23 @@ import {
 } from "../../../redux/slices/siteDataSlice";
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
-import { useNavigate } from "react-router-dom";
-const Blog = () => {
+
+const BlogCategory = () => {
   const dispatch = useDispatch();
   const allBlogData = useSelector((state) => state.siteData.allBlogData);
   const categories = useSelector((state) => state.siteData.categories);
   const [loading, setLoading] = useState(true);
-  const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { categoryId } = useParams();
+
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // تحميل التصنيفات فقط إذا كانت غير موجودة
         if (!categories?.length) {
           dispatch(fetchCategories());
         }
-        // تحميل المقالات فقط إذا كانت غير موجودة
         if (!allBlogData?.length) {
           dispatch(fetchAllBlogData());
         }
@@ -35,17 +34,12 @@ const Blog = () => {
       }
     };
 
-    // تحميل البيانات فقط إذا كانت غير موجودة
     if (!allBlogData?.length || !categories?.length) {
       loadData();
     } else {
       setLoading(false);
     }
   }, [dispatch, allBlogData?.length, categories?.length]);
-
-  const handleCategoryFilterChange = (e) => {
-    setCategoryFilter(e.target.value);
-  };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -61,20 +55,25 @@ const Blog = () => {
     });
   };
 
+  // Get current category
+  const currentCategory = categories.find((cat) => cat.id === categoryId);
+
   // Filter posts based on category and search term
-  const filteredPosts = allBlogData.filter((post) => {
-    const matchesCategory =
-      categoryFilter === "all" ||
-      post.categories.some((cat) => cat.category.id === categoryFilter);
+  const filteredPosts = React.useMemo(() => {
+    return allBlogData.filter((post) => {
+      const matchesCategory = post.categories.some(
+        (cat) => cat.category.id === categoryId
+      );
 
-    const matchesSearch =
-      !searchTerm ||
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        !searchTerm ||
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesCategory && matchesSearch;
-  });
+      return matchesCategory && matchesSearch;
+    });
+  }, [allBlogData, categoryId, searchTerm]);
 
   // Transform the posts to get categories in the expected format
   const transformedPosts = filteredPosts.map((post) => ({
@@ -89,8 +88,11 @@ const Blog = () => {
   return (
     <div className={styles["blog-container"]}>
       <div className={styles["blog-header"]}>
-        <h1>مدونة مركز ميدورا</h1>
-        <p>اطلع على أحدث المقالات والنصائح الطبية لتعزيز صحتك ورفاهيتك</p>
+        <h1>{currentCategory ? currentCategory.name : "التصنيف"}</h1>
+        <p>
+          مقالات ونصائح طبية في{" "}
+          {currentCategory ? currentCategory.name : "هذا التصنيف"}
+        </p>
       </div>
 
       <div className={styles["blog-filters"]}>
@@ -98,28 +100,16 @@ const Blog = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="ابحث في المدونة..."
+            placeholder="ابحث في المقالات..."
             className={styles["search-input"]}
             value={searchTerm}
             onChange={handleSearchChange}
           />
         </div>
 
-        <div className={styles["category-container"]}>
-          <i className="fas fa-filter"></i>
-          <select
-            className={styles["category-select"]}
-            value={categoryFilter}
-            onChange={handleCategoryFilterChange}
-          >
-            <option value="all">جميع التصنيفات</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Link to="/blog" className={styles["back-to-blogs"]}>
+          <i className="fas fa-arrow-left"></i> العودة إلى كل المقالات
+        </Link>
       </div>
 
       <div className={styles["blog-count"]}>
@@ -152,10 +142,7 @@ const Blog = () => {
                     {formatDate(post.published_at)}
                   </span>
                   {post.categories?.length > 0 && (
-                    <div
-                      className={styles["blog-categories"]}
-                      
-                    >
+                    <div className={styles["blog-categories"]}>
                       {post.categories.slice(0, 2).map((category) => (
                         <span
                           key={category.id}
@@ -188,8 +175,8 @@ const Blog = () => {
         ) : (
           <div className={styles["no-posts"]}>
             <i className="fas fa-exclamation-circle"></i>
-            <p>لا توجد مدونات متاحة حاليًا</p>
-            {searchTerm && <p>حاول تغيير كلمات البحث أو إزالة الفلتر</p>}
+            <p>لا توجد مقالات في هذا التصنيف</p>
+            {searchTerm && <p>حاول تغيير كلمات البحث</p>}
           </div>
         )}
       </div>
@@ -197,4 +184,4 @@ const Blog = () => {
   );
 };
 
-export default Blog;
+export default BlogCategory;

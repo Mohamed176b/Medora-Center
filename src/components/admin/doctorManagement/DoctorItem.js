@@ -3,9 +3,7 @@ import styles from "../../../style/DoctorManagement.module.css";
 
 const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
   return (
-    <tr
-      className={!doctor.is_active ? styles["inactive-doctor"] : ""}
-    >
+    <tr className={!doctor.is_active ? styles["inactive-doctor"] : ""}>
       <td className={styles["doctor-image-cell"]} data-label="الصورة">
         {doctor.image_url ? (
           <img
@@ -20,7 +18,11 @@ const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
       <td data-label="الاسم">{doctor.full_name}</td>
       <td data-label="البريد الإلكتروني">{doctor.email}</td>
       <td data-label="رقم الهاتف">{doctor.phone || "-"}</td>
-      <td data-label="التخصص">{doctor.specialization || "-"}</td>
+      <td data-label="الخدمات">
+        {doctor.doctor_services?.length > 0
+          ? doctor.doctor_services.map((ds) => ds.services?.title).join(", ")
+          : "لم يتم تحديد خدمات"}
+      </td>
       <td data-label="الحالة">
         <span
           className={`${styles["status-badge"]} ${
@@ -52,4 +54,4 @@ const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
   );
 };
 
-export default DoctorItem; 
+export default DoctorItem;

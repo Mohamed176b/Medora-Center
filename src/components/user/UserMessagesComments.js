@@ -32,11 +32,13 @@ const UserMessagesComments = () => {
   });
 
   useEffect(() => {
-    if (!messages|| messages.length === 0) {
-      dispatch(fetchUserMessages(user.id));
-    }
-    if (!testimonials|| testimonials.length === 0) {
-      dispatch(fetchUserTestimonials(user.id));
+    if (user) {
+      if (!messages || messages.length === 0) {
+        dispatch(fetchUserMessages(user.id));
+      }
+      if (!testimonials || testimonials.length === 0) {
+        dispatch(fetchUserTestimonials(user.id));
+      }
     }
   }, [dispatch, user]);
 

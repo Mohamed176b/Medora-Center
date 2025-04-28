@@ -82,14 +82,31 @@ const fetchDoctorsData = createAsyncThunk(
     try {
       const { data, error } = await supabase
         .from("doctors")
-        .select("*")
-        .eq("is_active", true);
+        .select(
+          `
+          *,
+          services:doctor_services(
+            services(*)
+          )
+        `
+        )
+        .eq("is_active", true)
+        .order("full_name", { ascending: true });
 
       if (error) {
         throw error;
       }
 
-      return data;
+      // تحويل الخدمات إلى مصفوفة doctor_services لكل طبيب
+      const transformedDoctors = data.map((doctor) => ({
+        ...doctor,
+        doctor_services: doctor.services?.map(ds => ({
+          ...ds.services,
+          service_id: ds.services?.id
+        })) || [],
+      }));
+
+      return transformedDoctors;
     } catch (error) {
       return rejectWithValue(error.message);
     }

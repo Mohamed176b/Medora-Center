@@ -7,6 +7,7 @@ import {
   resetPassword,
   handleGoogleRedirect,
   signInAdmin,
+  getUserProviderByEmail,
 } from "../../supabase/authUtils";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/userSlice";
@@ -28,6 +29,8 @@ const Login = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  // مزود الدخول للبريد الحالي
+  const [userProvider, setUserProvider] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -92,6 +95,20 @@ const Login = () => {
 
     handleGoogleAuth();
   }, [location, navigate, dispatch, toast, switchTab, activeTab]);
+
+  useEffect(() => {
+    // كلما تغير البريد الإلكتروني تحقق من مزود الدخول
+    let timeout;
+    if (userFormData.email) {
+      timeout = setTimeout(async () => {
+        const provider = await getUserProviderByEmail(userFormData.email);
+        setUserProvider(provider);
+      }, 400);
+    } else {
+      setUserProvider(null);
+    }
+    return () => clearTimeout(timeout);
+  }, [userFormData.email]);
 
   const handleUserChange = (e) => {
     const { name, value } = e.target;
@@ -173,12 +190,31 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // تحقق أولاً من أن المستخدم موجود ببروفايدر إيميل/باسورد
+      const provider = await getUserProviderByEmail(userFormData.email);
+      if (provider === 'google') {
+        toast("هذا البريد الإلكتروني مسجل مسبقًا عبر Google. يرجى تسجيل الدخول باستخدام Google.", "error");
+        setLoading(false);
+        return;
+      }
+      if (!provider) {
+        toast("لا يوجد مستخدم مسجل بهذا البريد الإلكتروني.", "error");
+        setLoading(false);
+        return;
+      }
+      // أكمل تسجيل الدخول
       const result = await signInUser(
         userFormData.email,
         userFormData.password
       );
 
       if (result.success) {
+        // تحقق من التفعيل
+        if (!result.user.email_confirmed_at) {
+          toast("يرجى تفعيل البريد الإلكتروني أولاً عبر رابط التحقق.", "error");
+          setLoading(false);
+          return;
+        }
         dispatch(
           setUser({
             id: result.user.id,
@@ -294,12 +330,14 @@ const Login = () => {
                         required
                       />
                     </div>
-                    <p
-                      className="forgot-password"
-                      onClick={() => setShowForgotPassword(true)}
-                    >
-                      نسيت كلمة المرور؟
-                    </p>
+                    {(!userProvider || userProvider !== "google") && (
+                      <p
+                        className="forgot-password"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        نسيت كلمة المرور؟
+                      </p>
+                    )}
                     <button type="submit" disabled={loading}>
                       {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
                     </button>

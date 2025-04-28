@@ -693,7 +693,7 @@
   }
   
   .actions-cell button {
-    width: 100%;
+    width: calc(100% - 45px);
     padding: 8px;
     text-align: center;
     justify-content: center;
@@ -1024,7 +1024,12 @@
   border-radius: 4px;
   margin: 1rem 0;
 }
-
+.preview img{
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
 .preview-content a {
   color: var(--secondary-color);
   text-decoration: none;

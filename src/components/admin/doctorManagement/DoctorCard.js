@@ -3,7 +3,11 @@ import styles from "../../../style/DoctorManagement.module.css";
 
 const DoctorCard = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
   return (
-    <div className={`${styles.doctorCard} ${!doctor.is_active ? styles.inactiveCard : ""}`}>
+    <div
+      className={`${styles.doctorCard} ${
+        !doctor.is_active ? styles.inactiveCard : ""
+      }`}
+    >
       <div className={styles.doctorCardHeader}>
         <div className={styles.doctorImageContainer}>
           {doctor.image_url ? (
@@ -29,24 +33,30 @@ const DoctorCard = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
           </span>
         </div>
       </div>
-      
+
       <div className={styles.doctorCardDetails}>
         <div className={styles.doctorCardRow}>
           <span className={styles.doctorCardLabel}>البريد الإلكتروني:</span>
           <span className={styles.doctorCardValue}>{doctor.email}</span>
         </div>
-        
+
         <div className={styles.doctorCardRow}>
           <span className={styles.doctorCardLabel}>رقم الهاتف:</span>
           <span className={styles.doctorCardValue}>{doctor.phone || "-"}</span>
         </div>
-        
+
         <div className={styles.doctorCardRow}>
-          <span className={styles.doctorCardLabel}>التخصص:</span>
-          <span className={styles.doctorCardValue}>{doctor.specialization || "-"}</span>
+          <span className={styles.doctorCardLabel}>الخدمات:</span>
+          <span className={styles.doctorCardValue}>
+            {doctor.doctor_services?.length > 0
+              ? doctor.doctor_services
+                  .map((ds) => ds.services?.title)
+                  .join(", ")
+              : "لم يتم تحديد خدمات"}
+          </span>
         </div>
       </div>
-      
+
       {canEdit && (
         <div className={styles.doctorCardActions}>
           <button
@@ -61,7 +71,7 @@ const DoctorCard = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
             onClick={() => onDelete(doctor.id)}
             disabled={isDeleting}
           >
-            <i className="fas fa-trash-alt"></i> حذف
+            <i className="fas fa-trash"></i> حذف
           </button>
         </div>
       )}
@@ -69,4 +79,4 @@ const DoctorCard = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
   );
 };
 
-export default DoctorCard; 
+export default DoctorCard;

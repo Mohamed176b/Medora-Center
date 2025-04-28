@@ -221,8 +221,17 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
+      // لا تحفظ بيانات المستخدم إذا لم يكن نشطًا
+      if (!action.payload || action.payload.is_active !== true) {
+        state.user = null;
+        state.isAuthenticated = false;
+        // تأكد من حذف بيانات المستخدم من localStorage إذا كانت موجودة
+        localStorage.removeItem("user");
+        return;
+      }
       state.user = action.payload;
       state.isAuthenticated = true;
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
     clearUser: (state) => {
       state.user = null;

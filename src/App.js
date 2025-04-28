@@ -10,6 +10,8 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import PrivacyPolicy from "./components/common/PrivacyPolicy";
 import Terms from "./components/common/Terms";
 import Sitemap from "./components/common/Sitemap";
+import BlogCategory from "./components/site/blog/BlogCategory";
+import ServiceDetail from "./components/site/services/ServiceDetail";
 
 const Loader = React.lazy(() => import("./components/common/Loader"));
 const Toast = React.lazy(() => import("./components/common/Toast"));
@@ -80,13 +82,22 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-
+    // أولوية: تحميل بيانات المستخدم من localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.is_active === true) {
+        dispatch(setUser(parsedUser));
+      } else {
+        localStorage.removeItem("user");
+      }
+    }
+    // ثم تحقق من الجلسة مع السيرفر (للتأكد من التزامن)
     const checkSession = async () => {
       try {
-        // Check if user is logged in
         if (localStorage.getItem("user")) {
           const userResult = await checkUserSession();
-          if (userResult.success && userResult.profile) {
+          if (userResult.success && userResult.profile && userResult.profile.is_active === true) {
             dispatch(
               setUser({
                 id: userResult.user.id,
@@ -96,8 +107,12 @@ const App = () => {
                 gender: userResult.profile.gender,
                 date_of_birth: userResult.profile.date_of_birth,
                 address: userResult.profile.address,
+                is_active: userResult.profile.is_active,
+                ...userResult.profile,
               })
             );
+          } else if (userResult.profile && userResult.profile.is_active === false) {
+            localStorage.removeItem("user");
           }
         }
         // Check if admin is logged in
@@ -126,15 +141,19 @@ const App = () => {
       <Suspense fallback={<Loader />}>
         <Toast />
         <Routes>
-          {/* Site Routes  */}
           <Route path="/" element={<Site />}>
             <Route index element={<Home />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/:slug" element={<ServiceDetail />} />
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetail />} />
+            <Route
+              path="/blog/category/:categoryId"
+              element={<BlogCategory />}
+            />
             <Route path="/booking" element={<Booking />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />

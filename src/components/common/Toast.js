@@ -41,14 +41,12 @@ const Toast = () => {
     }
   }, [message, type, show, duration, dispatch]);
 
+  const toastClass = React.useMemo(() => `toast toast-${toast.type} ${toast.exiting ? "toast-exit" : ""}`, [toast.type, toast.exiting]);
+
   return (
     <>
       {toast.show && (
-        <div
-          className={`toast toast-${toast.type} ${
-            toast.exiting ? "toast-exit" : ""
-          }`}
-        >
+        <div className={toastClass}>
           <p>{toast.message}</p>
         </div>
       )}

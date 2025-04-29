@@ -8,7 +8,7 @@
 .contact-hero {
   text-align: center;
   margin-bottom: 3rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  background: linear-gradient(135deg, var(--for-primary-color), var(--for-third-color), var(--primary-color));
   padding: 4rem 2rem;
   border-radius: 20px;
   color: white;
@@ -16,16 +16,16 @@
   overflow: hidden;
 }
 
-.contact-hero::before {
+/* .contact-hero::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  /* background: url('/pattern.svg') center/cover; */
+  background: url('/pattern.svg') center/cover;
   opacity: 0.1;
-}
+} */
 
 .contact-hero h1 {
   font-size: 3rem;

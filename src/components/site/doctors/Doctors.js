@@ -4,18 +4,25 @@ import Loader from "../../common/Loader";
 import DoctorCard from "../../common/DoctorCard";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchDoctorsData } from "../../../redux/slices/siteDataSlice";
-const Doctors = () => {
+const Doctors = React.memo(() => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const doctors = useSelector((state) => state.siteData?.doctorsData) || [];
+  const doctorsList = React.useMemo(() => (Array.isArray(doctors) ? doctors : []), [doctors]);
 
+  const renderDoctors = React.useCallback(() => (
+    doctorsList.map((doctor) => (
+      <DoctorCard key={doctor.id} doctor={doctor} />
+    ))
+  ), [doctorsList]);
+  
   useEffect(() => {
     const loadDoctors = async () => {
       try {
         setLoading(true);
         dispatch(fetchDoctorsData());
       } catch (error) {
-        console.error("Error loading docotors:", error);
+        // console.error("Error loading docotors:", error);
       } finally {
         setLoading(false);
       }
@@ -52,13 +59,11 @@ const Doctors = () => {
         <div className={styles["no-data"]}>لا يوجد أطباء مسجلين حالياً</div>
       ) : (
         <div className={styles["doctors-grid"]}>
-          {doctors.map((doctor) => (
-            <DoctorCard key={doctor.id} doctor={doctor} />
-          ))}
+          {renderDoctors()}
         </div>
       )}
     </div>
   );
-};
+});
 
 export default Doctors;

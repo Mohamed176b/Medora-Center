@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import WhoWe from "./WhoWe";
 import Vision from "./Vision";
 import AboutStatistics from "./AboutStatistics";
@@ -18,6 +18,23 @@ const AboutUs = () => {
   const doctors = useSelector((state) => state.siteData?.doctorsData) || [];
   const aboutData = useSelector((state) => state.siteData?.aboutContent) || [];
   const homeData = useSelector((state) => state.siteData?.homeContent) || [];
+  const shortHistory = useMemo(() => aboutData?.short_history || "", [aboutData]);
+  const centerImageUrl = useMemo(() => aboutData?.center_image_url || "", [aboutData]);
+  const longTermGoal = useMemo(() => aboutData?.long_term_goal || "", [aboutData]);
+  const missionStatement = useMemo(() => aboutData?.mission_statement || "", [aboutData]);
+  const yearsExperience = useMemo(() => homeData?.years_experience || 0, [homeData]);
+  const patientsCount = useMemo(() => aboutData?.patients_served_count || 0, [aboutData]);
+  const doctorsCount = useMemo(() => doctors.length, [doctors]);
+  const departmentsCount = useMemo(() => aboutData?.departments_count || 0, [aboutData]);
+  const doctorsList = useMemo(() => (doctors && doctors.length > 0 ? doctors : []), [doctors]);
+
+  const renderDoctors = useCallback(() => (
+    doctorsList.length > 0
+      ? doctorsList.map((doctor) => (
+          <DoctorCard key={doctor.id} doctor={doctor} />
+        ))
+      : <p>لا يوجد أطباء لعرضهم حالياً</p>
+  ), [doctorsList]);
 
   useEffect(() => {
     async function loadDoctors() {
@@ -25,7 +42,7 @@ const AboutUs = () => {
         setLoading(true);
         dispatch(fetchDoctorsData());
       } catch (error) {
-        console.error("Error loading doctors:", error);
+        // console.error("Error loading doctors:", error);
       } finally {
         setLoading(false);
       }
@@ -42,7 +59,7 @@ const AboutUs = () => {
         setLoading(true);
         dispatch(fetchHomeCntent());
       } catch (error) {
-        console.error("Error loading home data:", error);
+        // console.error("Error loading home data:", error);
       } finally {
         setLoading(false);
       }
@@ -59,7 +76,7 @@ const AboutUs = () => {
         setLoading(true);
         dispatch(fetchAboutContent());
       } catch (error) {
-        console.error("Error loading about data:", error);
+        // console.error("Error loading about data:", error);
       } finally {
         setLoading(false);
       }
@@ -78,31 +95,12 @@ const AboutUs = () => {
 
   return (
     <div className="about-us-page">
-      {/* 1. Who We Are Section */}
-      <WhoWe
-        shortHistory={aboutData?.short_history || ""}
-        centerImageUrl={aboutData?.center_image_url || ""}
-      />
-
-      {/* 2. Vision and Mission Section */}
-      <Vision
-        longTermGoal={aboutData?.long_term_goal || ""}
-        missionStatement={aboutData?.mission_statement || ""}
-      />
-
-      {/* 3. Medical Team Section */}
+      <WhoWe shortHistory={shortHistory} centerImageUrl={centerImageUrl} />
+      <Vision longTermGoal={longTermGoal} missionStatement={missionStatement} />
       <section className="medical-team-section">
         <div className="container">
           <h2 className="section-title">الفريق الطبي</h2>
-          <div className="doctors-grid">
-            {doctors && doctors.length > 0 ? (
-              doctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
-              ))
-            ) : (
-              <p>لا يوجد أطباء لعرضهم حالياً</p>
-            )}
-          </div>
+          <div className="doctors-grid">{renderDoctors()}</div>
           <div className="view-all-doctors">
             <Link to="/doctors" className="view-all-button">
               عرض جميع الأطباء
@@ -110,16 +108,14 @@ const AboutUs = () => {
           </div>
         </div>
       </section>
-
-      {/* 4. Statistics Section */}
       <AboutStatistics
-        yearsExperience={homeData?.years_experience || 0}
-        patientsCount={aboutData?.patients_served_count || 0}
-        doctorsCount={aboutData?.doctors_count || 0}
-        departmentsCount={aboutData?.departments_count || 0}
+        yearsExperience={yearsExperience}
+        patientsCount={patientsCount}
+        doctorsCount={doctorsCount}
+        departmentsCount={departmentsCount}
       />
     </div>
   );
 };
 
-export default AboutUs;
+export default React.memo(AboutUs);

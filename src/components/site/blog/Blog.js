@@ -8,7 +8,7 @@ import {
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
 import { useNavigate } from "react-router-dom";
-const Blog = () => {
+const Blog = React.memo(() => {
   const dispatch = useDispatch();
   const allBlogData = useSelector((state) => state.siteData.allBlogData);
   const categories = useSelector((state) => state.siteData.categories);
@@ -20,22 +20,19 @@ const Blog = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // تحميل التصنيفات فقط إذا كانت غير موجودة
         if (!categories?.length) {
           dispatch(fetchCategories());
         }
-        // تحميل المقالات فقط إذا كانت غير موجودة
         if (!allBlogData?.length) {
           dispatch(fetchAllBlogData());
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        // console.error("Error loading data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    // تحميل البيانات فقط إذا كانت غير موجودة
     if (!allBlogData?.length || !categories?.length) {
       loadData();
     } else {
@@ -43,13 +40,13 @@ const Blog = () => {
     }
   }, [dispatch, allBlogData?.length, categories?.length]);
 
-  const handleCategoryFilterChange = (e) => {
+  const handleCategoryFilterChange = React.useCallback((e) => {
     setCategoryFilter(e.target.value);
-  };
+  }, []);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = React.useCallback((e) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
   const formatDate = (dateString) => {
     if (!dateString) return "غير محدد";
@@ -61,8 +58,7 @@ const Blog = () => {
     });
   };
 
-  // Filter posts based on category and search term
-  const filteredPosts = allBlogData.filter((post) => {
+  const filteredPosts = React.useMemo(() => allBlogData.filter((post) => {
     const matchesCategory =
       categoryFilter === "all" ||
       post.categories.some((cat) => cat.category.id === categoryFilter);
@@ -74,13 +70,12 @@ const Blog = () => {
       post.content?.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesCategory && matchesSearch;
-  });
+  }), [allBlogData, categoryFilter, searchTerm]);
 
-  // Transform the posts to get categories in the expected format
-  const transformedPosts = filteredPosts.map((post) => ({
+  const transformedPosts = React.useMemo(() => filteredPosts.map((post) => ({
     ...post,
     categories: post.categories.map((category) => category.category),
-  }));
+  })), [filteredPosts]);
 
   if (loading) {
     return <Loader />;
@@ -195,6 +190,6 @@ const Blog = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Blog;

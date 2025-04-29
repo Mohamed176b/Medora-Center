@@ -1,11 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 
-const AboutStatistics = ({
-  yearsExperience,
-  patientsCount,
-  doctorsCount,
-  departmentsCount,
-}) => {
+const AboutStatistics = memo(({ yearsExperience, patientsCount, doctorsCount, departmentsCount }) => {
   const [animatedYears, setAnimatedYears] = useState(0);
   const [animatedPatients, setAnimatedPatients] = useState(0);
   const [animatedDoctors, setAnimatedDoctors] = useState(0);
@@ -13,18 +8,16 @@ const AboutStatistics = ({
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  // Set up intersection observer to detect when element is visible
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Unobserve once visible so animation only triggers once
           observer.unobserve(sectionRef.current);
         }
       },
       {
-        threshold: 0.2, // Trigger when at least 20% is visible
+        threshold: 0.2
       }
     );
 
@@ -39,11 +32,10 @@ const AboutStatistics = ({
     };
   }, []);
 
-  // Start animation only when section becomes visible
   useEffect(() => {
     if (!isVisible) return;
 
-    const animationDuration = 2000; // 2 seconds
+    const animationDuration = 2000;
     const framesPerSecond = 60;
     const totalFrames = (animationDuration / 1000) * framesPerSecond;
 
@@ -59,7 +51,6 @@ const AboutStatistics = ({
         setAnimatedDepartments(departmentsCount);
         clearInterval(timer);
       } else {
-        // Using easeOutQuad for smoother animation
         const easeProgress = 1 - Math.pow(1 - progress, 2);
         setAnimatedYears(Math.round(easeProgress * yearsExperience));
         setAnimatedPatients(Math.round(easeProgress * patientsCount));
@@ -117,6 +108,6 @@ const AboutStatistics = ({
       </div>
     </section>
   );
-};
+});
 
 export default AboutStatistics;

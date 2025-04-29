@@ -1,4 +1,3 @@
-/* Hero Section */
 .home-container .hero-section {
   position: relative;
   min-height: 600px;
@@ -49,7 +48,6 @@
   line-height: 1.6;
 }
 
-/* About Section Styles */
 .home-container .about-section {
   padding: 5rem 2rem;
   background-color: var(--background-color);
@@ -91,7 +89,12 @@
   line-height: 1.8;
   color: #666;
   margin-bottom: 2rem;
-  text-align: justify;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 1px solid var(--primary-color);
 }
 
 .home-container .about-image {
@@ -108,7 +111,6 @@
   transform: scale(1.02);
 }
 
-/* Statistics Section */
 .home-container .statistics-section {
   padding: 4rem 2rem;
   background-color: var(--background-color);
@@ -180,7 +182,6 @@
   }
 }
 
-/* Services Section */
 .home-container .services-section {
   padding: 5rem 2rem;
   background: white;
@@ -231,7 +232,6 @@
   transform: translateY(-2px);
 }
 
-/* Doctors Section */
 .home-container .doctors-section {
   padding: 5rem 2rem;
   background-color: var(--background-color);
@@ -245,7 +245,6 @@
   gap: 2rem;
 }
 
-/* Blog Section */
 .home-container .blog-section {
   padding: 5rem 2rem;
   background: white;
@@ -301,7 +300,6 @@
   font-size: 0.9rem;
 }
 
-/* Testimonials Section */
 .home-container .testimonials-section {
   padding: 5rem 2rem;
   background-color: var(--background-color);
@@ -354,7 +352,6 @@
   margin-top: 1rem;
 }
 
-/* Contact Section */
 .home-container .contact-section {
   padding: 5rem 2rem;
   background: white;
@@ -472,7 +469,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .home-container .about-container,
   .home-container .contact-container {

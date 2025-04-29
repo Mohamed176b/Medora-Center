@@ -29,7 +29,6 @@ const Login = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  // مزود الدخول للبريد الحالي
   const [userProvider, setUserProvider] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -86,7 +85,7 @@ const Login = () => {
           }
         } catch (error) {
           toast("حدث خطأ أثناء تسجيل الدخول مع Google", "error");
-          console.error(error);
+          // console.error(error);
         } finally {
           setLoading(false);
         }
@@ -97,7 +96,6 @@ const Login = () => {
   }, [location, navigate, dispatch, toast, switchTab, activeTab]);
 
   useEffect(() => {
-    // كلما تغير البريد الإلكتروني تحقق من مزود الدخول
     let timeout;
     if (userFormData.email) {
       timeout = setTimeout(async () => {
@@ -110,27 +108,27 @@ const Login = () => {
     return () => clearTimeout(timeout);
   }, [userFormData.email]);
 
-  const handleUserChange = (e) => {
+  const handleUserChange = useCallback((e) => {
     const { name, value } = e.target;
     setUserFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleAdminChange = (e) => {
+  const handleAdminChange = useCallback((e) => {
     const { name, value } = e.target;
     setAdminFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleResetEmailChange = (e) => {
+  const handleResetEmailChange = useCallback((e) => {
     setResetEmail(e.target.value);
-  };
+  }, []);
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = useCallback(async () => {
     try {
       const result = await signInWithGoogle("login");
 
@@ -142,11 +140,11 @@ const Login = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الدخول باستخدام Google", "error");
-      console.error(error);
+      // console.error(error);
     }
-  };
+  }, [toast]);
 
-  const handleResetPassword = async (e) => {
+  const handleResetPassword = useCallback(async (e) => {
     e.preventDefault();
 
     if (!resetEmail) {
@@ -174,13 +172,13 @@ const Login = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsResettingPassword(false);
     }
-  };
+  }, [resetEmail, toast]);
 
-  const handleUserSubmit = async (e) => {
+  const handleUserSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     if (!userFormData.email || !userFormData.password) {
@@ -190,7 +188,6 @@ const Login = () => {
 
     setLoading(true);
     try {
-      // تحقق أولاً من أن المستخدم موجود ببروفايدر إيميل/باسورد
       const provider = await getUserProviderByEmail(userFormData.email);
       if (provider === 'google') {
         toast("هذا البريد الإلكتروني مسجل مسبقًا عبر Google. يرجى تسجيل الدخول باستخدام Google.", "error");
@@ -202,14 +199,12 @@ const Login = () => {
         setLoading(false);
         return;
       }
-      // أكمل تسجيل الدخول
       const result = await signInUser(
         userFormData.email,
         userFormData.password
       );
 
       if (result.success) {
-        // تحقق من التفعيل
         if (!result.user.email_confirmed_at) {
           toast("يرجى تفعيل البريد الإلكتروني أولاً عبر رابط التحقق.", "error");
           setLoading(false);
@@ -230,13 +225,13 @@ const Login = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الدخول", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userFormData, toast, dispatch, navigate]);
 
-  const handleAdminSubmit = async (e) => {
+  const handleAdminSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     if (!adminFormData.email || !adminFormData.password) {
@@ -275,11 +270,11 @@ const Login = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الدخول", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminFormData, toast, dispatch, navigate]);
 
   return (
     <div className="login-container">
@@ -304,7 +299,6 @@ const Login = () => {
 
             <div className="tab-content-container">
               {activeTab === "user" ? (
-                // User Login Form
                 <div className="tab-content user-tab">
                   <h2>تسجيل الدخول</h2>
                   <form onSubmit={handleUserSubmit}>
@@ -355,7 +349,6 @@ const Login = () => {
                   </p>
                 </div>
               ) : (
-                // Admin Login Form
                 <div className="tab-content admin-tab">
                   <h2>تسجيل الدخول كمسؤول</h2>
                   <form onSubmit={handleAdminSubmit}>
@@ -429,4 +422,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default React.memo(Login);

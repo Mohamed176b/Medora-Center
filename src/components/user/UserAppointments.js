@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import useToast from "../../hooks/useToast";
 import "../../style/UserAppointments.css";
@@ -14,7 +14,7 @@ import {
   createUserAppointment,
 } from "../../redux/slices/userSlice";
 
-const UserAppointments = () => {
+const UserAppointments = memo(() => {
   const { user } = useSelector((state) => state.user);
   const {
     appointments,
@@ -24,8 +24,8 @@ const UserAppointments = () => {
   const servicesData = useSelector((state) => state.siteData?.servicesData);
   const doctorsData = useSelector((state) => state.siteData?.doctorsData);
 
-  const services = React.useMemo(() => servicesData || [], [servicesData]);
-  const doctors = React.useMemo(() => doctorsData || [], [doctorsData]);
+    const services = useMemo(() => servicesData || [], [servicesData]);
+  const doctors = useMemo(() => doctorsData || [], [doctorsData]);
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -41,7 +41,6 @@ const UserAppointments = () => {
     notes: "",
   });
 
-  // Load services and doctors from Redux
   useEffect(() => {
     if (!services.length) {
       dispatch(fetchServicesData());
@@ -54,8 +53,7 @@ const UserAppointments = () => {
     }
   }, [dispatch, user]);
 
-  // Rest of state management functions
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       service_id: "",
       appointment_day: "",
@@ -63,20 +61,19 @@ const UserAppointments = () => {
     });
     setEditingAppointment(null);
     setIsEditing(false);
-  };
+  }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
-    // Validate form data
     if (!formData.service_id || !formData.appointment_day) {
       toast("يرجى ملء جميع الحقول المطلوبة", "error");
       return;
@@ -86,7 +83,6 @@ const UserAppointments = () => {
 
     try {
       if (isEditing && editingAppointment) {
-        // تحديث الموعد
         const result = await dispatch(
           updateUserAppointment({
             appointmentId: editingAppointment.id,
@@ -104,7 +100,6 @@ const UserAppointments = () => {
           resetForm();
         }
       } else {
-        // إنشاء موعد جديد
         const result = await dispatch(
           createUserAppointment({
             userId: user.id,
@@ -127,7 +122,7 @@ const UserAppointments = () => {
         }
       }
     } catch (error) {
-      console.error("Error with appointment:", error);
+      // console.error("Error with appointment:", error);
       toast(
         isEditing ? "حدث خطأ أثناء تحديث الموعد" : "حدث خطأ أثناء حجز الموعد",
         "error"
@@ -135,7 +130,7 @@ const UserAppointments = () => {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [formData, isEditing, editingAppointment, user, toast, dispatch]);
 
   const handleEdit = (appointment) => {
     setFormData({
@@ -167,7 +162,7 @@ const UserAppointments = () => {
         setDeleteConfirm(null);
       }
     } catch (error) {
-      console.error("Error deleting appointment:", error);
+      // console.error("Error deleting appointment:", error);
       toast("حدث خطأ أثناء حذف الموعد", "error");
     } finally {
       setSubmitting(false);
@@ -192,7 +187,6 @@ const UserAppointments = () => {
     if (!timeString) return "لم يتم تحديد الوقت بعد";
 
     try {
-      // الوقت قد يكون بصيغة 'HH:MM:SS' فقط
       if (timeString.length <= 8) {
         const [hours, minutes] = timeString.split(":");
         const date = new Date();
@@ -203,7 +197,6 @@ const UserAppointments = () => {
           minute: "2-digit",
         });
       }
-      // إذا كان بصيغة تاريخ كامل
       else {
         return new Date(timeString).toLocaleTimeString("ar-EG", {
           hour: "2-digit",
@@ -211,7 +204,7 @@ const UserAppointments = () => {
         });
       }
     } catch (error) {
-      console.error("Error formatting time:", error);
+      // console.error("Error formatting time:", error);
       return "لم يتم تحديد الوقت بعد";
     }
   };
@@ -434,6 +427,17 @@ const UserAppointments = () => {
                         </span>
                       </div>
                     )}
+                    {appointment.doctor_id && (
+                      <div className="detail-item doctor-item">
+                        <span className="detail-label">الطبيب:</span>
+                        <span className="detail-value">
+                          {(() => {
+                            const doctor = doctors.find((doc) => doc.id === appointment.doctor_id);
+                            return doctor ? doctor.full_name : "-";
+                          })()}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {appointment.status === "pending" && (
@@ -481,6 +485,6 @@ const UserAppointments = () => {
       </div>
     </div>
   );
-};
+});
 
 export default UserAppointments;

@@ -1,6 +1,6 @@
 import React from "react";
 
-const WhoWe = ({ shortHistory, centerImageUrl }) => {
+const WhoWe = React.memo(({ shortHistory, centerImageUrl }) => {
   return (
     <section className="who-we-are-section">
       <div className="container">
@@ -8,7 +8,7 @@ const WhoWe = ({ shortHistory, centerImageUrl }) => {
         <div className="who-we-content">
           <div className="center-image">
             {centerImageUrl && (
-              <img src={centerImageUrl} alt="مركز ميدورا الطبي" />
+              <img src={centerImageUrl} alt="مركز ميدورا الطبي" loading="lazy"/>
             )}
           </div>
           <div className="center-description">
@@ -18,6 +18,6 @@ const WhoWe = ({ shortHistory, centerImageUrl }) => {
       </div>
     </section>
   );
-};
+});
 
 export default WhoWe;

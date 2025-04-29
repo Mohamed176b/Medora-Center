@@ -5,19 +5,16 @@ import Markdown from "react-markdown";
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
 import { useNavigate } from "react-router-dom";
-const BlogDetail = () => {
+const BlogDetail = React.memo(() => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const trackPostView = async (postId) => {
+  const trackPostView = React.useCallback(async (postId) => {
     try {
-      // Get viewer's IP address using a public API
       const response = await fetch("https://api.ipify.org?format=json");
       const { ip } = await response.json();
-
-      // Check if this IP has viewed this post in the last 24 hours
       const twentyFourHoursAgo = new Date(
         Date.now() - 24 * 60 * 60 * 1000
       ).toISOString();
@@ -30,16 +27,14 @@ const BlogDetail = () => {
         .single();
 
       if (!existingView) {
-        // Insert new view
         await supabase
           .from("blog_post_views")
           .insert({ post_id: postId, viewer_ip: ip });
       }
     } catch (error) {
-      // Silently fail to not disrupt user experience
-      console.error("Error tracking post view:", error);
+      // console.error("Error tracking post view:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -65,20 +60,18 @@ const BlogDetail = () => {
         if (error) throw error;
 
         if (data) {
-          // Transform the categories from the nested structure
           const transformedPost = {
             ...data,
             categories: data.categories.map((category) => category.category),
           };
           setPost(transformedPost);
 
-          // Track the view after setting the post
           await trackPostView(data.id);
         } else {
           setError("لم يتم العثور على المدونة");
         }
       } catch (error) {
-        console.error("Error fetching post:", error.message);
+        // console.error("Error fetching post:", error.message);
         setError("حدث خطأ أثناء تحميل المدونة");
       } finally {
         setLoading(false);
@@ -178,6 +171,6 @@ const BlogDetail = () => {
       </div>
     </div>
   );
-};
+});
 
 export default BlogDetail;

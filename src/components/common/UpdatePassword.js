@@ -21,8 +21,7 @@ const UpdatePassword = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // جلب بيانات المستخدم من localStorage أو من Redux إذا متاح
-  const [user, setUser] = React.useState(null);
+  const [, setUser] = React.useState(null);
 
   React.useEffect(() => {
     try {
@@ -34,7 +33,6 @@ const UpdatePassword = () => {
     }
   }, []);
 
-  // استخراج بيانات مزود الدخول من جلسة supabase
   let supabaseProvider = null;
   for (let key in localStorage) {
     if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
@@ -52,10 +50,27 @@ const UpdatePassword = () => {
     }
   }, [supabaseProvider, navigate]);
 
+
+  const handleChange = React.useCallback((e) => {
+    const { name, value } = e.target;
+    setPasswordData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    if (name === "newPassword") {
+      validatePassword(value);
+    }
+  }, []);
+
+  const toggleTooltip = React.useCallback(() => {
+    setShowTooltip((prev) => !prev);
+  }, []);
+
+
   if (supabaseProvider === "google") {
     return null;
   }
-  // استخراج access_token وrefresh_token من جلسة Supabase المخزنة في localStorage
   let accessToken = null;
   let refreshToken = null;
   for (let key in localStorage) {
@@ -69,7 +84,6 @@ const UpdatePassword = () => {
     }
   }
 
-  // التحقق من قوة كلمة المرور
   const validatePassword = (password) => {
     const errors = {
       length: password.length < 8,
@@ -80,62 +94,42 @@ const UpdatePassword = () => {
 
     setPasswordErrors(errors);
 
-    // إذا لم تكن هناك أخطاء، فإن كلمة المرور صالحة
     return !Object.values(errors).some((error) => error);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-
-    // التحقق من كلمة المرور عند تغييرها
-    if (name === "newPassword") {
-      validatePassword(value);
-    }
-  };
-
-  const toggleTooltip = () => {
-    setShowTooltip(!showTooltip);
-  };
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // تحقق من وجود التوكن (access_token) في الرابط
     if (!accessToken) {
       toast("رابط إعادة تعيين كلمة المرور غير صالح أو مفقود.", "error");
       return;
     }
 
-    // التحقق من صحة كلمة المرور
     const isPasswordValid = validatePassword(passwordData.newPassword);
     if (!isPasswordValid) {
-      toast("كلمة المرور لا تطابق المعايير المطلوبة", "error");
+      toast("كلمة المرور لا تطابق المعايير المطلوبة", "warning");
       setShowTooltip(true);
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast("كلمات المرور غير متطابقة", "error");
+      toast("كلمات المرور غير متطابقة", "warning");
       return;
     }
 
     setIsUpdating(true);
     try {
-      // تفعيل الجلسة باستخدام التوكن في الرابط (Supabase)
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: accessToken, // Supabase عادة يرسل نفس التوكن للاثنين
+        refresh_token: accessToken,
       });
       if (sessionError) {
         toast("رابط إعادة التعيين منتهي أو غير صالح.", "error");
         setIsUpdating(false);
         return;
       }
-      // الآن يمكنك تحديث كلمة المرور
       const result = await updatePassword(passwordData.newPassword);
       if (result.success) {
         toast(result.message, "success");
@@ -147,7 +141,7 @@ const UpdatePassword = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تحديث كلمة المرور", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsUpdating(false);
     }
@@ -312,4 +306,4 @@ const UpdatePassword = () => {
   );
 };
 
-export default UpdatePassword;
+export default React.memo(UpdatePassword);

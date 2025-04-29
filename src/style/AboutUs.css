@@ -1,11 +1,10 @@
-/* About Us Page Styles */
 .about-us-page {
   direction: rtl;
   text-align: right;
   margin: 2rem auto;
 }
 
-.section-title {
+.about-us-page .section-title {
   color: var(--primary-color);
   font-size: 2.5rem;
   margin-bottom: 2rem;
@@ -14,7 +13,7 @@
   padding-bottom: 1rem;
 }
 
-.section-title::after {
+.about-us-page .section-title::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -25,66 +24,64 @@
   background-color: var(--primary-color);
 }
 
-.container {
+.about-us-page .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* Who We Are Section */
-.who-we-are-section {
+.about-us-page .who-we-are-section {
   padding: 4rem 0;
   background-color: #fff;
 }
 
-.who-we-content {
+.about-us-page .who-we-content {
   display: flex;
   flex-direction: row-reverse;
   gap: 2rem;
   align-items: center;
 }
 
-.center-image {
+.about-us-page .center-image {
   flex: 1;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.center-image img {
+.about-us-page .center-image img {
   width: 100%;
   height: auto;
   display: block;
   transition: transform 0.3s ease;
 }
 
-.center-image img:hover {
+.about-us-page .center-image img:hover {
   transform: scale(1.03);
 }
 
-.center-description {
+.about-us-page .center-description {
   flex: 1;
 }
 
-.center-description p {
+.about-us-page .center-description p {
   font-size: 1.1rem;
   line-height: 1.8;
   color: var(--text-color);
 }
 
-/* Vision Mission Section */
-.vision-mission-section {
+.about-us-page .vision-mission-section {
   padding: 4rem 0;
   background-color: #f9f9f9;
 }
 
-.vision-mission-cards {
+.about-us-page .vision-mission-cards {
   display: flex;
   gap: 2rem;
   justify-content: center;
 }
 
-.card {
+.about-us-page .card {
   flex: 1;
   background-color: #fff;
   border-radius: 15px;
@@ -94,26 +91,26 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card:hover {
+.about-us-page .card:hover {
   transform: translateY(-10px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-.card-icon {
+.about-us-page .card-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
   color: var(--primary-color);
 }
 
-.vision-card .card-icon {
+.about-us-page .vision-card .card-icon {
   color: var(--third-color);
 }
 
-.mission-card .card-icon {
+.about-us-page .mission-card .card-icon {
   color: var(--secondary-color);
 }
 
-.card-title {
+.about-us-page .card-title {
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
   color: var(--primary-color);
@@ -121,7 +118,7 @@
   padding-bottom: 0.5rem;
 }
 
-.card-title::after {
+.about-us-page .card-title::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -132,34 +129,33 @@
   background-color: var(--primary-color);
 }
 
-.vision-card .card-title::after {
+.about-us-page .vision-card .card-title::after {
   background-color: var(--third-color);
 }
 
-.mission-card .card-title::after {
+.about-us-page .mission-card .card-title::after {
   background-color: var(--secondary-color);
 }
 
-.card-content p {
+.about-us-page .card-content p {
   font-size: 1.1rem;
   line-height: 1.8;
   color: var(--text-color);
 }
 
-/* Medical Team Section */
-.medical-team-section {
+.about-us-page .medical-team-section {
   padding: 4rem 0;
   background-color: #fff;
 }
 
-.doctors-grid {
+.about-us-page .doctors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
 }
 
-.doctor-card {
+.about-us-page .doctor-card {
   background-color: #fff;
   border-radius: 15px;
   overflow: hidden;
@@ -167,49 +163,49 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.doctor-card:hover {
+.about-us-page .doctor-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-.doctor-image {
+.about-us-page .doctor-image {
   height: 250px;
   overflow: hidden;
 }
 
-.doctor-image img {
+.about-us-page .doctor-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.doctor-card:hover .doctor-image img {
+.about-us-page .doctor-card:hover .doctor-image img {
   transform: scale(1.05);
 }
 
-.doctor-info {
+.about-us-page .doctor-info {
   padding: 1.5rem;
   text-align: center;
 }
 
-.doctor-name {
+.about-us-page .doctor-name {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--primary-color);
 }
 
-.doctor-specialty {
+.about-us-page .doctor-specialty {
   font-size: 1rem;
   color: #666;
 }
 
-.view-all-doctors {
+.about-us-page .view-all-doctors {
   text-align: center;
   margin-top: 2rem;
 }
 
-.view-all-button {
+.about-us-page .view-all-button {
   display: inline-block;
   background-color: var(--primary-color);
   color: white;
@@ -219,32 +215,23 @@
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.view-all-button:hover {
+.about-us-page .view-all-button:hover {
   background-color: var(--for-primary-color);
   transform: translateY(-3px);
 }
 
-/* Statistics Section */
-.statistics-section {
+.about-us-page .statistics-section {
   padding: 4rem 0;
   background-color: var(--primary-color);
 }
 
-.statistics-section .section-title {
-  color: white;
-}
-
-.statistics-section .section-title::after {
-  background-color: white;
-}
-
-.statistics-grid {
+.about-us-page .statistics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 2rem;
 }
 
-.statistic-card {
+.about-us-page .statistic-card {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 2rem;
@@ -254,57 +241,56 @@
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.statistic-card:hover {
+.about-us-page .statistic-card:hover {
   transform: translateY(-10px);
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.statistic-icon {
+.about-us-page .statistic-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 
-.statistic-value {
+.about-us-page .statistic-value {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.statistic-label {
+.about-us-page .statistic-label {
   font-size: 1.2rem;
 }
 
-/* Responsive Styles */
 @media (max-width: 992px) {
-  .who-we-content {
+  .about-us-page .who-we-content {
     flex-direction: column;
   }
   
-  .vision-mission-cards {
+  .about-us-page .vision-mission-cards {
     flex-direction: column;
   }
   
-  .section-title {
+  .about-us-page .section-title {
     font-size: 2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .doctors-grid {
+  .about-us-page .doctors-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
   
-  .statistics-grid {
+  .about-us-page .statistics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 576px) {
-  .section-title {
+  .about-us-page .section-title {
     font-size: 1.8rem;
   }
   
-  .statistics-grid {
+  .about-us-page .statistics-grid {
     grid-template-columns: 1fr;
   }
 } 

@@ -160,21 +160,30 @@
   font-weight: 600;
 }
 
-.register-link {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--background-color);
-  margin-top: 10px;
-}
-
 .register-link a {
   color: var(--background-color);
+  position: relative;
+  text-decoration: none;
+}
+
+.register-link a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(to right, var(--primary-color), var(--for-primary-color));
+  transition: width 0.3s ease;
+}
+
+.register-link a:hover::after {
+  width: 100%;
 }
 
 .register-link a:hover {
   color: var(--for-primary-color);
 }
-
 .forgot-password {
   font-size: 14px;
   font-weight: 600;
@@ -215,7 +224,6 @@
   background-color: #555 !important;
 }
 
-/* Login Tabs */
 .login-tabs {
   display: flex;
   margin-bottom: 20px;
@@ -276,7 +284,7 @@
 
 .login-tab.active {
   background-color: rgba(255, 255, 255, 0.15);
-  border-bottom: 3px solid transparent; /* Hide this border since we're using the indicator */
+  border-bottom: 3px solid transparent; 
   color: var(--background-color);
   text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
 }
@@ -285,7 +293,6 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Tab content animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -335,7 +342,6 @@
   animation-name: slideInFromRight;
 }
 
-/* Tab indicator animation */
 .tab-indicator {
   position: absolute;
   bottom: 0;
@@ -352,7 +358,7 @@
   width: 100%;
   overflow: hidden;
   position: relative;
-  min-height: 320px; /* Maintain consistent height during transitions */
+  min-height: 320px; 
   margin-top: 5px;
 }
 
@@ -371,7 +377,6 @@
   left: 0;
 }
 
-/* Add pulsing effect to active tab */
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
@@ -390,4 +395,3 @@
 .login-container label {
   color: var(--background-color) !important;
 }
-/* End Login Tabs */ 

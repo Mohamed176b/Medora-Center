@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ServiceCard from "../../common/ServiceCard";
 import styles from "../../../style/Services.module.css";
 import Loader from "../../common/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchServicesData } from "../../../redux/slices/siteDataSlice";
 
-const Services = () => {
+const Services = React.memo(() => {
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const servicesData =
     useSelector((state) => state.siteData?.servicesData) || [];
+  const servicesList = useMemo(() => (Array.isArray(servicesData) ? servicesData : []), [servicesData]);
 
+  const renderServices = useCallback(() => (
+    servicesList.map((service) => (
+      <ServiceCard key={service.id} service={service} />
+    ))
+  ), [servicesList]);
   useEffect(() => {
     const loadServices = async () => {
       try {
@@ -32,8 +36,6 @@ const Services = () => {
     }
   }, [dispatch]);
 
-
-
   if (loading) {
     return <Loader />;
   }
@@ -49,16 +51,10 @@ const Services = () => {
       </div>
 
       <div className={styles.servicesGrid}>
-        {Array.isArray(servicesData) &&
-          servicesData.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-            />
-          ))}
+        {renderServices()}
       </div>
     </div>
   );
-};
+});
 
 export default Services;

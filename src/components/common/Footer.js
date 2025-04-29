@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import "../../style/Footer.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,7 +9,7 @@ import {
   fetchContactData,
 } from "../../redux/slices/siteDataSlice";
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
   const dispatch = useDispatch();
   const services = useSelector((state) => state.siteData?.servicesData) || [];
   const contactInfo = useSelector((state) => state.siteData?.contactData) || [];
@@ -19,7 +19,7 @@ const Footer = () => {
       try {
         dispatch(fetchContactData());
       } catch (error) {
-        console.error("Error loading contact:", error);
+        // console.error("Error loading contact:", error);
       }
     };
 
@@ -27,7 +27,7 @@ const Footer = () => {
       try {
         dispatch(fetchServicesData());
       } catch (error) {
-        console.error("Error loading services:", error);
+        // console.error("Error loading services:", error);
       }
     };
     if (!contactInfo || contactInfo.length === 0) {
@@ -39,16 +39,14 @@ const Footer = () => {
 
   }, [dispatch]); 
 
-  const getIconComponent = (iconName) => {
-    // إزالة البادئة "fa" من اسم الأيقونة إذا وجدت
+  const getIconComponent = useCallback((iconName) => {
     const cleanIconName = iconName.replace(/^fa/, "");
-    // تحويل الاسم إلى الصيغة الصحيحة للمكتبة
     const iconKey = `fa${cleanIconName}`;
     return Icons[iconKey];
-  };
+  }, []);
 
   if (!contactInfo || !services) {
-    return null; // or return a loading spinner
+    return null; 
   }
 
   return (
@@ -261,4 +259,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default React.memo(Footer);

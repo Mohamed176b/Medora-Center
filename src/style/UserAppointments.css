@@ -210,7 +210,6 @@
   margin-bottom: 15px;
 }
 
-/* Doctor Details Styling */
 .user-appointments-container .doctor-details {
   display: flex;
   gap: 15px;
@@ -253,8 +252,6 @@
   font-weight: 600;
   color: var(--secondary-color);
 }
-
-/* End Doctor Details Styling */
 
 .user-appointments-container .detail-item {
   margin-bottom: 8px;
@@ -424,7 +421,6 @@
   color: var(--primary-color);
 }
 
-/* Mobile responsiveness */
 @media (max-width: 768px) {
   .user-appointments-container .form-row {
     flex-direction: column;

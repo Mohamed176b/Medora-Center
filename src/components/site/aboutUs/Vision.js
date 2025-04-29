@@ -1,6 +1,6 @@
 import React from "react";
 
-const Vision = ({ longTermGoal, missionStatement }) => {
+const Vision = React.memo(({ longTermGoal, missionStatement }) => {
   return (
     <section className="vision-mission-section">
       <div className="container">
@@ -29,6 +29,6 @@ const Vision = ({ longTermGoal, missionStatement }) => {
       </div>
     </section>
   );
-};
+});
 
 export default Vision;

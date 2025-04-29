@@ -176,7 +176,6 @@
   font-weight: 600;
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
   .servicesContainer {
     padding: 3rem 1rem;

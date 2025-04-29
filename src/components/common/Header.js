@@ -14,13 +14,13 @@ const Header = () => {
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const { isAdminAuthenticated, admin } = useSelector((state) => state.admin);
 
   const toggleMobileMenu = useCallback(() => {
     setMobileMenuOpen((prev) => !prev);
   }, []);
+
   const handleNavigation = useCallback(
     (path) => {
       toggleMobileMenu();
@@ -35,8 +35,7 @@ const Header = () => {
     });
   }, [location.key]);
 
-
-  const handleUserLogout = async () => {
+  const handleUserLogout = useCallback(async () => {
     setIsLoggingOut(true);
     try {
       const result = await signOutUser();
@@ -49,13 +48,13 @@ const Header = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الخروج", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, [dispatch, navigate, toast]);
 
-  const handleAdminLogout = async () => {
+  const handleAdminLogout = useCallback(async () => {
     setIsLoggingOut(true);
     try {
       const result = await signOutAdmin();
@@ -68,11 +67,11 @@ const Header = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الخروج", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, [dispatch, navigate, toast]);
 
   const headerLinks = useMemo(
     () => [
@@ -107,14 +106,12 @@ const Header = () => {
   return (
     <div className="header">
       <div className="container">
-        {/* Header Links */}
         <div className="header-content">
-          <div className="logo" onClick={() => handleNavigation("/")}>
-            <img
-              src={`${process.env.PUBLIC_URL}/logo.png`}
-              alt="Medora Center Logo"
-              loading="lazy"
-            />
+          <div className="logo"  onClick={() => {
+              handleNavigation("/");
+              setMobileMenuOpen(false);
+            }}>
+            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="logo" loading="lazy" />
             <h1 className="logo-text">Medora Center</h1>
           </div>
           <div
@@ -145,7 +142,6 @@ const Header = () => {
             <i className={`fa ${mobileMenuOpen ? "fa-times" : "fa-bars"}`}></i>
           </div>
         </div>
-        {/* Check if admin is authenticated */}
         {isAdminAuthenticated && admin ? (
           <div className="user-actions">
             <button className="profile-btn" onClick={() => navigate("/admin")}>

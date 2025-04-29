@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +11,7 @@ import "../../style/Profile.css";
 import useToast from "../../hooks/useToast";
 const Loader = React.lazy(() => import("../common/Loader"));
 
-const UserProfile = () => {
+const UserProfile = memo(() => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,11 +35,9 @@ const UserProfile = () => {
   });
 
   useEffect(() => {
-    // Redirect to login if not authenticated
     if (!isAuthenticated) {
       navigate("/login");
     } else if (user) {
-      // Initialize user data from current user
       setUserData({
         full_name: user.name || "",
         email: user.email || "",
@@ -51,7 +49,7 @@ const UserProfile = () => {
     }
   }, [isAuthenticated, navigate, user]);
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = useCallback(async () => {
     setIsResettingPassword(true);
     try {
       const result = await resetPassword(user.email);
@@ -65,30 +63,28 @@ const UserProfile = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsResettingPassword(false);
     }
-  };
+  }, [user, toast]);
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = useCallback((e) => {
     const { name, value } = e.target;
     setPasswordData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleUpdatePassword = async (e) => {
+  const handleUpdatePassword = useCallback(async (e) => {
     e.preventDefault();
 
-    // التحقق من تطابق كلمات المرور
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast("كلمات المرور غير متطابقة", "error");
       return;
     }
 
-    // التحقق من طول كلمة المرور
     if (passwordData.newPassword.length < 6) {
       toast("يجب أن تكون كلمة المرور 6 أحرف على الأقل", "error");
       return;
@@ -109,21 +105,21 @@ const UserProfile = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تحديث كلمة المرور", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsUpdatingPassword(false);
     }
-  };
+  }, [passwordData, toast, updatePassword]);
 
-  const handleUserDataChange = (e) => {
+  const handleUserDataChange = useCallback((e) => {
     const { name, value } = e.target;
     setUserData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleUpdateProfile = async (e) => {
+  const handleUpdateProfile = useCallback(async (e) => {
     e.preventDefault();
     setIsUpdatingProfile(true);
 
@@ -134,7 +130,6 @@ const UserProfile = () => {
         toast(result.message, "success");
         setEditMode(false);
 
-        // Update the redux state with the new profile data
         if (result.profile) {
           dispatch(
             updateUser({
@@ -152,16 +147,16 @@ const UserProfile = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تحديث الملف الشخصي", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsUpdatingProfile(false);
     }
-  };
+  }, [userData, toast, dispatch, user]);
 
   if (!user) {
     return <Loader />;
   }
-  // استخراج بيانات مزود الدخول من جلسة supabase
+
   let supabaseProvider = null;
   for (let key in localStorage) {
     if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
@@ -172,7 +167,9 @@ const UserProfile = () => {
       break;
     }
   }
+
   const isGoogleProvider = supabaseProvider === "google";
+  
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -404,6 +401,6 @@ const UserProfile = () => {
       </div>
     </div>
   );
-};
+});
 
 export default UserProfile;

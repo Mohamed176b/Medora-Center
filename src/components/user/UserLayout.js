@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useCallback, memo } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import "../../style/UserLayout.css";
@@ -6,7 +6,7 @@ import useToast from "../../hooks/useToast";
 import { signOutUser } from "../../supabase/authUtils";
 import { clearUser } from "../../redux/slices/userSlice";
 import Footer from "../common/Footer";
-const UserLayout = () => {
+const UserLayout = memo(function UserLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeNav, setActiveNav] = useState(location.pathname);
@@ -41,12 +41,11 @@ const UserLayout = () => {
       behavior: 'smooth'
     });
   }, [location.key]);
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
     try {
       const result = await signOutUser();
       if (result.success) {
-        // تنظيف حالة المستخدم في Redux
         dispatch(clearUser());
         toast("تم تسجيل الخروج بنجاح", "success");
         navigate("/");
@@ -55,15 +54,19 @@ const UserLayout = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء تسجيل الخروج", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, []);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen((prev) => !prev);
+  }, []);
+
+  const onNavClick = useCallback((path) => {
+    navigate(path);
+  }, [navigate]);
 
   useEffect(() => {
     setActiveNav(location.pathname);
@@ -91,7 +94,7 @@ const UserLayout = () => {
               {navLinks.map((link) => (
                 <li
                   key={link.path}
-                  onClick={() => navigate(link.path)}
+                  onClick={() => onNavClick(link.path)}
                   className={activeNav === link.path ? "active" : ""}
                 >
                   <i className={`fas ${link.icon} nav-icon`}></i>
@@ -130,6 +133,6 @@ const UserLayout = () => {
       <Footer />
     </>
   );
-};
+});
 
 export default UserLayout;

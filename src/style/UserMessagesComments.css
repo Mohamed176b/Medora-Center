@@ -51,7 +51,6 @@
   color: #555;
 }
 
-/* Messages styling */
 .user-interactions-container .messages-section, .user-interactions-container .testimonials-section {
   display: flex;
   flex-direction: column;
@@ -186,7 +185,6 @@
   color: #777;
 }
 
-/* Testimonials specific styling */
 .user-interactions-container .rating-input {
   display: flex;
   gap: 10px;
@@ -205,7 +203,6 @@
   width: auto;
 }
 
-/* New Star Rating Styles */
 .user-interactions-container .star-rating {
   display: flex;
   align-items: center;
@@ -252,7 +249,6 @@
   color: #ccc;
 }
 
-/* Mobile responsiveness */
 @media (max-width: 768px) {
   .user-interactions-container .tabs {
     flex-direction: column;

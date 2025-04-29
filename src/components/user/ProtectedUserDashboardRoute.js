@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { checkUserSession } from "../../supabase/authUtils";
 import { setUser } from "../../redux/slices/userSlice";
 const Loader = React.lazy(() => import("../common/Loader"));
 
-const ProtectedUserDashboardRoute = ({ children }) => {
+const ProtectedUserDashboardRoute = memo(function ProtectedUserDashboardRoute({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const { isAdminAuthenticated, admin } = useSelector((state) => state.admin);
   const dispatch = useDispatch();
@@ -13,29 +13,29 @@ const ProtectedUserDashboardRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [error, setError] = useState(null);
+  const memoizedNavigate = useCallback((path) => navigate(path), [navigate]);
+  const memoizedDispatch = useCallback((action) => dispatch(action), [dispatch]);
 
   useEffect(() => {
-    // If admin is logged in, redirect to admin dashboard
     if (isAdminAuthenticated && admin) {
-      navigate("/admin");
+      memoizedNavigate("/admin");
       return;
     }
 
     const verifySession = async () => {
-      if (!loading) return; // Prevent multiple verification attempts
+      if (!loading) return;
 
       try {
-        // Check if admin is stored in localStorage
         const adminData = localStorage.getItem("admin");
         if (adminData) {
-          navigate("/admin");
+          memoizedNavigate("/admin");
           return;
         }
 
         const result = await checkUserSession();
 
         if (result.success && result.profile && result.profile.is_active === true) {
-          dispatch(
+          memoizedDispatch(
             setUser({
               id: result.user.id,
               email: result.user.email,
@@ -47,14 +47,14 @@ const ProtectedUserDashboardRoute = ({ children }) => {
           setSessionChecked(true);
         } else if (result.profile && result.profile.is_active === false) {
           setError('حسابك غير نشط. يرجى التواصل مع الدعم.');
-          navigate("/login");
+          memoizedNavigate("/login");
         } else {
-          navigate("/login");
+          memoizedNavigate("/login");
         }
       } catch (error) {
-        console.error("Session verification error:", error);
+        // console.error("Session verification error:", error);
         setError(error);
-        navigate("/login");
+        memoizedNavigate("/login");
       } finally {
         setLoading(false);
       }
@@ -85,6 +85,5 @@ const ProtectedUserDashboardRoute = ({ children }) => {
   }
 
   return sessionChecked ? children : <Loader />;
-};
-
+});
 export default ProtectedUserDashboardRoute;

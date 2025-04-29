@@ -90,4 +90,4 @@ const Terms = () => {
   );
 };
 
-export default Terms;
+export default React.memo(Terms);

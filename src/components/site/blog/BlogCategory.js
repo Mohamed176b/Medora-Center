@@ -8,7 +8,7 @@ import {
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
 
-const BlogCategory = () => {
+const BlogCategory = React.memo(() => {
   const dispatch = useDispatch();
   const allBlogData = useSelector((state) => state.siteData.allBlogData);
   const categories = useSelector((state) => state.siteData.categories);
@@ -28,7 +28,7 @@ const BlogCategory = () => {
           dispatch(fetchAllBlogData());
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        // console.error("Error loading data:", error);
       } finally {
         setLoading(false);
       }
@@ -41,9 +41,9 @@ const BlogCategory = () => {
     }
   }, [dispatch, allBlogData?.length, categories?.length]);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = React.useCallback((e) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
   const formatDate = (dateString) => {
     if (!dateString) return "غير محدد";
@@ -55,10 +55,8 @@ const BlogCategory = () => {
     });
   };
 
-  // Get current category
   const currentCategory = categories.find((cat) => cat.id === categoryId);
 
-  // Filter posts based on category and search term
   const filteredPosts = React.useMemo(() => {
     return allBlogData.filter((post) => {
       const matchesCategory = post.categories.some(
@@ -75,7 +73,6 @@ const BlogCategory = () => {
     });
   }, [allBlogData, categoryId, searchTerm]);
 
-  // Transform the posts to get categories in the expected format
   const transformedPosts = filteredPosts.map((post) => ({
     ...post,
     categories: post.categories.map((category) => category.category),
@@ -182,6 +179,6 @@ const BlogCategory = () => {
       </div>
     </div>
   );
-};
+});
 
 export default BlogCategory;

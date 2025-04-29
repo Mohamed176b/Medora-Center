@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "../../style/CommonPages.module.css";
 
 const Sitemap = () => {
-  const siteStructure = [
+  const siteStructure = React.useMemo(() => [
     {
       title: "الصفحات الرئيسية",
       links: [
@@ -35,7 +35,7 @@ const Sitemap = () => {
         { name: "إنشاء حساب", path: "/register" },
       ],
     },
-  ];
+  ], []);
 
   return (
     <div className={styles.container}>
@@ -64,4 +64,4 @@ const Sitemap = () => {
   );
 };
 
-export default Sitemap;
+export default React.memo(Sitemap);

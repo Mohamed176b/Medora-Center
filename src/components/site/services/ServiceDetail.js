@@ -7,13 +7,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import * as solidIcons from "@fortawesome/free-solid-svg-icons";
 
-const getIconFromString = (iconName) => {
-  if (!iconName) return null;
-  const iconKey = iconName.startsWith("fa") ? iconName : `fa${iconName}`;
-  return solidIcons[iconKey] || null;
-};
-
-const ServiceDetail = () => {
+const ServiceDetail = React.memo(() => {
+  const getIconFromString = React.useCallback((iconName) => {
+    if (!iconName) return null;
+    const iconKey = iconName.startsWith("fa") ? iconName : `fa${iconName}`;
+    return solidIcons[iconKey] || null;
+  }, []);
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,6 +88,6 @@ const ServiceDetail = () => {
       </div>
     </div>
   );
-};
+});
 
 export default ServiceDetail;

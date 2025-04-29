@@ -1,8 +1,10 @@
 import React from "react";
 import styles from "../../style/Doctors.module.css";
 import { useNavigate } from "react-router-dom";
-const DoctorCard = ({ doctor }) => {
+
+const DoctorCard = React.memo(({ doctor }) => {
   const navigate = useNavigate(); 
+  
   return (
     <div className={styles["doctor-card"]}>
       <div className={styles["doctor-image-container"]}>
@@ -21,21 +23,33 @@ const DoctorCard = ({ doctor }) => {
       <div className={styles["doctor-info"]}>
         <h3 className={styles["doctor-name"]}>{doctor.full_name}</h3>
         <div>
-        {doctor.doctor_services?.length > 0 ? (
-          doctor.doctor_services.map((serviceObj, idx) => {
-            const service = serviceObj.services || serviceObj;
-            if (!service) return null;
-            return (
-              <span
-                className={styles["doctor-service"]}
-                key={service.id || idx}
-                onClick={() => navigate("/services/" + service.slug)}
-              >
-                {service.title}
-              </span>
-            );
-          })
-        ) : (
+        {doctor.doctor_services?.length > 0 ? (() => {
+          const maxToShow = 3;
+          const servicesToShow = doctor.doctor_services.slice(0, maxToShow);
+          const remaining = doctor.doctor_services.length - maxToShow;
+          return (
+            <>
+              {servicesToShow.map((serviceObj, idx) => {
+                const service = serviceObj.services || serviceObj;
+                if (!service) return null;
+                return (
+                  <span
+                    className={styles["doctor-service"]}
+                    key={service.id || idx}
+                    onClick={() => navigate("/services/" + service.slug)}
+                  >
+                    {service.title}
+                  </span>
+                );
+              })}
+              {remaining > 0 && (
+                <span className={styles["doctor-service"]}>
+                  +{remaining}
+                </span>
+              )}
+            </>
+          );
+        })() : (
           <span className={styles["doctor-service"]}>لا توجد خدمات</span>
         )}
         </div>
@@ -55,6 +69,6 @@ const DoctorCard = ({ doctor }) => {
       </div>
     </div>
   );
-};
+});  
 
 export default DoctorCard;

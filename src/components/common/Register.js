@@ -70,7 +70,7 @@ const Register = () => {
           }
         } catch (error) {
           toast("حدث خطأ أثناء التسجيل مع Google", "error");
-          console.error(error);
+          // console.error(error);
         } finally {
           setLoading(false);
         }
@@ -80,7 +80,7 @@ const Register = () => {
     handleGoogleAuth();
   }, [location, navigate, dispatch, toast]);
 
-  const handleChange = (e) => {
+  const handleChange = React.useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -90,9 +90,9 @@ const Register = () => {
     if (name === "password") {
       validatePassword(value);
     }
-  };
+  }, []);
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = React.useCallback(async () => {
     try {
       const result = await signInWithGoogle("register");
 
@@ -101,37 +101,36 @@ const Register = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء التسجيل باستخدام Google", "error");
-      console.error(error);
+      // console.error(error);
     }
-  };
+  }, [toast]);
 
-  const toggleTooltip = () => {
-    setShowTooltip(!showTooltip);
-  };
+  const toggleTooltip = React.useCallback(() => {
+    setShowTooltip((prev) => !prev);
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password) {
-      toast("جميع الحقول مطلوبة", "error");
+      toast("جميع الحقول مطلوبة", "warning");
       return;
     }
 
     const isPasswordValid = validatePassword(formData.password);
     if (!isPasswordValid) {
-      toast("كلمة المرور لا تطابق المعايير المطلوبة", "error");
+      toast("كلمة المرور لا تطابق المعايير المطلوبة", "warning");
       setShowTooltip(true);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast("كلمات المرور غير متطابقة", "error");
+      toast("كلمات المرور غير متطابقة", "warning");
       return;
     }
 
     setLoading(true);
     try {
-      // تحقق أولاً من أن الإيميل غير مسجل مسبقًا ببروفايدر Google
       const provider = await getUserProviderByEmail(formData.email);
       if (provider === 'google') {
         toast("هذا البريد الإلكتروني مسجل مسبقًا عبر Google. يرجى تسجيل الدخول باستخدام Google.", "error");
@@ -162,11 +161,11 @@ const Register = () => {
       }
     } catch (error) {
       toast("حدث خطأ أثناء التسجيل", "error");
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, navigate, dispatch, formData, setLoading]);
 
   return (
     <div className="register-container">
@@ -308,7 +307,7 @@ const Register = () => {
                         : "requirement-not-met"
                     }
                   >
-                    {!passwordErrors.number ? "✓" : "•"} رقم
+                    {!passwordErrors.number ? "✓" : "."} رقم
                   </span>
                 </div>
               </div>
@@ -356,4 +355,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default React.memo(Register);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchUserMessages,
@@ -12,7 +12,7 @@ import useToast from "../../hooks/useToast";
 import "../../style/UserMessagesComments.css";
 import Loader from "../common/Loader";
 
-const UserMessagesComments = () => {
+const UserMessagesComments = memo(() => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
   const { messages, testimonials, messagesLoading, testimonialsLoading } =
@@ -42,30 +42,30 @@ const UserMessagesComments = () => {
     }
   }, [dispatch, user]);
 
-  const handleMessageChange = (e) => {
+  const handleMessageChange = useCallback((e) => {
     const { name, value } = e.target;
     setMessageData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
+  }, []);
 
-  const handleTestimonialChange = (e) => {
+  const handleTestimonialChange = useCallback((e) => {
     const { name, value } = e.target;
     setTestimonialData((prev) => ({
       ...prev,
       [name]: name === "rating" ? parseInt(value) : value,
     }));
-  };
+  }, []);
 
-  const handleRatingClick = (rating) => {
+  const handleRatingClick = useCallback((rating) => {
     setTestimonialData((prev) => ({
       ...prev,
       rating,
     }));
-  };
+  }, []);
 
-  const submitMessage = async (e) => {
+  const submitMessage = useCallback(async (e) => {
     e.preventDefault();
 
     if (!messageData.subject || !messageData.message) {
@@ -86,9 +86,9 @@ const UserMessagesComments = () => {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [dispatch, messageData, toast, user]);
 
-  const submitTestimonial = async (e) => {
+  const submitTestimonial = useCallback(async (e) => {
     e.preventDefault();
 
     if (!testimonialData.content) {
@@ -109,9 +109,9 @@ const UserMessagesComments = () => {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [dispatch, testimonialData, toast, user]);
 
-  const deleteMessage = async (id) => {
+  const deleteMessage = useCallback(async (id) => {
     if (window.confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
       try {
         await dispatch(
@@ -123,9 +123,9 @@ const UserMessagesComments = () => {
         toast("حدث خطأ أثناء حذف الرسالة", "error");
       }
     }
-  };
+  }, [dispatch, toast, user]);
 
-  const deleteTestimonial = async (id) => {
+  const deleteTestimonial = useCallback(async (id) => {
     if (window.confirm("هل أنت متأكد من حذف هذا التقييم؟")) {
       try {
         await dispatch(
@@ -137,7 +137,11 @@ const UserMessagesComments = () => {
         toast("حدث خطأ أثناء حذف التقييم", "error");
       }
     }
-  };
+  }, [dispatch, toast, user]);
+
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab);
+  }, []);
 
   const formatDate = (dateString) => {
     const options = {
@@ -161,7 +165,7 @@ const UserMessagesComments = () => {
         <div className="tabs">
           <button
             className={`tab-button ${activeTab === "messages" ? "active" : ""}`}
-            onClick={() => setActiveTab("messages")}
+            onClick={() => handleTabChange("messages")}
           >
             الرسائل
           </button>
@@ -348,6 +352,6 @@ const UserMessagesComments = () => {
       </div>
     </div>
   );
-};
+});
 
 export default UserMessagesComments;

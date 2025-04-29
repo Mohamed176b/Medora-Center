@@ -40,4 +40,4 @@ const Site = () => {
   );
 };
 
-export default Site;
+export default React.memo(Site);

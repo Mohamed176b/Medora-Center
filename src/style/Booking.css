@@ -4,7 +4,6 @@
   background-color: white;
 }
 
-/* Guest View Styles */
 .booking-container .guest-view {
   text-align: center;
   padding: 4rem 2rem;
@@ -124,7 +123,6 @@
   color: white;
 }
 
-/* Authenticated View Styles */
 .booking-container .authenticated-view {
   background-color: #f8f9fa;
   border-radius: 15px;

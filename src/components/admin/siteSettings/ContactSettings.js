@@ -7,7 +7,6 @@ import { supabase } from "../../../supabase/supabaseClient";
 import { updateSiteSettings } from "../../../redux/slices/adminSlice";
 import ButtonLoader from "./ButtonLoader";
 
-// تعريف أيقونة مخصصة للخريطة
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -15,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-const LocationPicker = ({ position, setPosition }) => {
+const LocationPicker = React.memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -38,7 +37,7 @@ const LocationPicker = ({ position, setPosition }) => {
       try {
         setPosition(newPos);
       } catch (error) {
-        console.error("Error updating position:", error);
+        // console.error("Error updating position:", error);
       } finally {
         setIsUpdating(false);
       }
@@ -53,7 +52,7 @@ const LocationPicker = ({ position, setPosition }) => {
           handlePositionUpdate(newPos);
         }
       } catch (error) {
-        console.error("Error handling map click:", error);
+        // console.error("Error handling map click:", error);
       }
     },
   });
@@ -68,7 +67,7 @@ const LocationPicker = ({ position, setPosition }) => {
           }
         });
       } catch (error) {
-        console.error("Error updating map view:", error);
+        // console.error("Error updating map view:", error);
       }
     }
   }, [position, map, isUpdating]);
@@ -86,16 +85,16 @@ const LocationPicker = ({ position, setPosition }) => {
               handlePositionUpdate([newPos.lat, newPos.lng]);
             }
           } catch (error) {
-            console.error("Error handling marker drag:", error);
+            // console.error("Error handling marker drag:", error);
           }
         },
       }}
       draggable={true}
     />
   ) : null;
-};
+});
 
-const ContactSettings = ({ canEdit, contactData, dispatch }) => {
+const ContactSettings = React.memo(({ canEdit, contactData, dispatch }) => {
   const [saving, setSaving] = useState(false);
   const [localContactData, setLocalContactData] = useState(
     contactData || {
@@ -117,7 +116,7 @@ const ContactSettings = ({ canEdit, contactData, dispatch }) => {
     parseFloat(localContactData.latitude) || defaultPosition[0],
     parseFloat(localContactData.longitude) || defaultPosition[1],
   ]);
-  const [mapKey, setMapKey] = useState(0);
+  const [mapKey] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -152,7 +151,6 @@ const ContactSettings = ({ canEdit, contactData, dispatch }) => {
 
       if (error) throw error;
 
-      // Update Redux store
       dispatch(updateSiteSettings({ page: "contact", data: localContactData }));
 
       dispatch(
@@ -315,6 +313,7 @@ const ContactSettings = ({ canEdit, contactData, dispatch }) => {
       )}
     </form>
   );
-};
+});
 
 export default ContactSettings;
+

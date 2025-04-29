@@ -1,4 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  memo,
+  useRef,
+} from "react";
 import useAuthorization from "../../../hooks/useAuthorization";
 import { PAGE_ROLES } from "../../../config/roles";
 import { supabase } from "../../../supabase/supabaseClient";
@@ -8,17 +15,27 @@ import {
   fetchAllBlogPosts,
   fetchAllBlogCategories,
 } from "../../../redux/slices/adminSlice";
-import BlogForm from "./BlogForm";
-import BlogList from "./BlogList";
-import { useCallback } from "react";
 import useAdminState from "../../../hooks/useAdminState";
+const BlogForm = React.lazy(() => import("./BlogForm"));
+const BlogList = React.lazy(() => import("./BlogList"));
 
-const BlogManagement = () => {
+const BlogManagement = memo(() => {
   const [blogViewsMap, setBlogViewsMap] = useState({});
+  const [showForm, setShowForm] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [currentPost, setCurrentPost] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const formRef = useRef(null);
+  const { isAuthorized, unauthorizedUI } = useAuthorization(
+    PAGE_ROLES.blogManagement
+  );
+  const dispatch = useDispatch();
+  const admin = useAdminState();
 
-  // Fetch blog views for all posts
   const fetchBlogViews = useCallback(async (posts) => {
-    if (!posts || posts.length === 0) {
+    if ((!posts || posts.length === 0) && isAuthorized) {
       setBlogViewsMap({});
       return;
     }
@@ -34,101 +51,106 @@ const BlogManagement = () => {
       map[view.post_id] = (map[view.post_id] || 0) + 1;
     });
     setBlogViewsMap(map);
-  }, []);
-  const { isAuthorized, unauthorizedUI } = useAuthorization(
-    PAGE_ROLES.blogManagement
-  );
-  const dispatch = useDispatch();
-  const admin = useAdminState();
+  }, []); //eslint-disable-line react-hooks/exhaustive-deps
 
-  // Get data from Redux store
   const posts = useSelector((state) => state.admin.allBlogPosts);
   const categories = useSelector((state) => state.admin.blogCategories);
   const loading = useSelector((state) => state.admin.blogLoading);
   const error = useSelector((state) => state.admin.blogError);
 
-  const canEdit =
-    (admin?.role === "super-admin" ||
-      admin?.role === "admin" ||
-      admin?.role === "editor") &&
-    admin?.role !== "viewer";
-  const isViewer = admin?.role === "viewer";
+  const canEdit = useMemo(
+    () =>
+      (admin?.role === "super-admin" ||
+        admin?.role === "admin" ||
+        admin?.role === "editor") &&
+      admin?.role !== "viewer",
+    [admin?.role]
+  );
 
-  const [showForm, setShowForm] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [currentPost, setCurrentPost] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const isViewer = useMemo(() => admin?.role === "viewer", [admin?.role]);
 
-  // Fetch data on component mount only if not already in store
-  // جلب عدد المشاهدات فقط عند تغير معرفات المقالات
   useEffect(() => {
-    if (posts.length === 0) {
+    if (!posts || posts.length === 0) {
       dispatch(fetchAllBlogPosts());
     } else {
-      // استخراج قائمة المعرفات فقط
-      const postIds = posts.map((p) => p.id).join(',');
       fetchBlogViews(posts);
     }
     if (categories.length === 0) {
       dispatch(fetchAllBlogCategories());
     }
-  }, [dispatch, posts.length, categories.length, fetchBlogViews, posts.map(p => p.id).join(",")]);
+  }, [dispatch]); //eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleAddPost = () => {
+  const handleAddPost = useCallback(() => {
     setCurrentPost(null);
     setEditMode(false);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleEditPost = (post) => {
+  const handleEditPost = useCallback((post) => {
     setCurrentPost(post);
     setEditMode(true);
     setShowForm(true);
-  };
 
-  const resetForm = () => {
+    // تأكد من وجود العنصر قبل التمرير
+    requestAnimationFrame(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }else {
+        // console.error("formRef.current is null or undefined");
+      }
+    });
+  }, []);
+
+  const resetForm = useCallback(() => {
     setShowForm(false);
     setEditMode(false);
     setCurrentPost(null);
-  };
+  }, []);
 
-  const handleViewPost = (post) => {
+  const handleViewPost = useCallback((post) => {
     window.open(`/blog/${post.slug}`, "_blank");
-  };
+  }, []);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
-  const handleStatusFilterChange = (e) => {
+  const handleStatusFilterChange = useCallback((e) => {
     setStatusFilter(e.target.value);
-  };
+  }, []);
 
-  const handleCategoryFilterChange = (e) => {
+  const handleCategoryFilterChange = useCallback((e) => {
     setCategoryFilter(e.target.value);
-  };
+  }, []);
 
-  // Filter posts based on search term, status, and category
-  const filteredPosts = posts.filter((post) => {
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (post.summary &&
-        post.summary.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Memoize filtered posts
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesSearch =
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (post.summary &&
+          post.summary.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "published" && post.is_published) ||
-      (statusFilter === "draft" && !post.is_published);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "published" && post.is_published) ||
+        (statusFilter === "draft" && !post.is_published);
 
-    const matchesCategory =
-      categoryFilter === "all" ||
-      post.categories.some((category) => category.id === categoryFilter);
+      const matchesCategory =
+        categoryFilter === "all" ||
+        post.categories.some((category) => category.id === categoryFilter);
 
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+      return matchesSearch && matchesStatus && matchesCategory;
+    });
+  }, [posts, searchTerm, statusFilter, categoryFilter]);
+
+  const fetchPosts = useCallback(() => {
+    dispatch(fetchAllBlogPosts());
+  }, [dispatch]);
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -139,18 +161,22 @@ const BlogManagement = () => {
   }
 
   return (
-    <div className={styles["blog-management-container"]}>
+    <div className={styles["blog-management-container"]} ref={formRef}>
       <div className={styles["blog-management-header"]}>
         <h1>إدارة المدونة</h1>
-        <button 
-            className={styles["add-button"]}
-            onClick={handleAddPost}
-            disabled={showForm}
-            style={showForm ? {opacity: 0.6, cursor: 'not-allowed', pointerEvents: 'none'} : {}}
-          >
-            <i className="fas fa-plus"></i>
-            إضافة مقالة جديدة
-          </button>
+        <button
+          className={styles["add-button"]}
+          onClick={handleAddPost}
+          disabled={showForm}
+          style={
+            showForm
+              ? { opacity: 0.6, cursor: "not-allowed", pointerEvents: "none" }
+              : {}
+          }
+        >
+          <i className="fas fa-plus"></i>
+          إضافة مقالة جديدة
+        </button>
       </div>
 
       <div className={styles["filter-bar"]}>
@@ -191,7 +217,7 @@ const BlogManagement = () => {
           editMode={editMode}
           currentPost={currentPost}
           resetForm={resetForm}
-          fetchPosts={() => dispatch(fetchAllBlogPosts())}
+          fetchPosts={fetchPosts}
           isViewer={isViewer}
         />
       )}
@@ -202,12 +228,14 @@ const BlogManagement = () => {
         canEdit={canEdit}
         isViewer={isViewer}
         onEditPost={handleEditPost}
-        fetchPosts={() => dispatch(fetchAllBlogPosts())}
+        fetchPosts={fetchPosts}
         handleViewPost={handleViewPost}
         blogViewsMap={blogViewsMap}
       />
     </div>
   );
-};
+});
+
+BlogManagement.displayName = "BlogManagement";
 
 export default BlogManagement;

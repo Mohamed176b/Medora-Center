@@ -24,7 +24,6 @@
   background-color: var(--primary-color);
 }
 
-/* Header styles */
 .services-management .header {
   display: flex;
   justify-content: space-between;
@@ -74,7 +73,6 @@
   background-color: var(--for-primary-color);
 }
 
-/* Filter Section Styles */
 .services-management .filterSection {
   background-color: white;
   border-radius: 8px;
@@ -176,7 +174,6 @@
   cursor: not-allowed;
 }
 
-/* Form Styles */
 .services-management .form-container {
   background-color: white;
   border-radius: 8px;
@@ -283,7 +280,6 @@
   cursor: not-allowed;
 }
 
-/* Icon Search and Selection */
 .services-management .icon-search {
   width: 100%;
   margin-bottom: 15px;
@@ -351,7 +347,6 @@
   color: var(--primary-color);
 }
 
-/* Services List */
 .services-management .services-list {
   background-color: white;
   border-radius: 8px;
@@ -494,7 +489,6 @@
   background-color: var(--for-primary-color);
 }
 
-/* Order Controls */
 .services-management .order-info {
   display: flex;
   flex-direction: column;
@@ -538,7 +532,6 @@
   cursor: not-allowed;
 }
 
-/* No Results Message */
 .services-management .noResults {
   padding: 40px;
   text-align: center;
@@ -562,7 +555,6 @@
   margin: 0;
 }
 
-/* Responsive adjustments */
 @media (max-width: 992px) {
   .services-management {
     padding: 15px;
@@ -711,14 +703,12 @@
   }
 }
 
-/* Mobile Styles */
 @media (min-width: 769px) {
   .services-management .filterToggleBtn {
     display: none;
   }
 }
 
-/* Responsive table for mobile */
 @media screen and (max-width: 768px) {
   .services-management .section-title::after {
     right: 50%;
@@ -793,7 +783,6 @@
     width: auto;
   }
   
-  /* Make sure order actions cell is displayed independently */
   .services-management .services-table .order-actions-cell {
     border-bottom: 1px solid #eee;
   }
@@ -822,7 +811,6 @@
   }
 }
 
-/* Responsive adjustments for order buttons */
 @media screen and (max-width: 768px) {
   .services-management .services-table td.order-actions-cell {
     justify-content: flex-start;
@@ -895,7 +883,6 @@
   color: #dc3545;
 }
 
-/* Order buttons container styles */
 .order-buttons-container {
   display: flex;
   justify-content: center;
@@ -909,10 +896,6 @@
   }
 }
 
-/* Fix for conflict between services page and doctors page styles */
-/* Adding more specific selectors to prevent style overrides */
-
-/* Order buttons colors */
 .services-management .order-button.order-up {
   color: #28a745;
 }
@@ -921,7 +904,6 @@
   color: #dc3545;
 }
 
-/* Ensure table header styles are specific to the services table */
 .services-management .services-table th {
   background-color: var(--primary-color);
   color: white;
@@ -929,7 +911,6 @@
   white-space: nowrap;
 }
 
-/* Make button styles more specific */
 .services-management .edit-button,
 .services-management .delete-button {
   padding: 6px 12px;
@@ -942,21 +923,18 @@
   font-weight: 500;
 }
 
-/* Ensure responsive container is properly scoped */
 .services-management .table-responsive {
   overflow-x: auto;
   width: 100%;
   border-radius: 8px;
 }
 
-/* Make order buttons container more specific */
 .services-management .order-buttons-container {
   display: flex;
   justify-content: center;
   gap: 5px;
 }
 
-/* More specific selectors for order buttons */
 .services-management .order-button {
   width: 30px;
   height: 30px;
@@ -982,7 +960,6 @@
   cursor: not-allowed;
 }
 
-/* More specific selectors for media queries */
 @media screen and (max-width: 768px) {
   .services-management .order-buttons-container {
     justify-content: flex-start;

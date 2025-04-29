@@ -2,7 +2,7 @@ import React from "react";
 import ButtonLoader from "./ButtonLoader";
 import ImagePreview from "./ImagePreview";
 
-const HomeSettings = ({
+const HomeSettings = React.memo(({
   formData,
   handleChange,
   backgroundImageFile,
@@ -118,6 +118,7 @@ const HomeSettings = ({
       )}
     </form>
   );
-};
+});
 
 export default HomeSettings;
+

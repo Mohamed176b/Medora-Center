@@ -1,6 +1,6 @@
-import React from "react";
+import React, { memo } from "react";
 
-const AppointmentHeader = ({ totalCount, filteredCount }) => {
+const AppointmentHeader = memo(({ totalCount, filteredCount }) => {
   return (
     <>
       <div className="admin-header">
@@ -13,15 +13,8 @@ const AppointmentHeader = ({ totalCount, filteredCount }) => {
           ? `عرض ${filteredCount} من أصل ${totalCount} موعد`
           : "لا توجد مواعيد مطابقة"}
       </div>
-
-      {filteredCount === 0 && (
-        <div className="no-appointments">
-          <h3>لا توجد مواعيد متاحة</h3>
-          <p>لم يتم العثور على مواعيد تطابق معايير البحث الحالية</p>
-        </div>
-      )}
     </>
   );
-};
+});
 
 export default AppointmentHeader;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import useAuthorization from "../../../hooks/useAuthorization";
 import { PAGE_ROLES } from "../../../config/roles";
 import { supabase } from "../../../supabase/supabaseClient";
@@ -6,13 +6,78 @@ import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
 import useToast from "../../../hooks/useToast";
 import styles from "../../../style/Testimonials.module.css";
-import Loader from "../../common/Loader";
 import useAdminState from "../../../hooks/useAdminState";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchAllTestimonialsData,
   updateTestimonials,
 } from "../../../redux/slices/adminSlice";
+const Loader = React.lazy(() => import("../../common/Loader"));
+
+const TestimonialCard = memo(
+  ({ testimonial, onStatusChange, onDelete, canEdit, formatDate }) => {
+    return (
+      <div className={styles.testimonialCard}>
+        <div className={styles.testimonialHeader}>
+          <div className={styles.userInfo}>
+            <h3>{testimonial.patients?.full_name || "مستخدم غير معروف"}</h3>
+            <span className={styles.testimonialDate}>
+              {formatDate(testimonial.created_at)}
+            </span>
+          </div>
+          <div className={styles.rating}>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <span
+                key={index}
+                className={`${styles.star} ${
+                  index < testimonial.rating ? styles.filled : ""
+                }`}
+              >
+                {index < testimonial.rating ? "★" : "☆"}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.testimonialContent}>
+          <p>{testimonial.content}</p>
+        </div>
+
+        <div className={styles.testimonialFooter}>
+          <div className={styles.statusSection}>
+            <span
+              className={`${styles.statusBadge} ${
+                testimonial.is_reviewed ? styles.reviewed : styles.pending
+              }`}
+            >
+              {testimonial.is_reviewed ? "تمت المراجعة" : "قيد المراجعة"}
+            </span>
+            {canEdit && (
+              <button
+                className={styles.toggleStatusBtn}
+                onClick={() =>
+                  onStatusChange(testimonial.id, !testimonial.is_reviewed)
+                }
+              >
+                {testimonial.is_reviewed ? "إلغاء المراجعة" : "تأكيد المراجعة"}
+              </button>
+            )}
+          </div>
+          {canEdit && (
+            <button
+              className={styles.deleteBtn}
+              onClick={() => onDelete(testimonial.id)}
+            >
+              <i className="fas fa-trash-alt"></i>
+              حذف
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+
 const Testimonials = () => {
   const { isAuthorized, unauthorizedUI } = useAuthorization(
     PAGE_ROLES.testimonials
@@ -29,91 +94,97 @@ const Testimonials = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!testimonials || testimonials.length === 0) {
-      fetchTestimonials();
-    } else {
-      setLoading(false);
-    }
-  }, [dispatch]);
-
-  const fetchTestimonials = async () => {
+  const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);
       dispatch(fetchAllTestimonialsData());
     } catch (error) {
-      console.error("Error fetching testimonials:", error);
+      // console.error("Error fetching testimonials:", error);
       toast("حدث خطأ أثناء جلب التقييمات", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, toast]);
 
-  const handleReviewStatusChange = async (testimonialId, newStatus) => {
-    try {
-      const { error } = await supabase
-        .from("testimonials")
-        .update({ is_reviewed: newStatus })
-        .eq("id", testimonialId);
+  const handleReviewStatusChange = useCallback(
+    async (testimonialId, newStatus) => {
+      try {
+        const { error } = await supabase
+          .from("testimonials")
+          .update({ is_reviewed: newStatus })
+          .eq("id", testimonialId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // تحديث الحالة في Redux store باستخدام action creator
-      const updatedTestimonials = testimonials.map((t) =>
-        t.id === testimonialId ? { ...t, is_reviewed: newStatus } : t
-      );
-      dispatch(updateTestimonials(updatedTestimonials));
+        const updatedTestimonials = testimonials.map((t) =>
+          t.id === testimonialId ? { ...t, is_reviewed: newStatus } : t
+        );
+        dispatch(updateTestimonials(updatedTestimonials));
 
-      toast("تم تحديث حالة التقييم بنجاح", "success");
-    } catch (error) {
-      console.error("Error updating testimonial status:", error);
-      toast("حدث خطأ أثناء تحديث حالة التقييم", "error");
-    }
-  };
+        toast("تم تحديث حالة التقييم بنجاح", "success");
+      } catch (error) {
+        // console.error("Error updating testimonial status:", error);
+        toast("حدث خطأ أثناء تحديث حالة التقييم", "error");
+      }
+    },
+    [testimonials, dispatch, toast]
+  );
 
-  const handleDelete = async (testimonialId) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا التقييم؟")) return;
+  const handleDelete = useCallback(
+    async (testimonialId) => {
+      if (!window.confirm("هل أنت متأكد من حذف هذا التقييم؟")) return;
 
-    try {
-      const { error } = await supabase
-        .from("testimonials")
-        .delete()
-        .eq("id", testimonialId);
+      try {
+        const { error } = await supabase
+          .from("testimonials")
+          .delete()
+          .eq("id", testimonialId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // تحديث الحالة في Redux store بعد الحذف
-      const updatedTestimonials = testimonials.filter(
-        (t) => t.id !== testimonialId
-      );
-      dispatch(updateTestimonials(updatedTestimonials));
+        const updatedTestimonials = testimonials.filter(
+          (t) => t.id !== testimonialId
+        );
+        dispatch(updateTestimonials(updatedTestimonials));
 
-      toast("تم حذف التقييم بنجاح", "success");
-    } catch (error) {
-      console.error("Error deleting testimonial:", error);
-      toast("حدث خطأ أثناء حذف التقييم", "error");
-    }
-  };
+        toast("تم حذف التقييم بنجاح", "success");
+      } catch (error) {
+        // console.error("Error deleting testimonial:", error);
+        toast("حدث خطأ أثناء حذف التقييم", "error");
+      }
+    },
+    [testimonials, dispatch, toast]
+  );
 
-  const formatDate = (dateString) => {
+  const formatDate = useCallback((dateString) => {
     return format(new Date(dateString), "dd MMMM yyyy", { locale: arEG });
-  };
+  }, []);
 
-  const filteredTestimonials = testimonials.filter((testimonial) => {
-    const matchesStatus =
-      filterStatus === "all" ||
-      (filterStatus === "reviewed" && testimonial.is_reviewed) ||
-      (filterStatus === "pending" && !testimonial.is_reviewed);
+  const filteredTestimonials = useMemo(() => {
+    return testimonials.filter((testimonial) => {
+      const matchesStatus =
+        filterStatus === "all" ||
+        (filterStatus === "reviewed" && testimonial.is_reviewed) ||
+        (filterStatus === "pending" && !testimonial.is_reviewed);
 
-    const matchesSearch =
-      searchTerm === "" ||
-      testimonial.patients?.full_name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      testimonial.content.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        searchTerm === "" ||
+        testimonial.patients?.full_name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        testimonial.content.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesStatus && matchesSearch;
-  });
+      return matchesStatus && matchesSearch;
+    });
+  }, [testimonials, filterStatus, searchTerm]);
+
+  useEffect(() => {
+    if ((!testimonials || testimonials.length === 0) && isAuthorized) {
+      fetchTestimonials();
+    } else {
+      setLoading(false);
+    }
+  }, [dispatch, isAuthorized]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -159,70 +230,14 @@ const Testimonials = () => {
       ) : (
         <div className={styles.testimonialsList}>
           {filteredTestimonials.map((testimonial) => (
-            <div key={testimonial.id} className={styles.testimonialCard}>
-              <div className={styles.testimonialHeader}>
-                <div className={styles.userInfo}>
-                  <h3>
-                    {testimonial.patients?.full_name || "مستخدم غير معروف"}
-                  </h3>
-                  <span className={styles.testimonialDate}>
-                    {formatDate(testimonial.created_at)}
-                  </span>
-                </div>
-                <div className={styles.rating}>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <span
-                      key={index}
-                      className={`${styles.star} ${
-                        index < testimonial.rating ? styles.filled : ""
-                      }`}
-                    >
-                      {index < testimonial.rating ? "★" : "☆"}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.testimonialContent}>
-                <p>{testimonial.content}</p>
-              </div>
-
-              <div className={styles.testimonialFooter}>
-                <div className={styles.statusSection}>
-                  <span
-                    className={`${styles.statusBadge} ${
-                      testimonial.is_reviewed ? styles.reviewed : styles.pending
-                    }`}
-                  >
-                    {testimonial.is_reviewed ? "تمت المراجعة" : "قيد المراجعة"}
-                  </span>
-                  {canEdit && (
-                    <button
-                      className={styles.toggleStatusBtn}
-                      onClick={() =>
-                        handleReviewStatusChange(
-                          testimonial.id,
-                          !testimonial.is_reviewed
-                        )
-                      }
-                    >
-                      {testimonial.is_reviewed
-                        ? "إلغاء المراجعة"
-                        : "تأكيد المراجعة"}
-                    </button>
-                  )}
-                </div>
-                {canEdit && (
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(testimonial.id)}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                    حذف
-                  </button>
-                )}
-              </div>
-            </div>
+            <TestimonialCard
+              key={testimonial.id}
+              testimonial={testimonial}
+              onStatusChange={handleReviewStatusChange}
+              onDelete={handleDelete}
+              canEdit={canEdit}
+              formatDate={formatDate}
+            />
           ))}
         </div>
       )}
@@ -230,4 +245,4 @@ const Testimonials = () => {
   );
 };
 
-export default Testimonials;
+export default memo(Testimonials);

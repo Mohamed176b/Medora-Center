@@ -1,5 +1,5 @@
 import React from "react";
 
-const ButtonLoader = () => <div className="button-loader"></div>;
+const ButtonLoader = React.memo(() => <div className="button-loader"></div>);
 
-export default ButtonLoader; 
+export default ButtonLoader;

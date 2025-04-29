@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
 import styles from "../../../style/DoctorManagement.module.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,10 +30,24 @@ const DoctorForm = ({
   const [imagePreview, setImagePreview] = useState(null);
   const imageInputRef = useRef(null);
 
-  // جلب الخدمات عند تحميل النموذج
   useEffect(() => {
-    dispatch(fetchServicesData());
-  }, [dispatch]);
+    if (!services || services.length === 0) {
+      dispatch(fetchServicesData());
+    }
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const resetFormData = useCallback(() => {
+    setFormData({
+      full_name: "",
+      email: "",
+      phone: "",
+      bio: "",
+      is_active: true,
+      services: [],
+    });
+    setDoctorImage(null);
+    setImagePreview(null);
+  }, []);
 
   useEffect(() => {
     if (editMode && currentDoctor) {
@@ -50,30 +64,17 @@ const DoctorForm = ({
     } else {
       resetFormData();
     }
-  }, [editMode, currentDoctor]);
+  }, [editMode, currentDoctor, resetFormData]);
 
-  const resetFormData = () => {
-    setFormData({
-      full_name: "",
-      email: "",
-      phone: "",
-      bio: "",
-      is_active: true,
-      services: [],
-    });
-    setDoctorImage(null);
-    setImagePreview(null);
-  };
-
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
-  };
+    }));
+  }, []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setDoctorImage(file);
@@ -83,9 +84,9 @@ const DoctorForm = ({
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const deleteOldDoctorImage = async (imageUrl) => {
+  const deleteOldDoctorImage = useCallback(async (imageUrl) => {
     if (!imageUrl) return;
 
     try {
@@ -97,23 +98,21 @@ const DoctorForm = ({
           .remove([urlPath]);
 
         if (error) throw error;
-        console.log("تم حذف الصورة القديمة بنجاح");
+        // console.log("تم حذف الصورة القديمة بنجاح");
       }
     } catch (error) {
-      console.error("خطأ في حذف الصورة القديمة:", error.message);
+      // console.error("خطأ في حذف الصورة القديمة:", error.message);
     }
-  };
+  }, []);
 
-  const uploadDoctorImage = async () => {
+  const uploadDoctorImage = useCallback(async () => {
     if (!doctorImage) return null;
 
     try {
-      // Create a unique file name
       const fileExt = doctorImage.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `doctors/${fileName}`;
 
-      // Upload the file
       const { error: uploadError } = await supabase.storage
         .from("doctors-images")
         .upload(filePath, doctorImage, {
@@ -123,156 +122,175 @@ const DoctorForm = ({
 
       if (uploadError) throw uploadError;
 
-      // Get the public URL
       const { data: publicURLData } = supabase.storage
         .from("doctors-images")
         .getPublicUrl(filePath);
 
       return publicURLData.publicUrl;
     } catch (error) {
-      console.error("Error uploading image:", error.message);
+      // console.error("Error uploading image:", error.message);
       throw error;
     }
-  };
+  }, [doctorImage]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleEditDoctor = useCallback(
+    async (imageUrl) => {
+      const { full_name, email, phone, bio, is_active, services } = formData;
+      const doctorUpdates = {
+        full_name,
+        email,
+        phone,
+        bio,
+        is_active,
+        updated_at: new Date(),
+      };
 
-    try {
-      setSaving(true);
-
-      // Validate required fields
-      if (!formData.full_name || !formData.email) {
-        throw new Error("الاسم والبريد الإلكتروني مطلوبان");
+      if (imageUrl) {
+        doctorUpdates.image_url = imageUrl;
       }
 
-      let imageUrl = null;
+      const { error: updateError } = await supabase
+        .from("doctors")
+        .update(doctorUpdates)
+        .eq("id", currentDoctorId)
+        .select()
+        .single();
 
-      // Upload image if selected
-      if (doctorImage) {
-        if (editMode) {
-          const { data: doctorData, error: fetchError } = await supabase
-            .from("doctors")
-            .select("image_url")
-            .eq("id", currentDoctorId)
-            .single();
+      if (updateError) throw updateError;
 
-          if (!fetchError && doctorData?.image_url) {
-            await deleteOldDoctorImage(doctorData.image_url);
-          }
-        }
+      const { error: deleteServicesError } = await supabase
+        .from("doctor_services")
+        .delete()
+        .eq("doctor_id", currentDoctorId);
 
-        imageUrl = await uploadDoctorImage();
-      }
+      if (deleteServicesError) throw deleteServicesError;
 
-      if (editMode) {
-        // تحديث بيانات الطبيب
-        const { full_name, email, phone, bio, is_active, services } = formData;
-        const doctorUpdates = {
-          full_name,
-          email,
-          phone,
-          bio,
-          is_active,
-          updated_at: new Date(),
-        };
+      if (services && services.length > 0) {
+        const doctorServicesData = services.map((serviceId) => ({
+          doctor_id: currentDoctorId,
+          service_id: serviceId,
+        }));
 
-        if (imageUrl) {
-          doctorUpdates.image_url = imageUrl;
-        }
-
-        // تحديث بيانات الطبيب
-        const { error: updateError } = await supabase
-          .from("doctors")
-          .update(doctorUpdates)
-          .eq("id", currentDoctorId)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-
-        // حذف جميع الخدمات القديمة
-        const { error: deleteServicesError } = await supabase
+        const { error: insertServicesError } = await supabase
           .from("doctor_services")
-          .delete()
-          .eq("doctor_id", currentDoctorId);
+          .insert(doctorServicesData);
 
-        if (deleteServicesError) throw deleteServicesError;
-
-        // إضافة الخدمات الجديدة
-        if (services && services.length > 0) {
-          const doctorServicesData = services.map((serviceId) => ({
-            doctor_id: currentDoctorId,
-            service_id: serviceId,
-          }));
-
-          const { error: insertServicesError } = await supabase
-            .from("doctor_services")
-            .insert(doctorServicesData);
-
-          if (insertServicesError) throw insertServicesError;
-        }
-      } else {
-        // إنشاء طبيب جديد
-        const { full_name, email, phone, bio, is_active, services } = formData;
-        const newDoctor = {
-          full_name,
-          email,
-          phone,
-          bio,
-          is_active,
-          image_url: imageUrl,
-        };
-
-        // إضافة الطبيب
-        const { data: insertedDoctor, error: insertError } = await supabase
-          .from("doctors")
-          .insert([newDoctor])
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-
-        // إضافة الخدمات للطبيب الجديد
-        if (services && services.length > 0) {
-          const doctorServicesData = services.map((serviceId) => ({
-            doctor_id: insertedDoctor.id,
-            service_id: serviceId,
-          }));
-
-          const { error: insertServicesError } = await supabase
-            .from("doctor_services")
-            .insert(doctorServicesData);
-
-          if (insertServicesError) throw insertServicesError;
-        }
+        if (insertServicesError) throw insertServicesError;
       }
+    },
+    [formData, currentDoctorId]
+  );
 
-      dispatch(
-        showToast({
-          message: editMode
-            ? "تم تحديث بيانات الطبيب بنجاح"
-            : "تم إضافة الطبيب بنجاح",
-          type: "success",
-        })
-      );
+  const handleCreateDoctor = useCallback(
+    async (imageUrl) => {
+      const { full_name, email, phone, bio, is_active, services } = formData;
+      const newDoctor = {
+        full_name,
+        email,
+        phone,
+        bio,
+        is_active,
+        image_url: imageUrl,
+      };
 
-      // تحديث قائمة الأطباء
-      resetFormData();
-      resetForm();
-      fetchDoctors();
-    } catch (error) {
-      console.error("Error saving doctor:", error.message);
-      dispatch(
-        showToast({
-          message: `خطأ في حفظ بيانات الطبيب: ${error.message}`,
-          type: "error",
-        })
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+      const { data: insertedDoctor, error: insertError } = await supabase
+        .from("doctors")
+        .insert([newDoctor])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      if (services && services.length > 0) {
+        const doctorServicesData = services.map((serviceId) => ({
+          doctor_id: insertedDoctor.id,
+          service_id: serviceId,
+        }));
+
+        const { error: insertServicesError } = await supabase
+          .from("doctor_services")
+          .insert(doctorServicesData);
+
+        if (insertServicesError) throw insertServicesError;
+      }
+    },
+    [formData]
+  );
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      try {
+        setSaving(true);
+
+        if (!formData.full_name || !formData.email) {
+          throw new Error("الاسم والبريد الإلكتروني مطلوبان");
+        }
+
+        let imageUrl = null;
+
+        if (doctorImage) {
+          if (editMode) {
+            const { data: doctorData, error: fetchError } = await supabase
+              .from("doctors")
+              .select("image_url")
+              .eq("id", currentDoctorId)
+              .single();
+
+            if (!fetchError && doctorData?.image_url) {
+              await deleteOldDoctorImage(doctorData.image_url);
+            }
+          }
+
+          imageUrl = await uploadDoctorImage();
+        }
+
+        if (editMode) {
+          await handleEditDoctor(imageUrl);
+        } else {
+          await handleCreateDoctor(imageUrl);
+        }
+
+        dispatch(
+          showToast({
+            message: editMode
+              ? "تم تحديث بيانات الطبيب بنجاح"
+              : "تم إضافة الطبيب بنجاح",
+            type: "success",
+          })
+        );
+
+        resetFormData();
+        resetForm();
+        fetchDoctors();
+      } catch (error) {
+        // console.error("Error saving doctor:", error.message);
+        dispatch(
+          showToast({
+            message: `خطأ في حفظ بيانات الطبيب: ${error.message}`,
+            type: "error",
+          })
+        );
+      } finally {
+        setSaving(false);
+      }
+    },
+    [
+      formData,
+      doctorImage,
+      editMode,
+      currentDoctorId,
+      dispatch,
+      resetForm,
+      fetchDoctors,
+      deleteOldDoctorImage,
+      uploadDoctorImage,
+      handleEditDoctor,
+      handleCreateDoctor,
+      resetFormData,
+    ]
+  );
 
   return (
     <div className={styles.modal}>
@@ -339,7 +357,7 @@ const DoctorForm = ({
             <div className={styles.imageUploadContainer}>
               {imagePreview && (
                 <div className={styles.imagePreview}>
-                  <img src={imagePreview} alt="معاينة صورة الطبيب" />
+                  <img src={imagePreview} alt="معاينة صورة الطبيب"  loading="lazy"/>
                 </div>
               )}
               <button
@@ -429,4 +447,4 @@ const DoctorForm = ({
   );
 };
 
-export default DoctorForm;
+export default React.memo(DoctorForm);

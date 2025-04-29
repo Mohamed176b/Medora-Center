@@ -1,22 +1,26 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
 
-const AppointmentCard = ({ appointment, onEdit, canEdit, isViewer }) => {
-  const formatDate = (dateStr) => {
+const statusTranslations = {
+  pending: "قيد الانتظار",
+  confirmed: "مؤكد",
+  cancelled: "ملغي",
+  completed: "مكتمل",
+};
+
+const AppointmentCard = memo(({ appointment, onEdit, canEdit, isViewer }) => {
+  const formattedDate = useMemo(() => {
     try {
-      return format(new Date(dateStr), "EEEE، d MMMM yyyy", { locale: arEG });
+      return format(
+        new Date(appointment.appointment_day),
+        "EEEE، d MMMM yyyy",
+        { locale: arEG }
+      );
     } catch (error) {
       return "تاريخ غير صالح";
     }
-  };
-
-  const statusTranslations = {
-    pending: "قيد الانتظار",
-    confirmed: "مؤكد",
-    cancelled: "ملغي",
-    completed: "مكتمل",
-  };
+  }, [appointment.appointment_day]);
 
   return (
     <div className="appointment-card">
@@ -37,9 +41,7 @@ const AppointmentCard = ({ appointment, onEdit, canEdit, isViewer }) => {
           <i className="fas fa-calendar-alt detail-icon"></i>
           <div className="detail-content">
             <span className="detail-label">التاريخ:</span>
-            <span className="detail-value">
-              {formatDate(appointment.appointment_day)}
-            </span>
+            <span className="detail-value">{formattedDate}</span>
           </div>
         </div>
 
@@ -91,6 +93,6 @@ const AppointmentCard = ({ appointment, onEdit, canEdit, isViewer }) => {
       )}
     </div>
   );
-};
+});
 
 export default AppointmentCard;

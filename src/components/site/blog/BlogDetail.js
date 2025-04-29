@@ -1,40 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../../../supabase/supabaseClient";
+import { trackPostView } from "../../../utils/blogViewsService";
 import Markdown from "react-markdown";
 import Loader from "../../common/Loader";
 import styles from "../../../style/Blog.module.css";
 import { useNavigate } from "react-router-dom";
+
 const BlogDetail = React.memo(() => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const trackPostView = React.useCallback(async (postId) => {
-    try {
-      const response = await fetch("https://api.ipify.org?format=json");
-      const { ip } = await response.json();
-      const twentyFourHoursAgo = new Date(
-        Date.now() - 24 * 60 * 60 * 1000
-      ).toISOString();
-      const { data: existingView } = await supabase
-        .from("blog_post_views")
-        .select("id")
-        .eq("post_id", postId)
-        .eq("viewer_ip", ip)
-        .gte("viewed_at", twentyFourHoursAgo)
-        .single();
-
-      if (!existingView) {
-        await supabase
-          .from("blog_post_views")
-          .insert({ post_id: postId, viewer_ip: ip });
-      }
-    } catch (error) {
-      // console.error("Error tracking post view:", error);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -65,13 +43,11 @@ const BlogDetail = React.memo(() => {
             categories: data.categories.map((category) => category.category),
           };
           setPost(transformedPost);
-
           await trackPostView(data.id);
         } else {
           setError("لم يتم العثور على المدونة");
         }
       } catch (error) {
-        // console.error("Error fetching post:", error.message);
         setError("حدث خطأ أثناء تحميل المدونة");
       } finally {
         setLoading(false);

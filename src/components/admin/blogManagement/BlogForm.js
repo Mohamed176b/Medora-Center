@@ -1,15 +1,24 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+// BlogForm.js - Blog post creation/editing form for admin panel
+// Handles form state, image uploads, markdown editing, validation, and unsaved changes
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo, lazy, Suspense } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
 import styles from "../../../style/BlogManagement.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../redux/slices/toastSlice";
 import Markdown from "react-markdown";
 import useAdminState from "../../../hooks/useAdminState";
-import ImageViewer from "./ImageViewer";
-import ProgressBar from "../../common/ProgressBar";
-import { useNavigate } from "react-router-dom";
 
-const BlogForm = ({
+const ImageViewer = lazy(() => import("./ImageViewer"));
+const ProgressBar = lazy(() => import("../../common/ProgressBar"));
+
+// Main BlogForm component, memoized for performance
+// Props:
+// - editMode: boolean, if true, editing an existing post
+// - currentPost: post data for editing
+// - resetForm: function to reset form fields
+// - fetchPosts: function to refresh posts list
+// - isViewer: boolean, if true, user can only view, not edit
+const BlogForm = memo(({
   editMode,
   currentPost,
   resetForm,
@@ -18,10 +27,9 @@ const BlogForm = ({
 }) => {
   const dispatch = useDispatch();
   const admin = useAdminState();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  // Redux state for categories, form state, file/image state, and UI state
 
-  // Get categories from Redux store
   const categories = useSelector((state) => state.admin.blogCategories);
 
   const [formData, setFormData] = useState({
@@ -35,7 +43,6 @@ const BlogForm = ({
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [errors, setErrors] = useState({});
-  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const fileInputRef = useRef(null);
   const contentTextareaRef = useRef(null);
@@ -52,14 +59,14 @@ const BlogForm = ({
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [continueCallback, setContinueCallback] = useState(null);
 
-  // CSS styles for disabled elements
-  const disabledStyle = {
+  // Style object for disabling form fields in viewer mode
+  const disabledStyle = useMemo(() => ({
     opacity: 0.6,
     cursor: "not-allowed",
-  };
+  }), []);
 
-  // Display message for viewers
-  const viewerMessage = isViewer ? (
+  // Message shown if user is only allowed to view (not edit)
+  const viewerMessage = useMemo(() => isViewer ? (
     <div
       style={{
         backgroundColor: "rgba(255, 235, 205, 0.8)",
@@ -73,9 +80,8 @@ const BlogForm = ({
     >
       لا يمكنك تعديل أو إضافة مقالات. يمكنك فقط الاطلاع على النموذج.
     </div>
-  ) : null;
+  ) : null, [isViewer]);
 
-  // استمع لحدث checkUnsavedChanges من AdminLayout
 useEffect(() => {
   const handleUnsavedChanges = (e) => {
     if (hasUnsavedChanges) {
@@ -85,17 +91,16 @@ useEffect(() => {
       e.detail.onContinue();
     }
   };
+  // Listen for custom event to check for unsaved changes before navigation
   window.addEventListener("checkUnsavedChanges", handleUnsavedChanges);
   return () => {
     window.removeEventListener("checkUnsavedChanges", handleUnsavedChanges);
   };
 }, [hasUnsavedChanges]);
 
-// توحيد منطق التأكيد عند الخروج أو التنقل
 useEffect(() => {
   const handleBeforeUnload = (e) => {
     if (hasUnsavedChanges) {
-      // رسالة توضيحية للمستخدم
       const message = 'لديك تغييرات غير محفوظة. إذا غادرت الصفحة الآن، قد تبقى بعض الصور أو المرفقات ولن يتم حذفها تلقائيًا.';
       e.preventDefault();
       e.returnValue = message;
@@ -109,8 +114,9 @@ useEffect(() => {
   };
 }, [hasUnsavedChanges]);
 
-useEffect(() => {
+  useEffect(() => {
     if (editMode && currentPost) {
+      // Populate form fields with existing post data
       setFormData({
         title: currentPost.title || "",
         slug: currentPost.slug || "",
@@ -127,12 +133,10 @@ useEffect(() => {
     }
   }, [editMode, currentPost]);
 
-  // تعديل useEffect لمراقبة التغييرات غير المحفوظة
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
         setShowExitDialog(true);
-        // إزالة رسالة التنبيه الافتراضية للمتصفح
         e.preventDefault();
         return "";
       }
@@ -142,7 +146,6 @@ useEffect(() => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Add event listener for navigation changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
@@ -154,7 +157,6 @@ useEffect(() => {
     const handleUnsavedChanges = (e) => {
       if (hasUnsavedChanges) {
         setShowExitDialog(true);
-        // Store the continue callback
         setContinueCallback(() => e.detail.onContinue);
       } else {
         e.detail.onContinue();
@@ -170,10 +172,9 @@ useEffect(() => {
     };
   }, [hasUnsavedChanges]);
 
-  // Load existing attached images when editing
+  // Load attached images when editing an existing post
   useEffect(() => {
     if (editMode && currentPost) {
-      // Get attachments from the post data
       const existingAttachments = currentPost.attachments || [];
       setAttachedImages(
         existingAttachments.map((attachment) => ({
@@ -185,11 +186,11 @@ useEffect(() => {
     }
   }, [editMode, currentPost]);
 
+  // Handle input changes for all form fields and category checkboxes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === "checkbox" && name === "categoryIds") {
-      // Handle category checkboxes
       const categoryId = e.target.value;
       const updatedCategoryIds = [...formData.categoryIds];
 
@@ -207,7 +208,6 @@ useEffect(() => {
         categoryIds: updatedCategoryIds,
       });
     } else {
-      // Handle other inputs
       setFormData({
         ...formData,
         [name]: type === "checkbox" ? checked : value,
@@ -216,31 +216,26 @@ useEffect(() => {
 
     setHasUnsavedChanges(true);
 
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors({ ...errors, [name]: null });
     }
   };
-
-  // Remove duplicate handleImageClick function and consolidate functionality
-  const handleImageClick = (image = null) => {
+  // Handle click on main or attached image (either open viewer or trigger file input)
+  const handleImageClick = useCallback((image = null) => {
     if (image) {
-      // For viewing attached images
       setSelectedImage(image);
       setShowImageViewer(true);
     } else {
-      // For main article image upload
       if (fileInputRef.current) {
         fileInputRef.current.click();
       }
     }
-  };
+  }, []);
 
-  const handleImageChange = (e) => {
+  // Handle change of main blog image (validates and previews image)
+  const handleImageChange = useCallback((e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Check file type
     const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!validTypes.includes(file.type)) {
       dispatch(
@@ -251,8 +246,6 @@ useEffect(() => {
       );
       return;
     }
-
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       dispatch(
         showToast({
@@ -262,12 +255,12 @@ useEffect(() => {
       );
       return;
     }
-
     setSelectedFile(file);
     setImagePreview(URL.createObjectURL(file));
     setHasUnsavedChanges(true);
-  };
+  }, [dispatch]);
 
+  // Validate required fields and slug format before submit
   const validateForm = () => {
     const newErrors = {};
 
@@ -279,7 +272,6 @@ useEffect(() => {
       newErrors.content = "محتوى المقالة مطلوب";
     }
 
-    // Validate slug format (lowercase, no spaces, only hyphens)
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     if (!formData.slug.trim()) {
       newErrors.slug = "الرابط المختصر مطلوب";
@@ -292,10 +284,9 @@ useEffect(() => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const generateSlug = () => {
+  // Generate a URL-friendly slug from the title
+  const generateSlug = useCallback(() => {
     if (!formData.title) return;
-
-    // Create slug from title: convert to lowercase, replace spaces with hyphens, remove special chars
     const slug = formData.title
       .toLowerCase()
       .replace(/\s+/g, "-")
@@ -303,10 +294,10 @@ useEffect(() => {
       .replace(/--+/g, "-")
       .replace(/^-+/, "")
       .replace(/-+$/, "");
-
     setFormData({ ...formData, slug });
-  };
+  }, [formData.title]);
 
+  // Remove image from Supabase storage bucket
   const deleteImageFromStorage = async (imageUrl) => {
     if (!imageUrl) return;
 
@@ -325,61 +316,21 @@ useEffect(() => {
           .remove([filePath]);
 
         if (error) {
-          console.error("Error deleting image from storage:", error);
+          // console.error("Error deleting image from storage:", error);
         } else {
-          console.log("Image deleted successfully from storage:", filePath);
+          // console.log("Image deleted successfully from storage:", filePath);
         }
       }
     } catch (error) {
-      console.error("Error processing image deletion:", error);
+      // console.error("Error processing image deletion:", error);
     }
   };
 
-  const uploadImage = async () => {
-    if (!imageFile) return formData.image_url;
-
-    try {
-      // Delete the old image if we're updating the post and changing the image
-      if (
-        editMode &&
-        currentPost?.image_url &&
-        formData.image_url &&
-        imageFile
-      ) {
-        await deleteImageFromStorage(currentPost.image_url);
-      }
-
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `blog/${fileName}`;
-
-      // Upload the image to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from("site-images")
-        .upload(filePath, imageFile, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get the public URL
-      const { data: publicURLData } = supabase.storage
-        .from("site-images")
-        .getPublicUrl(filePath);
-
-      return publicURLData.publicUrl;
-    } catch (error) {
-      console.error("Error uploading image:", error.message);
-      throw error;
-    }
-  };
-
+  // Handle upload of an attached image (not main image), insert markdown, and update state
   const handleAttachImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file type
     const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!validTypes.includes(file.type)) {
       dispatch(
@@ -391,7 +342,6 @@ useEffect(() => {
       return;
     }
 
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       dispatch(
         showToast({
@@ -410,7 +360,6 @@ useEffect(() => {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `blog/${fileName}`;
 
-      // Upload the image
       const { error: uploadError } = await supabase.storage
         .from("site-images")
         .upload(filePath, file, {
@@ -422,7 +371,6 @@ useEffect(() => {
 
       setUploadProgress(100);
 
-      // Get the public URL
       const { data: publicURLData } = supabase.storage
         .from("site-images")
         .getPublicUrl(filePath);
@@ -437,7 +385,6 @@ useEffect(() => {
       setAttachedImages(newAttachedImages);
       setHasUnsavedChanges(true);
 
-      // Insert the image markdown into the content
       if (contentTextareaRef.current) {
         const position = contentTextareaRef.current.selectionStart;
         const currentContent = formData.content;
@@ -461,7 +408,7 @@ useEffect(() => {
         })
       );
     } catch (error) {
-      console.error("Error uploading image:", error);
+      // console.error("Error uploading image:", error);
       dispatch(
         showToast({
           message: "حدث خطأ أثناء رفع الصورة",
@@ -477,24 +424,23 @@ useEffect(() => {
     }
   };
 
+  // Remove an attached image from storage and content markdown
   const handleRemoveAttachedImage = async (imageToRemove) => {
     if (!imageToRemove.path) {
-      console.error("No path found for image to remove");
+      // console.error("No path found for image to remove");
       return;
     }
-
+    
     try {
       setIsDeleting(true);
       setDeleteProgress(50);
 
-      // Delete from storage
       const { error } = await supabase.storage
         .from("site-images")
         .remove([imageToRemove.path]);
 
       if (error) throw error;
 
-      // Remove from state
       const newAttachedImages = attachedImages.filter(
         (img) => img.url !== imageToRemove.url
       );
@@ -502,7 +448,6 @@ useEffect(() => {
 
       setDeleteProgress(100);
 
-      // Remove from content if exists
       const newContent = formData.content.replace(
         `![${imageToRemove.name}](${imageToRemove.url})`,
         ""
@@ -532,11 +477,11 @@ useEffect(() => {
     }
   };
 
+  // Save the current form as a draft (not published)
   const handleSaveAsDraft = async () => {
     try {
       setLoading(true);
 
-      // Handle main image
       let imageUrl = formData.image_url;
       if (selectedFile) {
         try {
@@ -553,7 +498,6 @@ useEffect(() => {
 
           if (uploadError) throw uploadError;
 
-          // Get the public URL
           const { data: publicURLData } = supabase.storage
             .from("site-images")
             .getPublicUrl(filePath);
@@ -565,7 +509,6 @@ useEffect(() => {
         }
       }
 
-      // Save the post with the image URL
       await handleSubmit(null, true, imageUrl);
 
       if (continueCallback && !showExitDialog) {
@@ -584,15 +527,13 @@ useEffect(() => {
     }
   };
 
+  // Discard all unsaved changes and clean up uploaded images
   const handleDiscardChanges = async () => {
-    // حذف صورة المقالة الرئيسية إذا كانت غير محفوظة
     if (imagePreview && selectedFile) {
-      // إذا تم رفع الصورة مؤقتًا على التخزين
       await deleteImageFromStorage(formData.image_url);
       setImagePreview("");
       setSelectedFile(null);
     }
-    // حذف جميع الصور المرفقة المؤقتة
     if (attachedImages && attachedImages.length > 0) {
       for (const img of attachedImages) {
         if (img.path) {
@@ -608,11 +549,12 @@ useEffect(() => {
     }
   };
 
+  // Main submit handler for creating or updating a blog post
+  // Handles image upload, validation, and sending data to Supabase
   const handleSubmit = async (e, isDraft = false, draftImageUrl = null) => {
     if (e) e.preventDefault();
     if (loading) return;
 
-    // التحقق من صحة النموذج إلا إذا كان حفظ كمسودة
     if (!isDraft && !validateForm()) {
       dispatch(
         showToast({
@@ -626,11 +568,9 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      // Handle main image
       let newImageUrl = draftImageUrl;
       if (!isDraft && selectedFile) {
         try {
-          // Upload the new image
           const fileExt = selectedFile.name.split(".").pop();
           const fileName = `${Date.now()}.${fileExt}`;
           const filePath = `blog/${fileName}`;
@@ -644,27 +584,23 @@ useEffect(() => {
 
           if (uploadError) throw uploadError;
 
-          // Get the public URL
           const { data: publicURLData } = supabase.storage
             .from("site-images")
             .getPublicUrl(filePath);
 
           newImageUrl = publicURLData.publicUrl;
 
-          // Delete old image if it exists in edit mode
           if (editMode && currentPost?.image_url) {
             await deleteImageFromStorage(currentPost.image_url);
           }
         } catch (error) {
-          console.error("Error handling image:", error);
+          // console.error("Error handling image:", error);
           throw new Error("فشل في معالجة الصورة");
         }
       } else if (!selectedFile) {
-        // Keep existing image URL if no new file is selected
         newImageUrl = formData.image_url;
       }
 
-      // Prepare post data with attachments
       const postData = {
         title: formData.title,
         slug: formData.slug,
@@ -685,7 +621,6 @@ useEffect(() => {
 
       let postId;
       if (editMode) {
-        // Update existing post
         const { error: updateError } = await supabase
           .from("blog_posts")
           .update(postData)
@@ -694,7 +629,6 @@ useEffect(() => {
         if (updateError) throw updateError;
         postId = currentPost.id;
       } else {
-        // Create new post with author_id
         const { data: newPost, error: insertError } = await supabase
           .from("blog_posts")
           .insert({ ...postData, author_id: admin?.id })
@@ -705,9 +639,7 @@ useEffect(() => {
         postId = newPost.id;
       }
 
-      // Handle categories separately
       if (postId) {
-        // Delete existing categories first if editing
         if (editMode) {
           const { error: deleteError } = await supabase
             .from("blog_posts_categories")
@@ -717,7 +649,6 @@ useEffect(() => {
           if (deleteError) throw deleteError;
         }
 
-        // Insert new categories if any are selected
         if (formData.categoryIds && formData.categoryIds.length > 0) {
           const categoryData = formData.categoryIds.map((categoryId) => ({
             post_id: postId,
@@ -743,7 +674,7 @@ useEffect(() => {
       resetForm();
       fetchPosts();
     } catch (error) {
-      console.error("Error saving post:", error);
+      // console.error("Error saving post:", error);
       dispatch(
         showToast({
           message: `حدث خطأ أثناء حفظ المقالة: ${error.message}`,
@@ -755,6 +686,7 @@ useEffect(() => {
     }
   };
 
+  // Remove the main blog image from preview and form state
   const removeImage = () => {
     setImagePreview("");
     setSelectedFile(null);
@@ -770,6 +702,7 @@ useEffect(() => {
     }
   };
 
+  // Insert markdown syntax at cursor position in content textarea
   const insertMarkdown = (type) => {
     if (contentTextareaRef.current) {
       const start = contentTextareaRef.current.selectionStart;
@@ -875,6 +808,7 @@ useEffect(() => {
     }
   };
 
+  // Render the blog post form UI
   return (
     <div className={`blog-form ${styles["blog-form"]}`}>
       <h2 className={styles["form-title"]}>
@@ -883,15 +817,11 @@ useEffect(() => {
 
       {viewerMessage}
 
-      {showImageViewer && (
-        <ImageViewer
-          image={selectedImage}
-          onClose={() => {
-            setShowImageViewer(false);
-            setSelectedImage(null);
-          }}
-        />
-      )}
+      <Suspense fallback={<div>جاري تحميل الصورة...</div>}>
+        {showImageViewer && selectedImage && (
+          <ImageViewer image={selectedImage} onClose={() => setShowImageViewer(false)} />
+        )}
+      </Suspense>
 
       {showExitDialog && (
         <div className={styles["exit-dialog-overlay"]}>
@@ -1054,18 +984,20 @@ useEffect(() => {
                 </button>
               </div>
             ))}
-            {isUploading && (
-              <ProgressBar
-                progress={uploadProgress}
-                message="جارِ رفع الصورة..."
-              />
-            )}
-            {isDeleting && (
-              <ProgressBar
-                progress={deleteProgress}
-                message="جارِ حذف الصورة..."
-              />
-            )}
+            <Suspense fallback={<div>جاري التحميل...</div>}>
+              {isUploading && (
+                <ProgressBar
+                  progress={uploadProgress}
+                  message="جارِ رفع الصورة..."
+                />
+              )}
+              {isDeleting && (
+                <ProgressBar
+                  progress={deleteProgress}
+                  message="جارِ حذف الصورة..."
+                />
+              )}
+            </Suspense>
             <div
               className={styles["image-upload-placeholder"]}
               onClick={
@@ -1353,6 +1285,7 @@ useEffect(() => {
       </form>
     </div>
   );
-};
+});
 
+// Export the BlogForm component
 export default BlogForm;

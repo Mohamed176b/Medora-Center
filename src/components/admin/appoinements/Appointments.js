@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
 import "../../../style/Appointments.css";
 import useAuthorization from "../../../hooks/useAuthorization";
 import { PAGE_ROLES } from "../../../config/roles";
 import useToast from "../../../hooks/useToast";
 import useAdminState from "../../../hooks/useAdminState";
-import Loader from "../../common/Loader";
-import AppointmentHeader from "./AppointmentHeader";
-import AppointmentFilters from "./AppointmentFilters";
-import AppointmentCard from "./AppointmentCard";
-import EditAppointmentModal from "./EditAppointmentModal";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllAppointmentsData } from "../../../redux/slices/adminSlice";
 import { fetchDoctorsData } from "../../../redux/slices/siteDataSlice";
+const Loader = React.lazy(() => import("../../common/Loader"));
+const AppointmentHeader = React.lazy(() => import("./AppointmentHeader"));
+const AppointmentFilters = React.lazy(() => import("./AppointmentFilters"));
+const AppointmentCard = React.lazy(() => import("./AppointmentCard"));
+const EditAppointmentModal = React.lazy(() => import("./EditAppointmentModal"));
 
 const Appointments = () => {
   const { isAuthorized, unauthorizedUI } = useAuthorization(
@@ -27,10 +27,12 @@ const Appointments = () => {
   const { toast } = useToast();
   const dispatch = useDispatch();
   const appointments = useSelector((state) => state.admin.allAppointmentsData);
-  // State management
   const [loading, setLoading] = useState(true);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const doctors = useSelector((state) => state.siteData?.doctorsData) || [];
+
+  const doctorsData = useSelector((state) => state.siteData?.doctorsData);
+  const doctors = useMemo(() => doctorsData || [], [doctorsData]);
+
   const [submitting, setSubmitting] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,10 +45,9 @@ const Appointments = () => {
     status: "",
     appointment_day: "",
     appointment_time: "",
-    service_id: "", // إضافة service_id
+    service_id: "",
   });
 
-  // Fetch data on component mount
   useEffect(() => {
     if (isAuthorized) {
       if (!appointments || appointments.length === 0) {
@@ -60,39 +61,131 @@ const Appointments = () => {
         setLoading(false);
       }
     }
-  }, [dispatch, isAuthorized]);
+  }, [dispatch, isAuthorized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const allAppointmentsData = async () => {
+  const allAppointmentsData = useCallback(async () => {
     try {
       setLoading(true);
       dispatch(fetchAllAppointmentsData());
     } catch (error) {
-      console.error("Error fetching admins:", error.message);
+      // console.error("Error fetching admins:", error.message);
       toast(`خطأ في جلب المواعيد: ${error.message}`, "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, toast]);
 
-  const allDoctorsData = async () => {
+  const allDoctorsData = useCallback(async () => {
     try {
       setLoading(true);
       dispatch(fetchDoctorsData());
     } catch (error) {
-      console.error("Error fetching admins:", error.message);
+      // console.error("Error fetching admins:", error.message);
       toast(`خطأ في جلب الاطباء: ${error.message}`, "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, toast]);
 
-  // Filter appointments based on search term and status filter
-  useEffect(() => {
-    if (appointments.length === 0) return;
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleStatusFilterChange = useCallback((e) => {
+    setStatusFilter(e.target.value);
+  }, []);
+
+  const openEditModal = useCallback(
+    (appointment) => {
+      if (!canEdit) return;
+
+      setCurrentAppointment(appointment);
+      setFormData({
+        doctor_id: appointment.doctor_id || "",
+        status: appointment.status || "pending",
+        appointment_day: appointment.appointment_day || "",
+        appointment_time: appointment.appointment_time || "",
+        service_id: appointment.service_id || "",
+      });
+      setIsModalOpen(true);
+    },
+    [canEdit]
+  );
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setCurrentAppointment(null);
+  }, []);
+
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }, []);
+
+  // Submit appointment edit
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      if (!currentAppointment || !canEdit) return;
+
+      try {
+        setSubmitting(true);
+
+        if (formData.doctor_id) {
+          const selectedDoctor = doctors.find(
+            (d) => d.id === formData.doctor_id
+          );
+          const hasService = selectedDoctor?.doctor_services?.some(
+            (ds) => ds.service_id === currentAppointment.service_id
+          );
+
+          if (!hasService) {
+            throw new Error("الطبيب المختار لا يقدم الخدمة المطلوبة");
+          }
+        }
+
+        const { error } = await supabase
+          .from("appointments")
+          .update({
+            doctor_id: formData.doctor_id || null,
+            status: formData.status,
+            appointment_day: formData.appointment_day,
+            appointment_time: formData.appointment_time || null,
+          })
+          .eq("id", currentAppointment.id);
+
+        if (error) throw error;
+
+        toast("تم تحديث الموعد بنجاح", "success");
+        closeModal();
+        allAppointmentsData();
+      } catch (error) {
+        // console.error("Error updating appointment:", error);
+        toast(error.message || "حدث خطأ أثناء تحديث الموعد", "error");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      currentAppointment,
+      canEdit,
+      formData,
+      doctors,
+      toast,
+      closeModal,
+      allAppointmentsData,
+    ]
+  );
+
+  const memoizedFilteredAppointments = useMemo(() => {
+    if (appointments.length === 0) return [];
 
     let result = [...appointments];
 
-    // Apply search filter
     if (searchTerm) {
       const searchTermLower = searchTerm.toLowerCase();
       result = result.filter(
@@ -111,99 +204,18 @@ const Appointments = () => {
       );
     }
 
-    // Apply status filter
     if (statusFilter !== "all") {
       result = result.filter(
         (appointment) => appointment.status === statusFilter
       );
     }
 
-    setFilteredAppointments(result);
-  }, [searchTerm, statusFilter, appointments]);
+    return result;
+  }, [appointments, searchTerm, statusFilter]);
 
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Handle status filter change
-  const handleStatusFilterChange = (e) => {
-    setStatusFilter(e.target.value);
-  };
-
-  // Open edit modal for an appointment
-  const openEditModal = (appointment) => {
-    if (!canEdit) return;
-
-    setCurrentAppointment(appointment);
-    setFormData({
-      doctor_id: appointment.doctor_id || "",
-      status: appointment.status || "pending",
-      appointment_day: appointment.appointment_day || "",
-      appointment_time: appointment.appointment_time || "",
-      service_id: appointment.service_id || "", // إضافة service_id من الموعد
-    });
-    setIsModalOpen(true);
-  };
-
-  // Close edit modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setCurrentAppointment(null);
-  };
-
-  // Handle form field changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // Submit appointment edit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!currentAppointment || !canEdit) return;
-
-    try {
-      setSubmitting(true);
-
-      // إذا تم اختيار طبيب، تأكد من أنه يقدم الخدمة المطلوبة
-      if (formData.doctor_id) {
-        const selectedDoctor = doctors.find((d) => d.id === formData.doctor_id);
-        const hasService = selectedDoctor?.doctor_services?.some(
-          (ds) => ds.service_id === currentAppointment.service_id
-        );
-
-        if (!hasService) {
-          throw new Error("الطبيب المختار لا يقدم الخدمة المطلوبة");
-        }
-      }
-
-      const { error } = await supabase
-        .from("appointments")
-        .update({
-          doctor_id: formData.doctor_id || null,
-          status: formData.status,
-          appointment_day: formData.appointment_day,
-          appointment_time: formData.appointment_time || null,
-        })
-        .eq("id", currentAppointment.id);
-
-      if (error) throw error;
-
-      toast("تم تحديث الموعد بنجاح", "success");
-      closeModal();
-      allAppointmentsData();
-    } catch (error) {
-      console.error("Error updating appointment:", error);
-      toast(error.message || "حدث خطأ أثناء تحديث الموعد", "error");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  useEffect(() => {
+    setFilteredAppointments(memoizedFilteredAppointments);
+  }, [memoizedFilteredAppointments]);
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -226,7 +238,12 @@ const Appointments = () => {
         statusFilter={statusFilter}
         onStatusFilterChange={handleStatusFilterChange}
       />
-
+      {filteredAppointments.length === 0 && (
+        <div className="no-appointments">
+          <h3>لا توجد مواعيد متاحة</h3>
+          <p>لم يتم العثور على مواعيد تطابق معايير البحث الحالية</p>
+        </div>
+      )}
       {filteredAppointments.length > 0 && (
         <div className="appointments-list">
           {filteredAppointments.map((appointment) => (

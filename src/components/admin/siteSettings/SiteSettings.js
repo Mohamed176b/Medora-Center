@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../../supabase/supabaseClient";
 import useAuthorization from "../../../hooks/useAuthorization";
@@ -10,10 +10,10 @@ import {
   fetchSiteSettings,
   updateSiteSettings,
 } from "../../../redux/slices/adminSlice";
-import HomeSettings from "./HomeSettings";
-import AboutUsSettings from "./AboutUsSettings";
-import ContactSettings from "./ContactSettings";
 import useAdminState from "../../../hooks/useAdminState";
+const AboutUsSettings = React.lazy(()=>import( "./AboutUsSettings"));
+const HomeSettings = React.lazy(()=>import( "./HomeSettings"));
+const ContactSettings = React.lazy(()=>import( "./ContactSettings"));
 
 const SiteSettings = () => {
   const { isAuthorized, unauthorizedUI } = useAuthorization(
@@ -26,6 +26,8 @@ const SiteSettings = () => {
   );
 
   const [currentPage, setCurrentPage] = useState("home");
+
+  const canEdit = useMemo(() => admin.role === "super-admin" || admin.role === "admin", [admin.role]);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     page_key: "home",
@@ -53,7 +55,7 @@ const SiteSettings = () => {
   const [backgroundImagePreview, setBackgroundImagePreview] = useState(null);
   const [centerImagePreview, setCenterImagePreview] = useState(null);
 
-  const canEdit = admin.role === "super-admin" || admin.role === "admin";
+
 
   useEffect(() => {
     if (
@@ -101,7 +103,6 @@ const SiteSettings = () => {
       });
     }
 
-    // Cleanup image previews
     if (backgroundImagePreview) {
       URL.revokeObjectURL(backgroundImagePreview);
       setBackgroundImagePreview(null);
@@ -117,11 +118,10 @@ const SiteSettings = () => {
     if (centerImageRef.current) centerImageRef.current.value = "";
   }, [currentPage, home, about]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     let processedValue = value;
 
-    // Convert numeric fields to integers
     if (
       [
         "years_experience",
@@ -132,20 +132,18 @@ const SiteSettings = () => {
       processedValue = parseInt(value) || 0;
     }
 
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: processedValue,
-    });
-  };
+    }));
+  }, []);
 
-  // Handle image file selection
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
     const { name, files } = e.target;
 
     if (files && files.length > 0) {
       const file = files[0];
 
-      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         dispatch(
           showToast({
@@ -157,7 +155,6 @@ const SiteSettings = () => {
         return;
       }
 
-      // Check file type
       if (!file.type.match("image.*")) {
         dispatch(
           showToast({
@@ -169,18 +166,15 @@ const SiteSettings = () => {
         return;
       }
 
-      // Create preview URL for the selected image
       const previewUrl = URL.createObjectURL(file);
 
       if (name === "background_image") {
-        // Revoke previous object URL if exists
         if (backgroundImagePreview) {
           URL.revokeObjectURL(backgroundImagePreview);
         }
         setBackgroundImageFile(file);
         setBackgroundImagePreview(previewUrl);
       } else if (name === "center_image") {
-        // Revoke previous object URL if exists
         if (centerImagePreview) {
           URL.revokeObjectURL(centerImagePreview);
         }
@@ -188,15 +182,13 @@ const SiteSettings = () => {
         setCenterImagePreview(previewUrl);
       }
     }
-  };
+  }, [backgroundImagePreview, centerImagePreview, dispatch]);
 
-  // Upload images to Supabase storage
-  const uploadImages = async () => {
+  const uploadImages = useCallback(async () => {
     setUploadingImages(true);
     let updatedFormData = { ...formData };
 
     try {
-      // Verify the session is active before uploading
       const { data: sessionData, error: sessionError } =
         await supabase.auth.getSession();
 
@@ -208,23 +200,19 @@ const SiteSettings = () => {
         throw new Error("جلسة المستخدم غير نشطة");
       }
 
-      // Upload background image if selected
       if (backgroundImageFile) {
-        // Delete old image if it exists
         if (formData.background_image_url) {
           try {
-            // Extract the path from the URL
             const urlPath = formData.background_image_url
               .split("/")
               .slice(-2)
               .join("/");
             if (urlPath) {
               await supabase.storage.from("site-images").remove([urlPath]);
-              console.log("Old background image deleted");
+              // console.log("Old background image deleted");
             }
           } catch (deleteError) {
-            console.error("Error deleting old background image:", deleteError);
-            // Continue with upload even if delete fails
+            // console.error("Error deleting old background image:", deleteError);
           }
         }
 
@@ -257,10 +245,10 @@ const SiteSettings = () => {
               .join("/");
             if (urlPath) {
               await supabase.storage.from("site-images").remove([urlPath]);
-              console.log("Old center image deleted");
+              // console.log("Old center image deleted");
             }
           } catch (deleteError) {
-            console.error("Error deleting old center image:", deleteError);
+            // console.error("Error deleting old center image:", deleteError);
           }
         }
 
@@ -298,9 +286,9 @@ const SiteSettings = () => {
     } finally {
       setUploadingImages(false);
     }
-  };
+  }, [formData, backgroundImageFile, centerImageFile, currentPage, backgroundImagePreview, centerImagePreview, dispatch]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     if (!canEdit) {
@@ -365,7 +353,6 @@ const SiteSettings = () => {
         })
       );
 
-      // Update Redux store
       dispatch(updateSiteSettings({ page: currentPage, data: dataToSave }));
 
       setBackgroundImageFile(null);
@@ -392,10 +379,9 @@ const SiteSettings = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [canEdit, dispatch, backgroundImageFile, centerImageFile, uploadImages, formData, currentPage, backgroundImagePreview, centerImagePreview, backgroundImageRef, centerImageRef]);
 
-  const handlePageChange = (page) => {
-    // Clear image previews when changing pages
+  const handlePageChange = useCallback((page) => {
     if (backgroundImagePreview) {
       URL.revokeObjectURL(backgroundImagePreview);
       setBackgroundImagePreview(null);
@@ -406,13 +392,13 @@ const SiteSettings = () => {
     }
 
     setCurrentPage(page);
-  };
+  }, []);
 
-  const getImageNameFromUrl = (url) => {
+  const getImageNameFromUrl = useCallback((url) => {
     if (!url) return "لا توجد صورة";
     const urlParts = url.split("/");
     return urlParts[urlParts.length - 1];
-  };
+  }, []);
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -493,4 +479,4 @@ const SiteSettings = () => {
   );
 };
 
-export default SiteSettings;
+export default memo(SiteSettings);

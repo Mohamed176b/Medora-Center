@@ -344,7 +344,6 @@
   border-top: 1px solid #eee;
 }
 
-/* فلترة وبحث */
 .filterSection {
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -460,7 +459,6 @@
   color: #666;
 }
 
-/* Mobile Styles */
 @media (min-width: 769px) {
   .filterToggleBtn {
     display: none;
@@ -479,7 +477,6 @@
   }
 }
 
-/* تجاوب نظام الفلترة */
 @media screen and (max-width: 767px) {
   .header {
     flex-direction: column;

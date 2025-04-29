@@ -1,7 +1,7 @@
 import React from "react";
 
 // Image preview component
-const ImagePreview = ({ url, alt, onUploadClick, canEdit }) => {
+const ImagePreview = React.memo(({ url, alt, onUploadClick, canEdit }) => {
   if (!url) {
     return (
       <div className="image-placeholder">
@@ -23,7 +23,7 @@ const ImagePreview = ({ url, alt, onUploadClick, canEdit }) => {
   
   return (
     <div className="image-preview-container">
-      <img src={url} alt={alt} className="image-preview" />
+      <img src={url} alt={alt} className="image-preview" loading="lazy" />
       {canEdit && (
         <button 
           type="button" 
@@ -36,6 +36,6 @@ const ImagePreview = ({ url, alt, onUploadClick, canEdit }) => {
       )}
     </div>
   );
-};
+});
 
-export default ImagePreview; 
+export default React.memo(ImagePreview);

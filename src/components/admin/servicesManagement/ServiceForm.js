@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import IconSelector from "./IconSelector";
 import ButtonLoader from "../../admin/siteSettings/ButtonLoader";
 import availableIcons from "./serviceIcons";
@@ -106,4 +106,4 @@ const ServiceForm = ({
   );
 };
 
-export default ServiceForm;
+export default memo(ServiceForm);

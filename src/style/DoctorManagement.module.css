@@ -75,7 +75,6 @@
   background-color: var(--for-primary-color);
 }
 
-/* Filter Section Styles */
 .filterSection {
   background-color: white;
   border-radius: 8px;
@@ -196,7 +195,6 @@
   cursor: not-allowed;
 }
 
-/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -303,7 +301,6 @@
   background-color: var(--for-primary-color);
 }
 
-/* Image Upload */
 .imageUploadContainer {
   display: flex;
   flex-direction: column;
@@ -389,7 +386,6 @@
   font-weight: 600;
 }
 
-/* Form Styles */
 .doctor-form {
   display: flex;
   flex-direction: column;
@@ -444,7 +440,6 @@
   accent-color: var(--primary-color);
 }
 
-/* Doctors Table */
 .table-responsive {
   overflow-x: hidden;
   border-radius: 8px;
@@ -591,7 +586,6 @@
   width: 100%;
 }
 
-/* تحسينات التجاوب مع أحجام الشاشات */
 @media (max-width: 992px) {
   .doctor-management-container {
     padding: 15px;
@@ -730,7 +724,6 @@
   margin: 0;
 }
 
-/* Mobile Styles */
 @media (min-width: 769px) {
   .filterToggleBtn {
     display: none;
@@ -799,7 +792,6 @@
     padding: 15px;
   }
   
-  /* Handle single column layout for cards on very small screens */
   .doctorCardsContainer {
     grid-template-columns: 1fr;
   }
@@ -925,7 +917,6 @@
   }
 }
 
-/* تحسين جذري لبطاقات الأطباء على الجوال */
 @media (max-width: 480px) {
   .doctorCardsContainer {
     display: flex;
@@ -1007,9 +998,6 @@
   }
 }
 
-/* Make the table more responsive */
-
-/* تحسين أزرار الإجراءات في بطاقات الأطباء على الجوال */
 @media (max-width: 480px) {
   .doctorCardActions {
     flex-direction: column !important;

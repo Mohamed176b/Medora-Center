@@ -97,7 +97,11 @@ const App = () => {
       try {
         if (localStorage.getItem("user")) {
           const userResult = await checkUserSession();
-          if (userResult.success && userResult.profile && userResult.profile.is_active === true) {
+          if (
+            userResult.success &&
+            userResult.profile &&
+            userResult.profile.is_active === true
+          ) {
             dispatch(
               setUser({
                 id: userResult.user.id,
@@ -111,7 +115,10 @@ const App = () => {
                 ...userResult.profile,
               })
             );
-          } else if (userResult.profile && userResult.profile.is_active === false) {
+          } else if (
+            userResult.profile &&
+            userResult.profile.is_active === false
+          ) {
             localStorage.removeItem("user");
           }
         }

@@ -53,7 +53,7 @@
 }
 
 .searchBox input {
-  width: calc(100% - 40px);
+  width: calc(100% - 48px);
   padding: 10px 12px;
   padding-left: 35px;
   border: 1px solid #ddd;
@@ -86,6 +86,7 @@
   font-family: "Tajawal", sans-serif;
   min-width: 150px;
   background-color: white;
+  margin-right: 10px;
 }
 
 .filterSelect:focus {
@@ -186,22 +187,19 @@
 
 .userBadge,
 .guestBadge {
-  margin-right: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: normal;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-right: 8px;
 }
 
 .userBadge {
-  background-color: var(--primary-color);
+  background-color: #4CAF50;
   color: white;
-  display: block;
-  width: fit-content;
 }
 
 .guestBadge {
-  background-color: var(--secondary-color);
+  background-color: #FF9800;
   color: white;
 }
 
@@ -325,7 +323,6 @@
   color: var(--text-disabled);
 }
 
-/* Improve statistics cards */
 .statisticsBar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -376,7 +373,6 @@
   color: var(--text-secondary);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .messageCard {
     padding: 1rem;
@@ -399,5 +395,9 @@
 
   .statValue {
     font-size: 1.2rem;
+  }
+  .filterSelect {
+    width: 100%;
+    margin-right: 0;
   }
 }

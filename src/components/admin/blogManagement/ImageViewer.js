@@ -1,52 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, memo } from "react";
 import styles from "../../../style/BlogManagement.module.css";
 
-const ImageViewer = ({ image, onClose }) => {
+const ImageViewer = memo(({ image, onClose }) => {
   const [scale, setScale] = useState(1);
   const [isPinching, setIsPinching] = useState(false);
   const [startTouchDistance, setStartTouchDistance] = useState(null);
   const [startScale, setStartScale] = useState(1);
 
-  if (!image) return null;
-
-  const handleTouchStart = (e) => {
-    if (e.touches.length === 2) {
-      setIsPinching(true);
-      const distance = getTouchDistance(e.touches);
-      setStartTouchDistance(distance);
-      setStartScale(scale);
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (isPinching && e.touches.length === 2) {
-      const distance = getTouchDistance(e.touches);
-      const newScale = startScale * (distance / startTouchDistance);
-
-      // حد أدنى وأقصى للتكبير
-      if (newScale >= 0.5 && newScale <= 3) {
-        setScale(newScale);
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsPinching(false);
-    setStartTouchDistance(null);
-    setStartScale(1);
-  };
-
-  const getTouchDistance = (touches) => {
+  const getTouchDistance = useCallback((touches) => {
     return Math.hypot(
       touches[1].clientX - touches[0].clientX,
       touches[1].clientY - touches[0].clientY
     );
-  };
+  }, []);
 
-  const handleDoubleClick = () => {
-    // إعادة تعيين حجم الصورة عند النقر المزدوج
+  const handleTouchStart = useCallback(
+    (e) => {
+      if (e.touches.length === 2) {
+        setIsPinching(true);
+        const distance = getTouchDistance(e.touches);
+        setStartTouchDistance(distance);
+        setStartScale(scale);
+      }
+    },
+    [getTouchDistance, scale]
+  );
+
+  const handleTouchMove = useCallback(
+    (e) => {
+      if (isPinching && e.touches.length === 2) {
+        const distance = getTouchDistance(e.touches);
+        const newScale = startScale * (distance / startTouchDistance);
+
+        if (newScale >= 0.5 && newScale <= 3) {
+          setScale(newScale);
+        }
+      }
+    },
+    [isPinching, getTouchDistance, startScale, startTouchDistance]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setIsPinching(false);
+    setStartTouchDistance(null);
+    setStartScale(1);
+  }, []);
+
+  const handleDoubleClick = useCallback(() => {
     setScale(1);
-  };
+  }, []);
+
+  const imageStyle = useMemo(
+    () => ({
+      transform: `scale(${scale})`,
+      transition: isPinching ? "none" : "transform 0.3s ease",
+      touchAction: "none",
+    }),
+    [scale, isPinching]
+  );
+
+  if (!image) return null;
 
   return (
     <div
@@ -66,11 +79,7 @@ const ImageViewer = ({ image, onClose }) => {
         <img
           src={image.url}
           alt={image.name}
-          style={{
-            transform: `scale(${scale})`,
-            transition: isPinching ? "none" : "transform 0.3s ease",
-            touchAction: "none",
-          }}
+          style={imageStyle}
           draggable={false}
           loading="lazy"
         />
@@ -84,6 +93,8 @@ const ImageViewer = ({ image, onClose }) => {
       </div>
     </div>
   );
-};
+});
+
+ImageViewer.displayName = "ImageViewer";
 
 export default ImageViewer;

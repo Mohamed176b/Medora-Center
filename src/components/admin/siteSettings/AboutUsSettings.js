@@ -2,7 +2,7 @@ import React from "react";
 import ButtonLoader from "./ButtonLoader";
 import ImagePreview from "./ImagePreview";
 
-const AboutUsSettings = ({
+const AboutUsSettings = React.memo(({
   formData,
   handleChange,
   centerImageFile,
@@ -117,6 +117,8 @@ const AboutUsSettings = ({
       )}
     </form>
   );
-};
+});
+
 
 export default AboutUsSettings;
+

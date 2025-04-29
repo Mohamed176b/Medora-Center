@@ -8,7 +8,7 @@ const Site = () => {
   useEffect(() => {
     const trackSiteVisit = async () => {
       try {
-        if (sessionStorage.getItem("site_visited")) return; // لا ترسل البيانات إذا تم التتبع بالفعل
+        if (sessionStorage.getItem("site_visited")) return;
         const ipRes = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipRes.json();
         const ip = ipData.ip;
@@ -16,10 +16,9 @@ const Site = () => {
         const { data, error } = await supabase.from('site_views').insert([
           { ip_address: ip, user_agent: userAgent }
         ]);
-        sessionStorage.setItem("site_visited", "1"); // ضع علامة أنه تم التتبع
+        sessionStorage.setItem("site_visited", "1"); 
         if (error) throw error;
       } catch (e) {
-        // فشل التتبع لا يؤثر على تجربة المستخدم
       }
     };
     trackSiteVisit();

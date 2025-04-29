@@ -25,7 +25,6 @@ import {
   faBandAid,
 } from "@fortawesome/free-solid-svg-icons";
 
-// مجموعة من الأيقونات الطبية مع أسماء عربية
 const availableIcons = [
   { name: "عيادة طبية", value: "faClinicMedical", icon: faClinicMedical },
   { name: "طبيب", value: "faUserMd", icon: faUserMd },
@@ -55,7 +54,6 @@ const availableIcons = [
 
 export default availableIcons;
 
-// دالة لعرض الأيقونة المناسبة
 export const renderIcon = (iconName, availableIcons) => {
   const iconObj = availableIcons.find((icon) => icon.value === iconName);
   if (iconObj) {

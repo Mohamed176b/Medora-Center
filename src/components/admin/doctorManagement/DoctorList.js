@@ -1,160 +1,121 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../../supabase/supabaseClient";
 import styles from "../../../style/DoctorManagement.module.css";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../../redux/slices/toastSlice";
-import Loader from "../../common/Loader";
-import DoctorItem from "./DoctorItem";
-import DoctorCard from "./DoctorCard";
+const Loader = React.lazy(() => import("../../common/Loader"));
+const DoctorItem = React.lazy(() => import("./DoctorItem"));
+const DoctorCard = React.lazy(() => import("./DoctorCard"));
 
-const DoctorList = ({
-  doctors,
-  loading,
-  canEdit,
-  onEditDoctor,
-  fetchDoctors,
-}) => {
-  const dispatch = useDispatch();
-  const [deleting, setDeleting] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+const DoctorList = React.memo(
+  ({ doctors, loading, canEdit, onEditDoctor, fetchDoctors }) => {
+    const dispatch = useDispatch();
+    const [deleting, setDeleting] = useState(false);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth <= 768);
-    };
+    useEffect(() => {
+      const handleResize = () => {
+        setIsSmallScreen(window.innerWidth <= 768);
+      };
 
-    // Initial check
-    handleResize();
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
-    // Add event listener
-    window.addEventListener("resize", handleResize);
+    const deleteOldDoctorImage = useCallback(async (imageUrl) => {
+      if (!imageUrl) return;
 
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+      try {
+        const urlPath = imageUrl.split("/").slice(-2).join("/");
 
-  const deleteOldDoctorImage = async (imageUrl) => {
-    if (!imageUrl) return;
+        if (urlPath) {
+          const { error } = await supabase.storage
+            .from("doctors-images")
+            .remove([urlPath]);
 
-    try {
-      const urlPath = imageUrl.split("/").slice(-2).join("/");
-
-      if (urlPath) {
-        const { error } = await supabase.storage
-          .from("doctors-images")
-          .remove([urlPath]);
-
-        if (error) throw error;
-        console.log("تم حذف الصورة القديمة بنجاح");
+          if (error) throw error;
+          console.log("تم حذف الصورة القديمة بنجاح");
+        }
+      } catch (error) {
+        console.error("خطأ في حذف الصورة القديمة:", error.message);
       }
-    } catch (error) {
-      console.error("خطأ في حذف الصورة القديمة:", error.message);
-    }
-  };
+    }, []);
 
-  const handleDeleteDoctor = async (id) => {
-    if (!canEdit || deleting) return;
+    const handleDeleteDoctor = useCallback(
+      async (id) => {
+        if (!canEdit || deleting) return;
 
-    if (!window.confirm("هل أنت متأكد من رغبتك في حذف هذا الطبيب؟")) return;
+        if (!window.confirm("هل أنت متأكد من رغبتك في حذف هذا الطبيب؟")) return;
 
-    try {
-      setDeleting(true);
+        try {
+          setDeleting(true);
 
-      // جلب بيانات الطبيب للحصول على رابط الصورة قبل الحذف
-      const { data: doctorToDelete, error: fetchError } = await supabase
-        .from("doctors")
-        .select("image_url")
-        .eq("id", id)
-        .single();
+          const { data: doctorToDelete, error: fetchError } = await supabase
+            .from("doctors")
+            .select("image_url")
+            .eq("id", id)
+            .single();
 
-      if (fetchError) throw fetchError;
+          if (fetchError) throw fetchError;
 
-      // حذف الطبيب من قاعدة البيانات
-      const { error: deleteError } = await supabase
-        .from("doctors")
-        .delete()
-        .eq("id", id);
+          const { error: deleteError } = await supabase
+            .from("doctors")
+            .delete()
+            .eq("id", id);
 
-      if (deleteError) throw deleteError;
+          if (deleteError) throw deleteError;
 
-      // حذف صورة الطبيب من التخزين إذا كانت موجودة
-      if (doctorToDelete?.image_url) {
-        await deleteOldDoctorImage(doctorToDelete.image_url);
+          if (doctorToDelete?.image_url) {
+            await deleteOldDoctorImage(doctorToDelete.image_url);
+          }
+
+          dispatch(
+            showToast({
+              message: "تم حذف الطبيب بنجاح",
+              type: "success",
+            })
+          );
+
+          fetchDoctors();
+        } catch (error) {
+          // console.error("Error deleting doctor:", error.message);
+          dispatch(
+            showToast({
+              message: `خطأ في حذف الطبيب: ${error.message}`,
+              type: "error",
+            })
+          );
+        } finally {
+          setDeleting(false);
+        }
+      },
+      [canEdit, deleting, dispatch, fetchDoctors, deleteOldDoctorImage]
+    );
+
+    const renderContent = useCallback(() => {
+      if (loading) {
+        return (
+          <div className={styles["doctors-loader-wrapper"]}>
+            <Loader />
+          </div>
+        );
       }
 
-      dispatch(
-        showToast({
-          message: "تم حذف الطبيب بنجاح",
-          type: "success",
-        })
-      );
+      if (doctors.length === 0) {
+        return (
+          <div className={styles.noResults}>
+            <i className="fas fa-search-minus"></i>
+            <p>لا توجد نتائج مطابقة للبحث أو الفلتر</p>
+          </div>
+        );
+      }
 
-      fetchDoctors();
-    } catch (error) {
-      console.error("Error deleting doctor:", error.message);
-      dispatch(
-        showToast({
-          message: `خطأ في حذف الطبيب: ${error.message}`,
-          type: "error",
-        })
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className={styles["doctors-loader-wrapper"]}>
-          <Loader />
-        </div>
-      );
-    }
-
-    if (doctors.length === 0) {
-      return (
-        <div className={styles.noResults}>
-          <i className="fas fa-search-minus"></i>
-          <p>لا توجد نتائج مطابقة للبحث أو الفلتر</p>
-        </div>
-      );
-    }
-
-    if (isSmallScreen) {
-      return (
-        <div className={styles.doctorCardsContainer}>
-          {doctors.map((doctor) => (
-            <DoctorCard
-              key={doctor.id}
-              doctor={doctor}
-              canEdit={canEdit}
-              onEdit={onEditDoctor}
-              onDelete={handleDeleteDoctor}
-              isDeleting={deleting}
-            />
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles["table-responsive"]}>
-        <table className={styles["doctors-table"]}>
-          <thead>
-            <tr>
-              <th>الصورة</th>
-              <th>الاسم</th>
-              <th>البريد الإلكتروني</th>
-              <th>رقم الهاتف</th>
-              <th>الخدمات</th>
-              <th>الحالة</th>
-              {canEdit && <th>الإجراءات</th>}
-            </tr>
-          </thead>
-          <tbody>
+      if (isSmallScreen) {
+        return (
+          <div className={styles.doctorCardsContainer}>
             {doctors.map((doctor) => (
-              <DoctorItem
+              <DoctorCard
                 key={doctor.id}
                 doctor={doctor}
                 canEdit={canEdit}
@@ -163,18 +124,58 @@ const DoctorList = ({
                 isDeleting={deleting}
               />
             ))}
-          </tbody>
-        </table>
+          </div>
+        );
+      }
+
+      return (
+        <div className={styles["table-responsive"]}>
+          <table className={styles["doctors-table"]}>
+            <thead>
+              <tr>
+                <th>الصورة</th>
+                <th>الاسم</th>
+                <th>البريد الإلكتروني</th>
+                <th>رقم الهاتف</th>
+                <th>الخدمات</th>
+                <th>الحالة</th>
+                {canEdit && <th>الإجراءات</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {doctors.map((doctor) => (
+                <DoctorItem
+                  key={doctor.id}
+                  doctor={doctor}
+                  canEdit={canEdit}
+                  onEdit={onEditDoctor}
+                  onDelete={handleDeleteDoctor}
+                  isDeleting={deleting}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }, [
+      loading,
+      doctors,
+      isSmallScreen,
+      canEdit,
+      onEditDoctor,
+      handleDeleteDoctor,
+      deleting,
+    ]);
+
+    return (
+      <div className={styles["doctors-list-container"]}>
+        <h2>قائمة الأطباء</h2>
+        {renderContent()}
       </div>
     );
-  };
+  }
+);
 
-  return (
-    <div className={styles["doctors-list-container"]}>
-      <h2>قائمة الأطباء</h2>
-      {renderContent()}
-    </div>
-  );
-};
+DoctorList.displayName = "DoctorList";
 
 export default DoctorList;

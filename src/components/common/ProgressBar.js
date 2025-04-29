@@ -15,4 +15,4 @@ const ProgressBar = ({ progress, message }) => {
   );
 };
 
-export default ProgressBar;
+export default React.memo(ProgressBar);

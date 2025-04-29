@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../../supabase/supabaseClient";
 import {
@@ -26,9 +26,91 @@ import {
   Bar,
   Legend,
 } from "recharts";
-import Loader from "../../common/Loader";
 import useAuthorization from "../../../hooks/useAuthorization";
 import { PAGE_ROLES } from "../../../config/roles";
+import { getBlogViews } from "../../../utils/blogViewsService";
+
+const Loader = React.lazy(() => import("../../common/Loader"));
+
+const DailyBookingsTrend = memo(({ data }) => (
+  <div className="chart-container">
+    <h3>تطور الحجوزات</h3>
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="bookings" stroke="#d40d37" />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+));
+
+const BookingStatusPie = memo(({ data }) => {
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  return (
+    <div className="chart-container">
+      <h3>توزيع حالات الحجوزات</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="status"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            label
+          >
+            {data.map((entry, index) => (
+              <Cell key={entry.status} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
+
+const TopServicesChart = memo(({ data }) => (
+  <div className="chart-container">
+    <h3>أكثر الخدمات حجزاً</h3>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="count" fill="#d40d37" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+));
+
+const TopPostsTable = memo(({ posts }) => (
+  <div className="top-posts-table">
+    <h3>أكثر المقالات قراءة</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>العنوان</th>
+          <th>المشاهدات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {posts?.map((post) => (
+          <tr key={post.id}>
+            <td>{post.title}</td>
+            <td>{post.views}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+));
 
 const Analytics = () => {
   const { isAuthorized, unauthorizedUI } = useAuthorization(
@@ -40,7 +122,6 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [siteViews, setSiteViews] = useState(0);
 
-  // Get data from Redux store
   const users = useSelector((state) => state.admin.allUsersData);
   const doctors = useSelector((state) => state.admin.allDoctorsData);
   const services = useSelector((state) => state.admin.allServicesData);
@@ -76,48 +157,166 @@ const Analytics = () => {
     topPosts: [],
   });
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      await Promise.all([
+        dispatch(fetchAllUsersData()),
+        dispatch(fetchAllDoctorsData()),
+        dispatch(fetchAllServicesData()),
+        dispatch(fetchAllMessagesData()),
+        dispatch(fetchAllTestimonialsData()),
+        dispatch(fetchAllAppointmentsData()),
+        dispatch(fetchAllBlogPosts()),
+      ]);
+      setLoading(false);
+    } catch (error) {
+      // console.error("Error loading analytics data:", error);
+      setLoading(false);
+    }
+  }, [dispatch]);
 
-        // Always fetch fresh data since this is an analytics dashboard
-        await Promise.all([
-          dispatch(fetchAllUsersData()),
-          dispatch(fetchAllDoctorsData()),
-          dispatch(fetchAllServicesData()),
-          dispatch(fetchAllMessagesData()),
-          dispatch(fetchAllTestimonialsData()),
-          dispatch(fetchAllAppointmentsData()),
-          dispatch(fetchAllBlogPosts()),
-        ]);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading analytics data:", error);
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [dispatch]); // Only depend on dispatch since we want fresh data on every mount
-
-  // جلب عدد مشاهدات الموقع من جدول site_views
-  useEffect(() => {
-    const fetchSiteViews = async () => {
-      try {
-        const { count, error } = await supabase
-          .from('site_views')
-          .select('*', { count: 'exact', head: true });
-        if (!error) setSiteViews(count || 0);
-      } catch (e) {
-        setSiteViews(0);
-      }
-    };
-    fetchSiteViews();
+  const fetchSiteViews = useCallback(async () => {
+    try {
+      const { count, error } = await supabase
+        .from("site_views")
+        .select("*", { count: "exact", head: true });
+      if (!error) setSiteViews(count || 0);
+    } catch (e) {
+      setSiteViews(0);
+    }
   }, []);
 
-  // Update data processing after data changes
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    fetchSiteViews();
+  }, [fetchSiteViews]);
+
+  const processBlogData = useCallback(async () => {
+    try {
+      const viewsMap = await getBlogViews();
+      const viewsCount = Object.values(viewsMap).reduce(
+        (sum, count) => sum + count,
+        0
+      );
+
+      const topPosts = blogPosts
+        .map((post) => ({
+          ...post,
+          views: viewsMap[post.id] || 0,
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 3);
+
+      setBlogData({
+        totalPosts: blogPosts.length,
+        totalViews: viewsCount,
+        topPosts,
+      });
+    } catch (error) {
+      // console.error("Error processing blog data:", error);
+    }
+  }, [blogPosts]);
+
+  const computedOverviewData = useMemo(
+    () => ({
+      patientsCount: users?.length || 0,
+      doctorsCount: doctors?.length || 0,
+      servicesCount: services?.length || 0,
+      monthlyBookings:
+        appointments?.filter((appt) => {
+          const date = new Date(appt.created_at);
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          return date >= thirtyDaysAgo;
+        }).length || 0,
+      newMessages: messages?.filter((msg) => !msg.is_read).length || 0,
+      reviewedTestimonials:
+        testimonials?.filter((t) => t.is_reviewed).length || 0,
+    }),
+    [users, doctors, services, appointments, messages, testimonials]
+  );
+
+  const computedBookingsData = useMemo(() => {
+    if (!appointments?.length)
+      return { dailyTrend: [], statusDistribution: [], topServices: [] };
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const dailyTrend = [];
+    const statusCounts = {
+      pending: 0,
+      confirmed: 0,
+      cancelled: 0,
+      completed: 0,
+    };
+    const serviceBookings = {};
+
+    appointments.forEach((booking) => {
+      if (new Date(booking.created_at) >= thirtyDaysAgo) {
+        statusCounts[booking.status]++;
+
+        const serviceName = booking.services?.title || "Unknown";
+        serviceBookings[serviceName] = (serviceBookings[serviceName] || 0) + 1;
+
+        const date = new Date(booking.created_at).toLocaleDateString("ar-EG");
+        const existingDay = dailyTrend.find((day) => day.date === date);
+        if (existingDay) {
+          existingDay.bookings++;
+        } else {
+          dailyTrend.push({ date, bookings: 1 });
+        }
+      }
+    });
+
+    // Map English status to Arabic labels
+    const statusLabels = {
+      pending: "قيد الانتظار",
+      confirmed: "مؤكد",
+      cancelled: "ملغي",
+      completed: "مكتمل",
+    };
+
+    return {
+      dailyTrend: dailyTrend.sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      ),
+      statusDistribution: Object.entries(statusCounts).map(
+        ([status, count]) => ({
+          status: statusLabels[status] || status,
+          count,
+        })
+      ),
+      topServices: Object.entries(serviceBookings)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3),
+    };
+  }, [appointments]);
+
+  const computedEngagementData = useMemo(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return {
+      newUsers:
+        users?.filter((user) => new Date(user.created_at) >= sevenDaysAgo)
+          .length || 0,
+      messages: {
+        patients: messages?.filter((msg) => msg.patient_id).length || 0,
+        guests: messages?.filter((msg) => !msg.patient_id).length || 0,
+      },
+      testimonials: {
+        reviewed: testimonials?.filter((t) => t.is_reviewed).length || 0,
+        pending: testimonials?.filter((t) => !t.is_reviewed).length || 0,
+      },
+    };
+  }, [users, messages, testimonials]);
+
   useEffect(() => {
     if (
       !loading &&
@@ -126,136 +325,18 @@ const Analytics = () => {
       services &&
       appointments &&
       messages &&
-      testimonials
+      testimonials &&
+      isAuthorized
     ) {
-      // Process overview data
-      setOverviewData({
-        patientsCount: users.length || 0,
-        doctorsCount: doctors.length || 0,
-        servicesCount: services.length || 0,
-        monthlyBookings: appointments.filter((appt) => {
-          const date = new Date(appt.created_at);
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          return date >= thirtyDaysAgo;
-        }).length,
-        newMessages: messages.filter((msg) => !msg.is_read).length,
-        reviewedTestimonials: testimonials.filter((t) => t.is_reviewed).length,
-      });
-
-      // Process booking analytics
-      if (appointments.length > 0) {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-        // Daily trend
-        const dailyTrend = [];
-        const statusCounts = {
-          pending: 0,
-          confirmed: 0,
-          cancelled: 0,
-          completed: 0,
-        };
-        const serviceBookings = {};
-
-        appointments.forEach((booking) => {
-          if (new Date(booking.created_at) >= thirtyDaysAgo) {
-            // Count by status
-            statusCounts[booking.status]++;
-
-            // Count by service
-            const serviceName = booking.services?.title || "Unknown";
-            serviceBookings[serviceName] =
-              (serviceBookings[serviceName] || 0) + 1;
-
-            // Group by day for trend
-            const date = new Date(booking.created_at).toLocaleDateString(
-              "ar-EG"
-            );
-            const existingDay = dailyTrend.find((day) => day.date === date);
-            if (existingDay) {
-              existingDay.bookings++;
-            } else {
-              dailyTrend.push({ date, bookings: 1 });
-            }
-          }
-        });
-
-        // Convert status counts to chart data
-        const statusDistribution = Object.entries(statusCounts).map(
-          ([status, count]) => ({
-            status,
-            count,
-          })
-        );
-
-        // Get top 3 services
-        const topServices = Object.entries(serviceBookings)
-          .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 3);
-
-        setBookingsData({
-          dailyTrend: dailyTrend.sort(
-            (a, b) => new Date(a.date) - new Date(b.date)
-          ),
-          statusDistribution,
-          topServices,
-        });
-      }
-
-      // Process user engagement data
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      setEngagementData({
-        newUsers: users.filter(
-          (user) => new Date(user.created_at) >= sevenDaysAgo
-        ).length,
-        messages: {
-          patients: messages.filter((msg) => msg.patient_id).length,
-          guests: messages.filter((msg) => !msg.patient_id).length,
-        },
-        testimonials: {
-          reviewed: testimonials.filter((t) => t.is_reviewed).length,
-          pending: testimonials.filter((t) => !t.is_reviewed).length,
-        },
-      });
-
-      // Process blog data
-      const processBlogData = async () => {
-        try {
-          const { data: viewsData } = await supabase
-            .from("blog_post_views")
-            .select("post_id");
-
-          const viewsCount = viewsData?.length || 0;
-          const postViews = {};
-          viewsData?.forEach((view) => {
-            postViews[view.post_id] = (postViews[view.post_id] || 0) + 1;
-          });
-
-          const topPosts = blogPosts
-            .map((post) => ({
-              ...post,
-              views: postViews[post.id] || 0,
-            }))
-            .sort((a, b) => b.views - a.views)
-            .slice(0, 3);
-
-          setBlogData({
-            totalPosts: blogPosts.length,
-            totalViews: viewsCount,
-            topPosts,
-          });
-        } catch (error) {
-          console.error("Error processing blog data:", error);
-        }
-      };
-
+      setOverviewData(computedOverviewData);
+      setBookingsData(computedBookingsData);
+      setEngagementData(computedEngagementData);
       processBlogData();
     }
-  }, [loading, users, doctors, services, appointments, messages, testimonials]);
+  }, [ // eslint-disable-line react-hooks/exhaustive-deps
+    computedEngagementData,
+    isAuthorized,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -263,8 +344,6 @@ const Analytics = () => {
   if (loading) {
     return <Loader />;
   }
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   return (
     <div className="analytics-container">
@@ -274,14 +353,16 @@ const Analytics = () => {
       <section className="overview-section">
         <h2>نظرة سريعة</h2>
         <div className="stats-grid">
-        {currentRole !== "admin" && (
-          <div className="stat-card">
-            <i className="fa-solid fa-users"></i>
-            <div>
-              <div className="stat-card-title">عدد المرضى</div>
-              <div className="stat-card-value">{overviewData.patientsCount}</div>
+          {currentRole !== "admin" && (
+            <div className="stat-card">
+              <i className="fa-solid fa-users"></i>
+              <div>
+                <div className="stat-card-title">عدد المرضى</div>
+                <div className="stat-card-value">
+                  {overviewData.patientsCount}
+                </div>
+              </div>
             </div>
-          </div>
           )}
           <div className="stat-card">
             <i className="fa-solid fa-user-md"></i>
@@ -308,7 +389,9 @@ const Analytics = () => {
             <i className="fa-solid fa-calendar-check"></i>
             <div>
               <div className="stat-card-title">الحجوزات هذا الشهر</div>
-              <div className="stat-card-value">{overviewData.monthlyBookings}</div>
+              <div className="stat-card-value">
+                {overviewData.monthlyBookings}
+              </div>
             </div>
           </div>
         </div>
@@ -317,87 +400,17 @@ const Analytics = () => {
       {/* Booking Analytics */}
       <section className="booking-analytics-section">
         <h2>تحليلات الحجوزات</h2>
-
         <div className="charts-grid">
-          {/* Daily Bookings Trend */}
-          <div className="chart-container">
-            <h3>تطور الحجوزات</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={bookingsData.dailyTrend}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="bookings" stroke="#d40d37" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Booking Status Distribution */}
-          <div className="chart-container">
-            <h3>توزيع حالات الحجوزات</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={bookingsData.statusDistribution}
-                  dataKey="count"
-                  nameKey="status"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label
-                >
-                  {bookingsData.statusDistribution.map((entry, index) => (
-                    <Cell
-                      key={entry.status}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Top Services */}
-          <div className="chart-container">
-            <h3>أكثر الخدمات حجزاً</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={bookingsData.topServices}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#d40d37" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <DailyBookingsTrend data={bookingsData.dailyTrend} />
+          <BookingStatusPie data={bookingsData.statusDistribution} />
+          <TopServicesChart data={bookingsData.topServices} />
         </div>
       </section>
 
       {/* Blog Analytics */}
       <section className="blog-analytics-section">
         <h2>تحليلات المحتوى</h2>
-        <div className="top-posts-table">
-          <h3>أكثر المقالات قراءة</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>العنوان</th>
-                <th>المشاهدات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blogData.topPosts?.map((post) => (
-                <tr key={post.id}>
-                  <td>{post.title}</td>
-                  <td>{post.views}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TopPostsTable posts={blogData.topPosts} />
       </section>
 
       {/* User Engagement Section */}
@@ -406,14 +419,14 @@ const Analytics = () => {
         <div className="engagement-grid">
           {/* New Users Card */}
           {currentRole !== "admin" && (
-          <div className="engagement-card">
-            <div className="engagement-header">
-              <i className="fas fa-user-plus"></i>
-              <h3>المستخدمون الجدد</h3>
-              <p className="period">آخر 7 أيام</p>
+            <div className="engagement-card">
+              <div className="engagement-header">
+                <i className="fas fa-user-plus"></i>
+                <h3>المستخدمون الجدد</h3>
+                <p className="period">آخر 7 أيام</p>
+              </div>
+              <div className="engagement-value">{engagementData.newUsers}</div>
             </div>
-            <div className="engagement-value">{engagementData.newUsers}</div>
-          </div>
           )}
           {/* Messages Distribution */}
           <div className="engagement-card">
@@ -462,4 +475,4 @@ const Analytics = () => {
   );
 };
 
-export default Analytics;
+export default memo(Analytics);

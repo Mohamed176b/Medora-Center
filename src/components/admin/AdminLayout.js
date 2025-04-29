@@ -1,5 +1,5 @@
 import "../../style/AdminDashboard.css";
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -8,8 +8,7 @@ import { clearAdmin } from "../../redux/slices/adminSlice";
 import useToast from "../../hooks/useToast";
 import { PAGE_ROLES } from "../../config/roles";
 
-const AdminLayout = () => {
-  // Fix destructuring to handle potential null state during logout
+const AdminLayout = memo(() => {
   const adminState = useSelector((state) => state.admin);
   const admin = adminState?.admin?.admin || { role: [] };
 
@@ -100,10 +99,7 @@ const AdminLayout = () => {
 
   const handleNavigation = useCallback(
     (path) => {
-      // Get the current URL path
       const currentPath = window.location.pathname;
-
-      // Check if we're in blog management AND the form is open
       const blogManagementFormElement = document.querySelector(".blog-form");
       if (
         currentPath.includes("/admin/blogManagement") &&
@@ -122,100 +118,104 @@ const AdminLayout = () => {
         return;
       }
 
-      // If not in blog management or no form is open, navigate directly
       setActiveNav(path);
       navigate(path);
       setIsSidebarOpen(false);
     },
     [navigate]
   );
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      const result = await signOutAdmin();
+
+      if (result.success) {
+        toast("تم تسجيل الخروج بنجاح", "success");
+        navigate("/");
+        dispatch(clearAdmin());
+        localStorage.removeItem("admin");
+      } else {
+        toast(result.error || "حدث خطأ أثناء تسجيل الخروج", "error");
+      }
+    } catch (error) {
+      toast("حدث خطأ أثناء تسجيل الخروج", "error");
+      // console.error(error);
+    }
+  }, [dispatch, navigate, toast]);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
+
+  const handleOverlayClick = useCallback(() => {
+    setIsSidebarOpen(false);
+  }, []);
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   }, [location.key]);
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      // First clear the Redux state to prevent rendering issues
-      dispatch(clearAdmin());
-
-      // Then remove from localStorage
-      localStorage.removeItem("admin");
-
-      // Finally perform the Supabase signout - do this after Redux state has been cleared
-      const result = await signOutAdmin();
-
-      if (result.success) {
-        toast("تم تسجيل الخروج بنجاح", "success");
-
-        navigate("/");
-      } else {
-        toast(result.error || "حدث خطأ أثناء تسجيل الخروج", "error");
-      }
-    } catch (error) {
-      toast("حدث خطأ أثناء تسجيل الخروج", "error");
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     setActiveNav(location.pathname);
   }, [location.pathname]);
 
-  const handleOverlayClick = () => {
-    setIsSidebarOpen(false);
-  };
+  const memoizedLogo = useMemo(
+    () => (
+      <div className="logo" onClick={() => handleNavigation("/")}>
+        <img
+          src={`${process.env.PUBLIC_URL}/logo.png`}
+          alt="logo"
+          loading="lazy"
+        />
+      </div>
+    ),
+    [handleNavigation]
+  );
+
+  const memoizedNavLinks = useMemo(
+    () => (
+      <ul>
+        {navLinks.map((link) => (
+          <li
+            key={link.path}
+            onClick={() =>
+              link.roles.includes(admin.role)
+                ? handleNavigation(link.path)
+                : null
+            }
+            className={activeNav === link.path ? "active" : ""}
+            style={{
+              display: link.roles.includes(admin.role) ? "block" : "none",
+              cursor: link.roles.includes(admin.role) ? "pointer" : "default",
+            }}
+          >
+            <i className={`fas ${link.icon} nav-icon`}></i>
+            <span>{link.label}</span>
+          </li>
+        ))}
+      </ul>
+    ),
+    [navLinks, admin.role, activeNav, handleNavigation]
+  );
 
   return (
     <div className="admin-dashboard-layout">
-      {/* Mobile toggle button */}
       <div className="mobile-toggle" onClick={toggleSidebar}>
         <i className={`fas ${isSidebarOpen ? "fa-times" : "fa-bars"}`}></i>
       </div>
-
-      {/* Sidebar overlay for mobile */}
       <div
         className={`sidebar-overlay ${isSidebarOpen ? "active" : ""}`}
         onClick={handleOverlayClick}
       ></div>
-
-      {/* Sidebar */}
       <nav className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <div className="logo" onClick={() => handleNavigation("/")}>
-            <img
-              src={`${process.env.PUBLIC_URL}/logo.png`}
-              alt="logo"
-              loading="lazy"
-            />
-          </div>
+          {memoizedLogo}
           <h2>لوحة التحكم</h2>
         </div>
-        <ul>
-          {navLinks.map((link) => (
-            <li
-              key={link.path}
-              onClick={() =>
-                link.roles.includes(admin.role)
-                  ? handleNavigation(link.path)
-                  : null
-              }
-              className={activeNav === link.path ? "active" : ""}
-              style={{
-                display: link.roles.includes(admin.role) ? "block" : "none",
-                cursor: link.roles.includes(admin.role) ? "pointer" : "default",
-              }}
-            >
-              <i className={`fas ${link.icon} nav-icon`}></i>
-              <span>{link.label}</span>
-            </li>
-          ))}
-        </ul>
+        {memoizedNavLinks}
         <button className="sign-out-button" onClick={handleSignOut}>
           <i className="fas fa-sign-out-alt ml-2"></i> تسجيل الخروج
         </button>
@@ -227,6 +227,8 @@ const AdminLayout = () => {
       </main>
     </div>
   );
-};
+});
+
+AdminLayout.displayName = "AdminLayout";
 
 export default AdminLayout;

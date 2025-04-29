@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import styles from "../../../style/DoctorManagement.module.css";
 
-const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
+const DoctorItem = memo(({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
   return (
     <tr className={!doctor.is_active ? styles["inactive-doctor"] : ""}>
       <td className={styles["doctor-image-cell"]} data-label="الصورة">
@@ -10,6 +10,7 @@ const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
             src={doctor.image_url}
             alt={doctor.full_name}
             className={styles["doctor-thumbnail"]}
+            loading="lazy"
           />
         ) : (
           <div className={styles["no-image"]}>لا توجد صورة</div>
@@ -52,6 +53,8 @@ const DoctorItem = ({ doctor, canEdit, onEdit, onDelete, isDeleting }) => {
       )}
     </tr>
   );
-};
+});
+
+DoctorItem.displayName = "DoctorItem";
 
 export default DoctorItem;

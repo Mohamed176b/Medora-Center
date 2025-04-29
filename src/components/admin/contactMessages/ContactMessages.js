@@ -1,124 +1,150 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import useAuthorization from "../../../hooks/useAuthorization";
 import { PAGE_ROLES } from "../../../config/roles";
 import { supabase } from "../../../supabase/supabaseClient";
-import { format } from "date-fns";
-import { arEG } from "date-fns/locale";
 import useToast from "../../../hooks/useToast";
 import styles from "../../../style/ContactMessages.module.css";
-import Loader from "../../common/Loader";
 import useAdminState from "../../../hooks/useAdminState";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllMessagesData,
   setAllMessagesData,
 } from "../../../redux/slices/adminSlice";
+
+const Loader = React.lazy(() => import("../../common/Loader"));
+const FilterBar = React.lazy(() => import("./FilterBar"));
+const MessageCard = React.lazy(() => import("./MessageCard"));
+
 const ContactMessages = () => {
   const { isAuthorized, unauthorizedUI } = useAuthorization(
     PAGE_ROLES.contactMessages
   );
   const admin = useAdminState();
-  const canEdit =
-    admin?.role === "super-admin" ||
-    admin?.role === "admin" ||
-    admin?.role === "moderator";
+  const canEdit = useMemo(() => {
+    return (
+      admin?.role === "super-admin" ||
+      admin?.role === "admin" ||
+      admin?.role === "moderator"
+    );
+  }, [admin?.role]);
+
   const dispatch = useDispatch();
-  const messages = useSelector((state) => state.admin?.allMessagesData) || [];
+  const messagesFromStore = useSelector(
+    (state) => state.admin?.allMessagesData
+  );
+  const messages = useMemo(() => messagesFromStore || [], [messagesFromStore]);
+
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterUserType, setFilterUserType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
-  const fetchMessages = () => {
+  const fetchMessages = useCallback(() => {
     try {
       setLoading(true);
       dispatch(fetchAllMessagesData());
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      // console.error("Error fetching messages:", error);
       toast("حدث خطأ أثناء جلب الرسائل", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!messages || messages.length === 0) {
+    if ((!messages || messages.length === 0) && isAuthorized) {
       fetchMessages();
     } else {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, isAuthorized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleReadStatusChange = async (messageId, newStatus) => {
-    try {
-      const { error } = await supabase
-        .from("messages")
-        .update({ is_read: newStatus })
-        .eq("id", messageId);
+  const handleReadStatusChange = useCallback(
+    async (messageId, newStatus) => {
+      try {
+        const { error } = await supabase
+          .from("messages")
+          .update({ is_read: newStatus })
+          .eq("id", messageId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Update the messages in Redux store using action creator
-      const updatedMessages = messages.map((msg) =>
-        msg.id === messageId ? { ...msg, is_read: newStatus } : msg
-      );
-      dispatch(setAllMessagesData(updatedMessages));
+        const updatedMessages = messages.map((msg) =>
+          msg.id === messageId ? { ...msg, is_read: newStatus } : msg
+        );
+        dispatch(setAllMessagesData(updatedMessages));
 
-      toast("تم تحديث حالة الرسالة بنجاح", "success");
-    } catch (error) {
-      console.error("Error updating message status:", error);
-      toast("حدث خطأ أثناء تحديث حالة الرسالة", "error");
-    }
-  };
+        toast("تم تحديث حالة الرسالة بنجاح", "success");
+      } catch (error) {
+        // console.error("Error updating message status:", error);
+        toast("حدث خطأ أثناء تحديث حالة الرسالة", "error");
+      }
+    },
+    [messages, dispatch, toast]
+  );
 
-  const handleDelete = async (messageId) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذه الرسالة؟")) return;
+  const handleDelete = useCallback(
+    async (messageId) => {
+      if (!window.confirm("هل أنت متأكد من حذف هذه الرسالة؟")) return;
 
-    try {
-      const { error } = await supabase
-        .from("messages")
-        .delete()
-        .eq("id", messageId);
+      try {
+        const { error } = await supabase
+          .from("messages")
+          .delete()
+          .eq("id", messageId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Update Redux state after successful deletion
-      const updatedMessages = messages.filter((msg) => msg.id !== messageId);
-      dispatch(setAllMessagesData(updatedMessages));
+        const updatedMessages = messages.filter((msg) => msg.id !== messageId);
+        dispatch(setAllMessagesData(updatedMessages));
 
-      toast("تم حذف الرسالة بنجاح", "success");
-    } catch (error) {
-      console.error("Error deleting message:", error);
-      toast("حدث خطأ أثناء حذف الرسالة", "error");
-    }
-  };
+        toast("تم حذف الرسالة بنجاح", "success");
+      } catch (error) {
+        // console.error("Error deleting message:", error);
+        toast("حدث خطأ أثناء حذف الرسالة", "error");
+      }
+    },
+    [messages, dispatch, toast]
+  );
 
-  const formatDate = (dateString) => {
-    return format(new Date(dateString), "dd MMMM yyyy - HH:mm", {
-      locale: arEG,
+  const filteredMessages = useMemo(() => {
+    return messages.filter((message) => {
+      const matchesStatus =
+        filterStatus === "all" ||
+        (filterStatus === "read" && message.is_read) ||
+        (filterStatus === "unread" && !message.is_read);
+
+      const matchesUserType =
+        filterUserType === "all" ||
+        (filterUserType === "registered" && message.patients) ||
+        (filterUserType === "guests" && !message.patients);
+
+      const searchableContent = [
+        message.subject,
+        message.message,
+        message.patients?.full_name || message.guest_name || "",
+        message.patients?.email || message.guest_email || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        searchTerm === "" ||
+        searchableContent.includes(searchTerm.toLowerCase());
+
+      return matchesStatus && matchesUserType && matchesSearch;
     });
-  };
+  }, [messages, filterStatus, filterUserType, searchTerm]);
 
-  const filteredMessages = messages.filter((message) => {
-    const matchesStatus =
-      filterStatus === "all" ||
-      (filterStatus === "read" && message.is_read) ||
-      (filterStatus === "unread" && !message.is_read);
-
-    const searchableContent = [
-      message.subject,
-      message.message,
-      message.patients?.full_name || message.guest_name || "",
-      message.patients?.email || message.guest_email || "",
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    const matchesSearch =
-      searchTerm === "" || searchableContent.includes(searchTerm.toLowerCase());
-
-    return matchesStatus && matchesSearch;
-  });
+  const messageStats = useMemo(
+    () => ({
+      read: messages.filter((msg) => msg.is_read).length,
+      unread: messages.filter((msg) => !msg.is_read).length,
+      total: messages.length,
+    }),
+    [messages]
+  );
 
   if (!isAuthorized) {
     return unauthorizedUI;
@@ -134,26 +160,16 @@ const ContactMessages = () => {
         <div className={styles.title}>
           <h1>الرسائل الواردة</h1>
         </div>
-        <div className={styles.filterBar}>
-          <div className={styles.searchBox}>
-            <input
-              type="text"
-              placeholder="البحث في الرسائل..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <i className="fas fa-search"></i>
-          </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">جميع الرسائل</option>
-            <option value="read">الرسائل المقروءة</option>
-            <option value="unread">الرسائل غير المقروءة</option>
-          </select>
-        </div>
+        <React.Suspense fallback={<Loader />}>
+          <FilterBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+            filterUserType={filterUserType}
+            setFilterUserType={setFilterUserType}
+          />
+        </React.Suspense>
       </div>
 
       <div className={styles.statisticsBar}>
@@ -162,9 +178,7 @@ const ContactMessages = () => {
             <i className="fas fa-envelope-open"></i>
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statValue}>
-              {messages.filter((msg) => msg.is_read).length}
-            </span>
+            <span className={styles.statValue}>{messageStats.read}</span>
             <span className={styles.statLabel}>الرسائل المقروءة</span>
           </div>
         </div>
@@ -173,9 +187,7 @@ const ContactMessages = () => {
             <i className="fas fa-envelope"></i>
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statValue}>
-              {messages.filter((msg) => !msg.is_read).length}
-            </span>
+            <span className={styles.statValue}>{messageStats.unread}</span>
             <span className={styles.statLabel}>الرسائل غير المقروءة</span>
           </div>
         </div>
@@ -184,7 +196,7 @@ const ContactMessages = () => {
             <i className="fas fa-envelope-square"></i>
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statValue}>{messages.length}</span>
+            <span className={styles.statValue}>{messageStats.total}</span>
             <span className={styles.statLabel}>إجمالي الرسائل</span>
           </div>
         </div>
@@ -197,80 +209,21 @@ const ContactMessages = () => {
         </div>
       ) : (
         <div className={styles.messagesList}>
-          {filteredMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.messageCard} ${
-                !message.is_read ? styles.unread : ""
-              }`}
-            >
-              <div className={styles.messageHeader}>
-                <div className={styles.senderInfo}>
-                  <h3>
-                    {message.patients
-                      ? message.patients.full_name
-                      : message.guest_name || "زائر"}
-                    {message.patients ? (
-                      <span className={styles.userBadge}>مستخدم مسجل</span>
-                    ) : (
-                      <span className={styles.guestBadge}>زائر</span>
-                    )}
-                  </h3>
-                  <span className={styles.senderEmail}>
-                    {message.patients
-                      ? message.patients.email
-                      : message.guest_email || "غير متوفر"}
-                  </span>
-                </div>
-                <div className={styles.messageDate}>
-                  <i className="far fa-clock"></i>
-                  {formatDate(message.sent_at)}
-                </div>
-              </div>
-
-              <div className={styles.messageContent}>
-                <div className={styles.messageSubject}>
-                  <strong>الموضوع:</strong> {message.subject || "بدون موضوع"}
-                </div>
-                <p>{message.message}</p>
-              </div>
-
-              <div className={styles.messageFooter}>
-                <div className={styles.statusSection}>
-                  <span
-                    className={`${styles.statusBadge} ${
-                      message.is_read ? styles.read : styles.unread
-                    }`}
-                  >
-                    {message.is_read ? "مقروءة" : "غير مقروءة"}
-                  </span>
-                  {canEdit && (
-                    <button
-                      className={styles.toggleStatusBtn}
-                      onClick={() =>
-                        handleReadStatusChange(message.id, !message.is_read)
-                      }
-                    >
-                      {message.is_read ? "تعيين كغير مقروءة" : "تعيين كمقروءة"}
-                    </button>
-                  )}
-                </div>
-                {canEdit && (
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(message.id)}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                    حذف
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+          <React.Suspense fallback={<Loader />}>
+            {filteredMessages.map((message) => (
+              <MessageCard
+                key={message.id}
+                message={message}
+                canEdit={canEdit}
+                onReadStatusChange={handleReadStatusChange}
+                onDelete={handleDelete}
+              />
+            ))}
+          </React.Suspense>
         </div>
       )}
     </div>
   );
 };
 
-export default ContactMessages;
+export default React.memo(ContactMessages);

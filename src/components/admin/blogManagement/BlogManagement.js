@@ -91,7 +91,6 @@ const BlogManagement = memo(() => {
     setEditMode(true);
     setShowForm(true);
 
-    // تأكد من وجود العنصر قبل التمرير
     requestAnimationFrame(() => {
       if (formRef.current) {
         formRef.current.scrollIntoView({

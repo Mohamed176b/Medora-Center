@@ -333,11 +333,33 @@ const Analytics = () => {
       setEngagementData(computedEngagementData);
       processBlogData();
     }
-  }, [ // eslint-disable-line react-hooks/exhaustive-deps
-    computedEngagementData,
+  }, [
+    loading,
+    users,
+    doctors,
+    services,
+    appointments,
+    messages,
+    testimonials,
     isAuthorized,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    computedOverviewData,
+    computedBookingsData,
+    computedEngagementData,
+    processBlogData
+  ]);// eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const logData = async () => {
+      console.log('Loading state:', loading);
+      console.log('Users data:', users);
+      console.log('Doctors data:', doctors);
+      console.log('Services data:', services);
+      console.log('Appointments data:', appointments);
+      console.log('Computed Overview:', computedOverviewData);
+      console.log('Computed Bookings:', computedBookingsData);
+      console.log('Computed Engagement:', computedEngagementData);
+    };
+    logData();
+  }, [loading, users, doctors, services, appointments, computedOverviewData, computedBookingsData, computedEngagementData]);
   if (!isAuthorized) {
     return unauthorizedUI;
   }

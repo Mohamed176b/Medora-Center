@@ -131,8 +131,10 @@ CREATE POLICY "Everyone can read blog_categories"
 -- Create junction table for many-to-many relationship between posts and categories
 CREATE TABLE blog_posts_categories (
   post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
-  category_id UUID REFERENCES blog_categories(id) ON DELETE CASCADE,
-  PRIMARY KEY (post_id, category_id)
+  PRIMARY KEY (post_id, category_id),
+  viewer_ip TEXT,
+  viewed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()),
+  session_id TEXT
 );
 
 -- Enable Row Level Security

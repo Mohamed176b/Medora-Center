@@ -481,6 +481,9 @@ const UserAppointments = memo(() => {
                       </div>
                     </div>
                   )}
+                  {appointment.status === "completed" && (
+                    <></>
+                  )}
                 </div>
               ))}
             </div>

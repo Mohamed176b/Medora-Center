@@ -35,7 +35,7 @@ const AdminHome = () => {
   useEffect(() => {
     document.title = "لوحة التحكم | مركز ميدورا";
   }, []);
-  
+
   const fetchData = useCallback(() => {
     dispatch(fetchAllAdminsData());
     if (PAGE_ROLES.usersManagement.includes(currentRole)) {
@@ -365,11 +365,20 @@ const AdminHome = () => {
               <div className="admin-message-card" key={msg.id}>
                 <div>
                   <i className="fa-solid fa-user"></i>{" "}
-                  <b>{msg.patients?.full_name || "مستخدم"}</b>
+                  <b>
+                    {msg.guest_name ||
+                      allUsersData.filter(
+                        (user) => user.id === msg.patient_id
+                      )[0]?.full_name ||
+                      "مستخدم"}
+                  </b>
                 </div>
                 <div>
                   <i className="fa-solid fa-envelope"></i>{" "}
-                  {msg.patients?.email || ""}
+                  {msg.guest_email ||
+                    allUsersData.filter((user) => user.id === msg.patient_id)[0]
+                      ?.email ||
+                    ""}
                 </div>
                 <div>
                   <i className="fa-solid fa-comment"></i>{" "}

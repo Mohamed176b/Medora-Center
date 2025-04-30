@@ -57,6 +57,12 @@ const BlogCategory = React.memo(() => {
 
   const currentCategory = categories.find((cat) => cat.id === categoryId);
 
+  useEffect(() => {
+    if (currentCategory?.name) {
+      document.title = `مقالات في ${currentCategory.name} | مركز ميدورا`;
+    }
+  }, [currentCategory]);
+
   const filteredPosts = React.useMemo(() => {
     return allBlogData.filter((post) => {
       const matchesCategory = post.categories.some(
@@ -68,8 +74,7 @@ const BlogCategory = React.memo(() => {
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.content?.toLowerCase().includes(searchTerm.toLowerCase());
-        document.title = `مقالات في ${currentCategory.name}  | مودنة مركز ميدورا`;
-      
+
       return matchesCategory && matchesSearch;
     });
   }, [allBlogData, categoryId, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -78,7 +83,6 @@ const BlogCategory = React.memo(() => {
     ...post,
     categories: post.categories.map((category) => category.category),
   }));
-
 
   if (loading) {
     return <Loader />;

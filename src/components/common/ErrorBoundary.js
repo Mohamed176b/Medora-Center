@@ -16,7 +16,26 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return <h1 style={{margin: "20px auto"}}>حدث خطأ ما. الرجاء المحاولة لاحقًا.</h1>;
+      return (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            src={`${process.env.PUBLIC_URL}/logo.png`}
+            alt="Medora Logo"
+            style={{ width: "200px", marginBottom: "20px" }}
+          />
+          <h1 style={{ margin: "50px auto", textAlign: "center" }}>
+            حدث خطأ ما. الرجاء اعادة تحميل الصفحة او المحاولة لاحقًا.
+          </h1>
+        </div>
+      );
     }
 
     return this.props.children;

@@ -473,7 +473,7 @@ const UserAppointments = memo(() => {
                       </div>
                     )}
 
-                  {appointment.status !== "pending" && (
+                  {appointment.status === "confirmed" && (
                     <div className="appointment-footer">
                       <div className="cancel-note">
                         <i className="fas fa-info-circle"></i>
@@ -481,7 +481,7 @@ const UserAppointments = memo(() => {
                       </div>
                     </div>
                   )}
-                  {appointment.status === "completed" && (
+                  {(appointment.status === "completed" ||  appointment.status === "cancelled" )&& (
                     <></>
                   )}
                 </div>

@@ -32,6 +32,10 @@ const AdminHome = () => {
   } = useSelector((state) => state.admin);
   const currentRole = admin?.admin?.role || admin?.admin?.admin?.role;
 
+  useEffect(() => {
+    document.title = "لوحة التحكم | مركز ميدورا";
+  }, []);
+  
   const fetchData = useCallback(() => {
     dispatch(fetchAllAdminsData());
     if (PAGE_ROLES.usersManagement.includes(currentRole)) {

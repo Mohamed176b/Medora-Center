@@ -40,6 +40,10 @@ const ContactMessages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = "الرسائل الواردة | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchMessages = useCallback(() => {
     try {
       setLoading(true);

@@ -34,6 +34,10 @@ const BlogManagement = memo(() => {
   const dispatch = useDispatch();
   const admin = useAdminState();
 
+  useEffect(() => {
+    document.title = "إدارة المدونة | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchBlogViews = useCallback(async (posts) => {
     if ((!posts || posts.length === 0) && isAuthorized) {
       setBlogViewsMap({});

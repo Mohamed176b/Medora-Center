@@ -89,6 +89,10 @@ const UsersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = "إدارة المستخدمين | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchUsers = useCallback(() => {
     try {
       if (isAuthorized) {

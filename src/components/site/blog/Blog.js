@@ -77,6 +77,10 @@ const Blog = React.memo(() => {
     categories: post.categories.map((category) => category.category),
   })), [filteredPosts]);
 
+  useEffect(() => {
+    document.title = "مدونة مركز ميدورا";
+  }, []);
+
   if (loading) {
     return <Loader />;
   }

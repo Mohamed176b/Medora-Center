@@ -55,7 +55,9 @@ const SiteSettings = () => {
   const [backgroundImagePreview, setBackgroundImagePreview] = useState(null);
   const [centerImagePreview, setCenterImagePreview] = useState(null);
 
-
+  useEffect(() => {
+    document.title = "إدارة محتوى الموقع والاعدادات | لوحة التحكم | مركز ميدورا";
+  }, []);
 
   useEffect(() => {
     if (

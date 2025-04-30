@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import styles from "../../style/CommonPages.module.css";
 
 const Sitemap = () => {
+  React.useEffect(() => {
+    document.title = "خريطة الموقع | مركز ميدورا";
+  }, []);
   const siteStructure = React.useMemo(() => [
     {
       title: "الصفحات الرئيسية",

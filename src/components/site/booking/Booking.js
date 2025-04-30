@@ -37,7 +37,7 @@ const Booking = () => {
     } else {
       setIsLoading(false);
     }
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (formData) => {
     if (!formData.service_id || !formData.appointment_day) {
@@ -71,6 +71,10 @@ const Booking = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    document.title = "حجز موعد | مركز ميدورا";
+  }, []);
 
   if (isLoading) {
     return <Loader />;

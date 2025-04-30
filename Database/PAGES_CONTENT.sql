@@ -1,17 +1,17 @@
 CREATE TABLE pages_content (
-  page_key TEXT PRIMARY KEY,          -- 'home' أو 'about_us'
-  background_image_url TEXT,          -- رابط صورة الخلفية
-  catchy_title TEXT,                  -- عنوان جذاب
-  simple_description TEXT,            -- وصف بسيط
-  center_overview TEXT,               -- نبذة عن المركز
-  years_experience INT,               -- عدد سنوات الخبرة
-  why_choose_us TEXT,                 -- لماذا يختاروننا المرضى
-  short_history TEXT,                 -- نص قصير عن تاريخ أو هدف المركز
-  center_image_url TEXT,              -- رابط صورة للمركز
-  long_term_goal TEXT,                -- هدف المركز الطبي على المدى البعيد
-  mission_statement TEXT,             -- الرسالة التي يسعى المركز لتحقيقها
-  patients_served_count INT,          -- عدد المرضى الذين خدمهم المركز
-  departments_count INT,              -- عدد الأقسام
+  page_key TEXT PRIMARY KEY,         
+  background_image_url TEXT,       
+  catchy_title TEXT,        
+  simple_description TEXT,
+  center_overview TEXT,         
+  years_experience INT,           
+  why_choose_us TEXT,                 
+  short_history TEXT,                
+  center_image_url TEXT,              
+  long_term_goal TEXT,             
+  mission_statement TEXT,            
+  patients_served_count INT,          
+  departments_count INT,              
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -25,10 +25,6 @@ FROM
 
 ALTER TABLE pages_content ENABLE ROW LEVEL SECURITY;
 
--- 3. سياسات الوصول (RLS)
-
--- 3.1. السماح لـ super-admin و admin بكل العمليات (SELECT, INSERT, UPDATE, DELETE)
---    شرط الربط: وجود سجل في dashboard_users بنفس auth.uid() والدور واحد من ('super-admin','admin')
 CREATE POLICY "Admins full access to pages_content"
   ON pages_content
   FOR ALL
@@ -49,7 +45,6 @@ CREATE POLICY "Admins full access to pages_content"
     )
   );
 
--- 3.2. السماح لـ viewer بقراءة المحتوى فقط
 CREATE POLICY "Viewers read pages_content"
   ON pages_content
   FOR SELECT
@@ -63,7 +58,6 @@ CREATE POLICY "Viewers read pages_content"
   );
 
   
--- Public: Read-only access to pages_content
 CREATE POLICY "Public read pages_content"
   ON pages_content FOR SELECT
   USING (true);

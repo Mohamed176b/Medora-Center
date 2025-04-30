@@ -16,7 +16,7 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return <h1>حدث خطأ ما. الرجاء المحاولة لاحقًا.</h1>;
+      return <h1 style={{margin: "20px auto"}}>حدث خطأ ما. الرجاء المحاولة لاحقًا.</h1>;
     }
 
     return this.props.children;

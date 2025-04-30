@@ -87,7 +87,11 @@ const AboutUs = () => {
     } else {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    document.title = "من نحن؟ | مركز ميدورا";
+  }, []);
 
   if (loading) {
     return <Loader />;

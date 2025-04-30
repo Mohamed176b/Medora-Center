@@ -49,6 +49,10 @@ const Appointments = () => {
   });
 
   useEffect(() => {
+    document.title = "إدارة المواعيد | لوحة التحكم | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     if (isAuthorized) {
       if (!appointments || appointments.length === 0) {
         allAppointmentsData();

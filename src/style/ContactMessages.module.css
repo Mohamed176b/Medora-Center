@@ -150,6 +150,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
+  justify-content: center;
 }
 
 .messageCard {
@@ -191,6 +192,8 @@
   padding: 2px 8px;
   border-radius: 12px;
   margin-right: 8px;
+  display: block;
+  width: fit-content;
 }
 
 .userBadge {

@@ -37,6 +37,10 @@ const DoctorManagement = () => {
 
   const doctors = useMemo(() => doctorsData || [], [doctorsData]);
 
+  useEffect(() => {
+    document.title = "إدارة الأطباء | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchDoctors = useCallback(async () => {
     try {
       setLoading(true);

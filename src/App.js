@@ -5,14 +5,24 @@ import { useDispatch } from "react-redux";
 import { setUser } from "./redux/slices/userSlice";
 import { checkUserSession, checkAdminSession } from "./supabase/authUtils";
 import { setAdmin } from "./redux/slices/adminSlice";
-import UsersManagement from "./components/admin/usersManagement/UsersManagement";
-import ErrorBoundary from "./components/common/ErrorBoundary";
-import PrivacyPolicy from "./components/common/PrivacyPolicy";
-import Terms from "./components/common/Terms";
-import Sitemap from "./components/common/Sitemap";
-import BlogCategory from "./components/site/blog/BlogCategory";
-import ServiceDetail from "./components/site/services/ServiceDetail";
 
+const UsersManagement = React.lazy(() =>
+  import("./components/admin/usersManagement/UsersManagement")
+);
+const ErrorBoundary = React.lazy(() =>
+  import("./components/common/ErrorBoundary")
+);
+const PrivacyPolicy = React.lazy(() =>
+  import("./components/common/PrivacyPolicy")
+);
+const Terms = React.lazy(() => import("./components/common/Terms"));
+const Sitemap = React.lazy(() => import("./components/common/Sitemap"));
+const BlogCategory = React.lazy(() =>
+  import("./components/site/blog/BlogCategory")
+);
+const ServiceDetail = React.lazy(() =>
+  import("./components/site/services/ServiceDetail")
+);
 const Loader = React.lazy(() => import("./components/common/Loader"));
 const Toast = React.lazy(() => import("./components/common/Toast"));
 const Home = React.lazy(() => import("./components/site/home/Home"));
@@ -82,7 +92,6 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // أولوية: تحميل بيانات المستخدم من localStorage
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -92,7 +101,6 @@ const App = () => {
         localStorage.removeItem("user");
       }
     }
-    // ثم تحقق من الجلسة مع السيرفر (للتأكد من التزامن)
     const checkSession = async () => {
       try {
         if (localStorage.getItem("user")) {
@@ -121,9 +129,7 @@ const App = () => {
           ) {
             localStorage.removeItem("user");
           }
-        }
-        // Check if admin is logged in
-        else if (localStorage.getItem("admin")) {
+        } else if (localStorage.getItem("admin")) {
           const adminResult = await checkAdminSession();
           if (adminResult.success && adminResult.admin) {
             dispatch(
@@ -149,6 +155,7 @@ const App = () => {
         <Toast />
         <Routes>
           <Route path="/" element={<Site />}>
+            {/* Site Routes */}
             <Route index element={<Home />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<Contact />} />
@@ -183,7 +190,6 @@ const App = () => {
             <Route path="appointments" element={<UserAppointments />} />
             <Route path="interactions" element={<UserMessagesComments />} />
           </Route>
-
           {/* Admin Routes */}
           <Route
             path="/admin"

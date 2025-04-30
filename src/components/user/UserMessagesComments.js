@@ -32,6 +32,10 @@ const UserMessagesComments = memo(() => {
   });
 
   useEffect(() => {
+    document.title = "الرسائل والتقييمات | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     if (user) {
       if (!messages || messages.length === 0) {
         dispatch(fetchUserMessages(user.id));

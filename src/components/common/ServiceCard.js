@@ -21,7 +21,7 @@ const ServiceCard = ({ service }) => {
     if (service && service.slug) {
       navigate(`/services/${service.slug}`);
     }
-  }, [navigate, service?.slug]);
+  }, [navigate, service?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBookClick = React.useCallback(() => {
     navigate("/booking");

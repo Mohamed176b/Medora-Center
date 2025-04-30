@@ -81,6 +81,7 @@ const Header = () => {
         path: "/services",
         icon: "fa-diagram-project",
         label: "الخدمات",
+        checkStartsWith: true,
       },
       {
         path: "/doctors",

@@ -1,4 +1,3 @@
-// Definición centralizada de roles para todas las páginas
 export const PAGE_ROLES = {
   dashboard: ["super-admin", "admin", "editor", "moderator", "viewer"],
   home: ["super-admin", "admin", "editor", "moderator", "viewer"],

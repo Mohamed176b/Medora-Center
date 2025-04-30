@@ -35,6 +35,10 @@ const UserProfile = memo(() => {
   });
 
   useEffect(() => {
+    document.title = "الملف الشخصي | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     } else if (user) {
@@ -169,6 +173,7 @@ const UserProfile = memo(() => {
   }
 
   const isGoogleProvider = supabaseProvider === "google";
+  
   
   return (
     <div className="profile-container">

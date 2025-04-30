@@ -8,8 +8,8 @@ import { fetchServicesData } from "../../../redux/slices/siteDataSlice";
 const Services = React.memo(() => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
-  const servicesData =
-    useSelector((state) => state.siteData?.servicesData) || [];
+  const servicesData = 
+    useSelector((state) => state.siteData?.servicesData) || []; 
   const servicesList = useMemo(() => (Array.isArray(servicesData) ? servicesData : []), [servicesData]);
 
   const renderServices = useCallback(() => (
@@ -34,7 +34,11 @@ const Services = React.memo(() => {
     } else {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    document.title = "خدماتنا المميزة | مركز ميدورا";
+  }, []);
 
   if (loading) {
     return <Loader />;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { updatePassword } from "../../supabase/authUtils";
 import { supabase } from "../../supabase/supabaseClient";
 import useToast from "../../hooks/useToast";
@@ -22,6 +22,10 @@ const UpdatePassword = () => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const [, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    document.title = "تحديث كلمة المرور | مركز ميدورا";
+  }, []);
 
   React.useEffect(() => {
     try {
@@ -72,13 +76,13 @@ const UpdatePassword = () => {
     return null;
   }
   let accessToken = null;
-  let refreshToken = null;
+  let refreshToken = null; // eslint-disable-line
   for (let key in localStorage) {
     if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
       try {
         const session = JSON.parse(localStorage.getItem(key));
         accessToken = session?.access_token;
-        refreshToken = session?.refresh_token;
+        refreshToken = session?.refresh_token; // eslint-disable-line
       } catch (e) {}
       break;
     }
@@ -97,7 +101,6 @@ const UpdatePassword = () => {
     return !Object.values(errors).some((error) => error);
   };
 
- 
 
   const handleSubmit = async (e) => {
     e.preventDefault();

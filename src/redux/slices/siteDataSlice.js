@@ -75,7 +75,6 @@ const fetchServicesData = createAsyncThunk(
   }
 );
 
-// Move fetchDoctorsData before fetchTestimonialsData to ensure it's defined before being used
 const fetchDoctorsData = createAsyncThunk(
   "fetchDoctorsData",
   async (_, { rejectWithValue }) => {
@@ -97,7 +96,6 @@ const fetchDoctorsData = createAsyncThunk(
         throw error;
       }
 
-      // تحويل الخدمات إلى مصفوفة doctor_services لكل طبيب
       const transformedDoctors = data.map((doctor) => ({
         ...doctor,
         doctor_services: doctor.services?.map(ds => ({

@@ -48,6 +48,10 @@ const Login = () => {
   );
 
   useEffect(() => {
+    document.title = "تسجيل الدخول | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     switchTab(activeTab);
   }, [activeTab, switchTab]);
 

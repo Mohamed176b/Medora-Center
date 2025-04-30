@@ -94,6 +94,10 @@ const Testimonials = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = "إدارة التقييمات | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);

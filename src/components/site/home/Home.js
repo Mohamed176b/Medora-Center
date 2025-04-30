@@ -173,7 +173,11 @@ const Home = () => {
     } else {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    document.title = "Medora Center";
+  }, []);
 
   if (loading) {
     return <Loader />;

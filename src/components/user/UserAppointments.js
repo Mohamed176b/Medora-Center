@@ -42,6 +42,10 @@ const UserAppointments = memo(() => {
   });
 
   useEffect(() => {
+    document.title = "مواعيدك | مركز ميدورا";
+  }, []);
+  
+  useEffect(() => {
     if (!services.length) {
       dispatch(fetchServicesData());
     }

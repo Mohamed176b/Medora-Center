@@ -23,14 +23,12 @@ const Toast = () => {
       });
 
       const timer = setTimeout(() => {
-        // Start exit animation
         setToast((prev) => ({ ...prev, exiting: true }));
 
-        // Remove toast after animation completes
         const exitTimer = setTimeout(() => {
           setToast((prev) => ({ ...prev, show: false }));
           dispatch(hideToast());
-        }, 500); // Match this duration with CSS exit animation
+        }, 500); 
 
         return () => clearTimeout(exitTimer);
       }, duration);

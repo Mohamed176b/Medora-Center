@@ -1,31 +1,23 @@
 import { supabase } from "./supabaseClient";
 
-// دالة للتحقق من مزود المستخدم حسب الإيميل
 export const getUserProviderByEmail = async (email) => {
   try {
-    // Supabase لا توفر API مباشرة لهذا، لكن يمكن محاولة تسجيل الدخول بكلمة مرور خاطئة للتحقق من وجود المستخدم ونوع الخطأ
     const { error } = await supabase.auth.signInWithPassword({ email, password: 'invalid-password-for-check' });
     if (!error) {
-      // لا يجب أن يحدث هذا أبدًا لأن كلمة المرور خاطئة
       return 'email';
     }
     if (error.message && error.message.includes('Invalid login credentials')) {
-      // المستخدم موجود بمزود الإيميل/باسورد
       return 'email';
     }
     if (error.message && error.message.includes('Signups not allowed for this instance')) {
-      // حالة غير متوقعة
       return null;
     }
     if (error.message && error.message.includes('User has not signed up')) {
-      // المستخدم غير موجود
       return null;
     }
     if (error.message && error.message.includes('identity provider')) {
-      // مستخدم Google
       return 'google';
     }
-    // fallback: لا يمكن تحديد المزود
     return null;
   } catch (e) {
     return null;
@@ -46,7 +38,6 @@ export const registerUser = async (email, password, name) => {
     });
 
     if (authError) {
-      // معالجة حالة الإيميل مسجل مسبقًا
       if (
         authError.message &&
         (authError.message.includes("already registered") ||
@@ -76,14 +67,13 @@ export const registerUser = async (email, password, name) => {
     };
 
   } catch (error) {
-    console.error("Registration error:", error.message);
+    // console.error("Registration error:", error.message);
     return { success: false, error: error.message };
   }
 };
 
 export const signInUser = async (email, password) => {
   try {
-    // Check if admin is logged in and sign them out first
     if (localStorage.getItem("admin")) {
       await supabase.auth.signOut();
       localStorage.removeItem("admin");
@@ -102,9 +92,7 @@ export const signInUser = async (email, password) => {
       .eq("id", data.user.id)
       .single();
 
-    // تحقق من حالة النشاط
     if (profileData && profileData.is_active === false) {
-      // If the user is inactive, sign out and clear session/localStorage to prevent repeated requests and errors
       await supabase.auth.signOut();
       localStorage.removeItem("user");
       return { success: false, error: 'حسابك غير نشط. يرجى التواصل مع الدعم.' };
@@ -136,7 +124,7 @@ export const signInUser = async (email, password) => {
 
     return { success: true, user: data.user, profile: profileData };
   } catch (error) {
-    console.error("Sign in error:", error.message);
+    // console.error("Sign in error:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -148,24 +136,7 @@ export const signOutUser = async () => {
     localStorage.removeItem("user");
     return { success: true };
   } catch (error) {
-    console.error("Sign out error:", error.message);
-    return { success: false, error: error.message };
-  }
-};
-
-export const signOutAdmin = async () => {
-  try {
-    // First clear any local state
-    localStorage.removeItem("admin");
-
-    // Then sign out from Supabase
-    const { error } = await supabase.auth.signOut();
-
-    if (error) throw error;
-
-    return { success: true };
-  } catch (error) {
-    console.error("Sign out error:", error.message);
+    // console.error("Sign out error:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -187,7 +158,7 @@ export const signInWithGoogle = async (source = "login") => {
 
     return { success: true, data };
   } catch (error) {
-    console.error("Google sign in error:", error.message);
+    // console.error("Google sign in error:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -213,17 +184,14 @@ export const handleGoogleRedirect = async () => {
     const fullName =
       userData.user.user_metadata.full_name || email.split("@")[0];
 
-    // First try to get existing profile
     let { data: profileData, error: profileError } = await supabase
       .from("patients")
       .select("*")
       .eq("id", userId)
       .single();
 
-    // If profile doesn't exist, try to create it
     if (profileError && profileError.code === "PGRST116") {
       try {
-        // Try to insert a new profile
         const { data: newProfile, error: insertError } = await supabase
           .from("patients")
           .insert([
@@ -237,9 +205,7 @@ export const handleGoogleRedirect = async () => {
           .single();
 
         if (insertError) {
-          // If we get a conflict error (duplicate key), try to fetch the profile again
           if (insertError.code === "23505") {
-            // PostgreSQL duplicate key error code
             const { data: existingProfile, error: fetchError } = await supabase
               .from("patients")
               .select("*")
@@ -255,7 +221,6 @@ export const handleGoogleRedirect = async () => {
           profileData = newProfile;
         }
       } catch (insertError) {
-        // As a fallback for any insert errors, try one more time to fetch the profile
         const { data: retryProfile, error: retryError } = await supabase
           .from("patients")
           .select("*")
@@ -269,15 +234,12 @@ export const handleGoogleRedirect = async () => {
       throw profileError;
     }
 
-    // تحقق من حالة النشاط
     if (profileData && profileData.is_active === false) {
-      // If the user is inactive, sign out and clear session/localStorage to prevent repeated requests and errors
       await supabase.auth.signOut();
       localStorage.removeItem("user");
       return { success: false, error: 'حسابك غير نشط. يرجى التواصل مع الدعم.' };
     }
 
-    // إذا وصلنا هنا، الحساب نشط، يمكن الحفظ
     localStorage.setItem("user", JSON.stringify(profileData));
 
     return {
@@ -287,14 +249,13 @@ export const handleGoogleRedirect = async () => {
       session: authData.session,
     };
   } catch (error) {
-    console.error("Google redirect handling error:", error.message);
+    // console.error("Google redirect handling error:", error.message);
     return { success: false, error: error.message };
   }
 };
 
 export const checkUserSession = async () => {
   try {
-    // Only remove admin item, don't try to check admin status
     if (localStorage.getItem("admin")) {
       localStorage.removeItem("admin");
     }
@@ -314,17 +275,14 @@ export const checkUserSession = async () => {
 
     const userId = userData.user.id;
 
-    // First try to get existing profile
     let { data: profileData, error: profileError } = await supabase
       .from("patients")
       .select("*")
       .eq("id", userId)
       .single();
 
-    // If profile doesn't exist, try to create it
     if (profileError && profileError.code === "PGRST116") {
       try {
-        // Try to insert a new profile
         const { data: newProfile, error: insertError } = await supabase
           .from("patients")
           .insert([
@@ -340,9 +298,7 @@ export const checkUserSession = async () => {
           .single();
 
         if (insertError) {
-          // If we get a conflict error (duplicate key), try to fetch the profile again
           if (insertError.code === "23505") {
-            // PostgreSQL duplicate key error code
             const { data: existingProfile, error: fetchError } = await supabase
               .from("patients")
               .select("*")
@@ -358,7 +314,6 @@ export const checkUserSession = async () => {
           profileData = newProfile;
         }
       } catch (insertError) {
-        // As a fallback for any insert errors, try one more time to fetch the profile
         const { data: retryProfile, error: retryError } = await supabase
           .from("patients")
           .select("*")
@@ -399,7 +354,7 @@ export const resetPassword = async (email) => {
       message: "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني",
     };
   } catch (error) {
-    console.error("Password reset error:", error.message);
+    // console.error("Password reset error:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -414,7 +369,177 @@ export const updatePassword = async (newPassword) => {
 
     return { success: true, message: "تم تحديث كلمة المرور بنجاح" };
   } catch (error) {
-    console.error("Password update error:", error.message);
+    // console.error("Password update error:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateUserProfile = async (userData) => {
+  try {
+    // console.log("Starting user profile update process");
+
+    const { data: currentUser, error: userError } =
+      await supabase.auth.getUser();
+
+    if (userError) {
+      // console.error("Error getting current user:", userError);
+      throw userError;
+    }
+
+    if (!currentUser || !currentUser.user) {
+      // console.error("No current user found");
+      return { success: false, error: "لم يتم العثور على المستخدم الحالي" };
+    }
+
+    const userId = currentUser.user.id;
+    const email = currentUser.user.email;
+
+    // console.log("Current user:", { userId, email });
+
+    const { error: updateAuthError } = await supabase.auth.updateUser({
+      data: {
+        full_name: userData.full_name,
+      },
+    });
+
+    if (updateAuthError) {
+      // console.error("Error updating auth user metadata:", updateAuthError);
+      throw updateAuthError;
+    }
+
+    // console.log("Auth user metadata updated successfully");
+    let { data: profiles, error: checkError } = await supabase
+      .from("patients")
+      .select("*")
+      .eq("id", userId);
+
+    if (checkError) {
+      // console.error("Error checking for existing profile:", checkError);
+      throw checkError;
+    }
+
+    let updatedProfile;
+
+    if (!profiles || profiles.length === 0) {
+      // console.log("No existing profile found, creating new profile");
+      const insertData = {
+        id: userId,
+        email: email,
+        full_name: userData.full_name,
+        phone: userData.phone || null,
+        gender: userData.gender || null,
+        date_of_birth: userData.date_of_birth || null,
+        address: userData.address || null,
+      };
+
+      // console.log("Inserting new profile:", insertData);
+
+      const { data: newProfiles, error: insertError } = await supabase
+        .from("patients")
+        .insert([insertData])
+        .select();
+
+      if (insertError) {
+        // console.error("Error creating new profile:", insertError);
+        throw insertError;
+      }
+
+      if (!newProfiles || newProfiles.length === 0) {
+        // console.error("Failed to create new profile");
+        return { success: false, error: "فشل في إنشاء ملف التعريف الجديد" };
+      }
+
+      updatedProfile = newProfiles[0];
+      // console.log("New profile created:", updatedProfile);
+    } else {
+      // console.log("Existing profile found, updating profile");
+
+      const updateData = {
+        full_name: userData.full_name,
+        phone: userData.phone || null,
+        gender: userData.gender || null,
+        date_of_birth: userData.date_of_birth || null,
+        address: userData.address || null,
+      };
+
+      // console.log("Updating profile with data:", updateData);
+
+      const { data: updatedProfiles, error: updateError } = await supabase
+        .from("patients")
+        .update(updateData)
+        .eq("id", userId)
+        .select();
+
+      if (updateError) {
+        // console.error("Error updating profile:", updateError);
+        throw updateError;
+      }
+
+      if (!updatedProfiles || updatedProfiles.length === 0) {
+        // console.error("Failed to update profile");
+        return { success: false, error: "فشل في تحديث ملف التعريف" };
+      }
+
+      updatedProfile = updatedProfiles[0];
+      // console.log("Profile updated:", updatedProfile);
+    }
+
+    localStorage.setItem("user", JSON.stringify(updatedProfile));
+    // console.log("Updated user info in localStorage");
+
+    return {
+      success: true,
+      message: "تم تحديث الملف الشخصي بنجاح",
+      profile: updatedProfile,
+    };
+  } catch (error) {
+    // console.error("Profile update error:", error);
+    return {
+      success: false,
+      error: error.message || "حدث خطأ أثناء تحديث الملف الشخصي",
+    };
+  }
+};
+
+export const checkAdminSession = async () => {
+  try {
+    if (localStorage.getItem("user")) {
+      localStorage.removeItem("user");
+    }
+
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      return { success: false, message: "No active session" };
+    }
+
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError) throw userError;
+
+    const { data: adminData, error: adminError } = await supabase
+      .from("dashboard_users")
+      .select("*")
+      .eq("id", userData.user.id)
+      .single();
+
+    if (adminError) {
+      return { success: false, error: "User is not an admin" };
+    }
+
+    localStorage.setItem("admin", JSON.stringify(adminData));
+
+    return {
+      success: true,
+      user: userData.user,
+      admin: adminData,
+      session: sessionData.session,
+    };
+  } catch (error) {
+    // console.error("Admin session check error:", error.message);
     return { success: false, error: error.message };
   }
 };
@@ -458,185 +583,22 @@ export const signInAdmin = async (email, password) => {
       admin: adminData,
     };
   } catch (error) {
-    console.error("Admin sign in error:", error.message);
+    // console.error("Admin sign in error:", error.message);
     return { success: false, error: error.message };
   }
 };
 
-export const checkAdminSession = async () => {
+export const signOutAdmin = async () => {
   try {
-    if (localStorage.getItem("user")) {
-      localStorage.removeItem("user");
-    }
+    localStorage.removeItem("admin");
 
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
+    const { error } = await supabase.auth.signOut();
 
-    if (sessionError) throw sessionError;
+    if (error) throw error;
 
-    if (!sessionData.session) {
-      return { success: false, message: "No active session" };
-    }
-
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError) throw userError;
-
-    const { data: adminData, error: adminError } = await supabase
-      .from("dashboard_users")
-      .select("*")
-      .eq("id", userData.user.id)
-      .single();
-
-    if (adminError) {
-      return { success: false, error: "User is not an admin" };
-    }
-
-    localStorage.setItem("admin", JSON.stringify(adminData));
-
-    return {
-      success: true,
-      user: userData.user,
-      admin: adminData,
-      session: sessionData.session,
-    };
+    return { success: true };
   } catch (error) {
-    console.error("Admin session check error:", error.message);
+    // console.error("Sign out error:", error.message);
     return { success: false, error: error.message };
-  }
-};
-
-export const updateUserProfile = async (userData) => {
-  try {
-    console.log("Starting user profile update process");
-
-    // Get current user
-    const { data: currentUser, error: userError } =
-      await supabase.auth.getUser();
-
-    if (userError) {
-      console.error("Error getting current user:", userError);
-      throw userError;
-    }
-
-    if (!currentUser || !currentUser.user) {
-      console.error("No current user found");
-      return { success: false, error: "لم يتم العثور على المستخدم الحالي" };
-    }
-
-    const userId = currentUser.user.id;
-    const email = currentUser.user.email;
-
-    console.log("Current user:", { userId, email });
-
-    // Update user metadata (name) in auth.users
-    const { error: updateAuthError } = await supabase.auth.updateUser({
-      data: {
-        full_name: userData.full_name,
-      },
-    });
-
-    if (updateAuthError) {
-      console.error("Error updating auth user metadata:", updateAuthError);
-      throw updateAuthError;
-    }
-
-    console.log("Auth user metadata updated successfully");
-
-    // First check if user profile exists
-    let { data: profiles, error: checkError } = await supabase
-      .from("patients")
-      .select("*")
-      .eq("id", userId);
-
-    if (checkError) {
-      console.error("Error checking for existing profile:", checkError);
-      throw checkError;
-    }
-
-    let updatedProfile;
-
-    if (!profiles || profiles.length === 0) {
-      console.log("No existing profile found, creating new profile");
-
-      // Create a new profile
-      const insertData = {
-        id: userId,
-        email: email,
-        full_name: userData.full_name,
-        phone: userData.phone || null,
-        gender: userData.gender || null,
-        date_of_birth: userData.date_of_birth || null,
-        address: userData.address || null,
-      };
-
-      console.log("Inserting new profile:", insertData);
-
-      const { data: newProfiles, error: insertError } = await supabase
-        .from("patients")
-        .insert([insertData])
-        .select();
-
-      if (insertError) {
-        console.error("Error creating new profile:", insertError);
-        throw insertError;
-      }
-
-      if (!newProfiles || newProfiles.length === 0) {
-        console.error("Failed to create new profile");
-        return { success: false, error: "فشل في إنشاء ملف التعريف الجديد" };
-      }
-
-      updatedProfile = newProfiles[0];
-      console.log("New profile created:", updatedProfile);
-    } else {
-      console.log("Existing profile found, updating profile");
-
-      const updateData = {
-        full_name: userData.full_name,
-        phone: userData.phone || null,
-        gender: userData.gender || null,
-        date_of_birth: userData.date_of_birth || null,
-        address: userData.address || null,
-      };
-
-      console.log("Updating profile with data:", updateData);
-
-      // Update existing profile
-      const { data: updatedProfiles, error: updateError } = await supabase
-        .from("patients")
-        .update(updateData)
-        .eq("id", userId)
-        .select();
-
-      if (updateError) {
-        console.error("Error updating profile:", updateError);
-        throw updateError;
-      }
-
-      if (!updatedProfiles || updatedProfiles.length === 0) {
-        console.error("Failed to update profile");
-        return { success: false, error: "فشل في تحديث ملف التعريف" };
-      }
-
-      updatedProfile = updatedProfiles[0];
-      console.log("Profile updated:", updatedProfile);
-    }
-
-    // Update the user info in localStorage
-    localStorage.setItem("user", JSON.stringify(updatedProfile));
-    console.log("Updated user info in localStorage");
-
-    return {
-      success: true,
-      message: "تم تحديث الملف الشخصي بنجاح",
-      profile: updatedProfile,
-    };
-  } catch (error) {
-    console.error("Profile update error:", error);
-    return {
-      success: false,
-      error: error.message || "حدث خطأ أثناء تحديث الملف الشخصي",
-    };
   }
 };

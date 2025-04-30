@@ -53,6 +53,10 @@ const AdminsManagement = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
+  useEffect(() => {
+    document.title = "إدارة المسؤولين | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const fetchAdmins = useCallback(async () => {
     try {
       setLoading(true);

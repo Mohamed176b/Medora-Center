@@ -1,4 +1,3 @@
--- Create the blog_posts table
 CREATE TABLE blog_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   author_id UUID REFERENCES dashboard_users(id) ON DELETE CASCADE,
@@ -13,10 +12,8 @@ CREATE TABLE blog_posts (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()),
   attachments JSONB
 );
--- Create index for faster slug lookup
 CREATE INDEX blog_posts_slug_idx ON blog_posts(slug);
 
--- Create a trigger to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_blog_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -30,10 +27,8 @@ BEFORE UPDATE ON blog_posts
 FOR EACH ROW
 EXECUTE FUNCTION update_blog_timestamp();
 
--- Enable Row Level Security
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 
--- Super Admin: Full access (SELECT, INSERT, UPDATE, DELETE)
 CREATE POLICY "Super Admin full access to blog_posts"
   ON blog_posts FOR ALL
   USING (EXISTS (
@@ -43,7 +38,6 @@ CREATE POLICY "Super Admin full access to blog_posts"
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'super-admin'
   ));
 
--- Admin: Full access to blog posts
 CREATE POLICY "Admin manage blog_posts"
   ON blog_posts FOR ALL
   USING (EXISTS (
@@ -53,7 +47,6 @@ CREATE POLICY "Admin manage blog_posts"
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'admin'
   ));
 
--- Editor: Permissions for SELECT, INSERT, UPDATE, DELETE
 CREATE POLICY "Editor manage select blog_posts"
   ON blog_posts FOR SELECT
   USING (EXISTS (
@@ -78,19 +71,16 @@ CREATE POLICY "Editor manage delete blog_posts"
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'editor'
   ));
 
--- Viewer: Read-only access
 CREATE POLICY "Viewer read blog_posts"
   ON blog_posts FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'viewer'
   ));
 
--- Public: Can only read published posts
 CREATE POLICY "Public read published blog_posts"
   ON blog_posts FOR SELECT
   USING (is_published = true);
 
--- Create blog categories table
 CREATE TABLE blog_categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL UNIQUE,
@@ -98,10 +88,8 @@ CREATE TABLE blog_categories (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
 );
 
--- Enable Row Level Security
 ALTER TABLE blog_categories ENABLE ROW LEVEL SECURITY;
 
--- Super Admin and Admin: Full access
 CREATE POLICY "Super Admin and Admin full access to blog_categories"
   ON blog_categories FOR ALL
   USING (EXISTS (
@@ -113,7 +101,6 @@ CREATE POLICY "Super Admin and Admin full access to blog_categories"
     WHERE id = auth.uid() AND role IN ('super-admin', 'admin')
   ));
 
--- Editor: Full access
 CREATE POLICY "Editor full access to blog_categories"
   ON blog_categories FOR ALL
   USING (EXISTS (
@@ -123,12 +110,10 @@ CREATE POLICY "Editor full access to blog_categories"
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'editor'
   ));
 
--- Viewer and Public: Read-only access
 CREATE POLICY "Everyone can read blog_categories"
   ON blog_categories FOR SELECT
   USING (true);
 
--- Create junction table for many-to-many relationship between posts and categories
 CREATE TABLE blog_posts_categories (
   post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
   PRIMARY KEY (post_id, category_id),
@@ -137,10 +122,8 @@ CREATE TABLE blog_posts_categories (
   session_id TEXT
 );
 
--- Enable Row Level Security
 ALTER TABLE blog_posts_categories ENABLE ROW LEVEL SECURITY;
 
--- Super Admin and Admin: Full access
 CREATE POLICY "Super Admin and Admin full access to blog_posts_categories"
   ON blog_posts_categories FOR ALL
   USING (EXISTS (
@@ -152,7 +135,6 @@ CREATE POLICY "Super Admin and Admin full access to blog_posts_categories"
     WHERE id = auth.uid() AND role IN ('super-admin', 'admin')
   ));
 
--- Editor: Full access
 CREATE POLICY "Editor full access to blog_posts_categories"
   ON blog_posts_categories FOR ALL
   USING (EXISTS (
@@ -162,19 +144,16 @@ CREATE POLICY "Editor full access to blog_posts_categories"
     SELECT 1 FROM dashboard_users WHERE id = auth.uid() AND role = 'editor'
   ));
 
--- Public: Read-only access
 CREATE POLICY "Public read blog_posts_categories"
   ON blog_posts_categories FOR SELECT
   USING (true);
 
--- Insert some default categories
 INSERT INTO blog_categories (name, slug) VALUES
 ('عام', 'general'),
 ('صحة', 'health'),
 ('نصائح طبية', 'medical-advice'),
 ('أخبار', 'news');
 
--- Create blog_post_views table
 CREATE TABLE blog_post_views (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
@@ -182,14 +161,11 @@ CREATE TABLE blog_post_views (
   viewed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
 );
 
--- Create index for faster lookups
 CREATE INDEX blog_post_views_post_id_idx ON blog_post_views(post_id);
 CREATE INDEX blog_post_views_viewer_ip_idx ON blog_post_views(viewer_ip);
 
--- Enable Row Level Security
 ALTER TABLE blog_post_views ENABLE ROW LEVEL SECURITY;
 
--- Super Admin and Admin: Full access
 CREATE POLICY "Super Admin and Admin full access to blog_post_views"
   ON blog_post_views FOR ALL
   USING (EXISTS (
@@ -201,12 +177,10 @@ CREATE POLICY "Super Admin and Admin full access to blog_post_views"
     WHERE id = auth.uid() AND role IN ('super-admin', 'admin')
   ));
 
--- Everyone can insert views
 CREATE POLICY "Everyone can insert blog post views"
   ON blog_post_views FOR INSERT
   WITH CHECK (true);
 
--- Everyone can read views
 CREATE POLICY "Everyone can read blog post views"
   ON blog_post_views FOR SELECT
   USING (true);

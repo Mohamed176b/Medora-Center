@@ -55,6 +55,10 @@ const ServicesManagement = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    document.title = "إدارة الخدمات | لوحة التحكم | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     if ((!services || services.length === 0) && isAuthorized) {
       fetchServices();
     } else {

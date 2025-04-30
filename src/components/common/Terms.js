@@ -2,6 +2,9 @@ import React from "react";
 import styles from "../../style/CommonPages.module.css";
 
 const Terms = () => {
+  React.useEffect(() => {
+    document.title = "الشروط والأحكام | مركز ميدورا";
+  }, []);
   return (
     <div className={styles.container}>
       <div className={styles.header}>

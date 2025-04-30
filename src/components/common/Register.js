@@ -45,6 +45,10 @@ const Register = () => {
   };
 
   useEffect(() => {
+    document.title = "تسجيل حساب جديد | مركز ميدورا";
+  }, []);
+
+  useEffect(() => {
     const handleGoogleAuth = async () => {
       const query = new URLSearchParams(location.search);
       const isGoogleProvider = query.get("provider") === "google";

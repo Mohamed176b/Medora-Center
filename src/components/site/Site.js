@@ -13,7 +13,7 @@ const Site = () => {
         const ipData = await ipRes.json();
         const ip = ipData.ip;
         const userAgent = navigator.userAgent;
-        const { data, error } = await supabase.from('site_views').insert([
+        const { data, error } = await supabase.from('site_views').insert([  // eslint-disable-line
           { ip_address: ip, user_agent: userAgent }
         ]);
         sessionStorage.setItem("site_visited", "1"); 
@@ -23,7 +23,7 @@ const Site = () => {
     };
     trackSiteVisit();
   }, []);
-   
+
 
   return (
     <>

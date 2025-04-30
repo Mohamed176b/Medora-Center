@@ -33,7 +33,11 @@ const Doctors = React.memo(() => {
     } else {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    document.title = "أطباؤنا المتميزون | مركز ميدورا الطبي";
+  }, []);
 
   if (loading) {
     return <Loader />;

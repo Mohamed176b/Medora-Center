@@ -31,6 +31,7 @@ const ServiceDetail = React.memo(() => {
 
         if (error) throw error;
         setService(data);
+        document.title = `${data.title} | خدماتنا المميزة | مركز ميدورا`;
       } catch (err) {
         console.error("Error fetching service:", err);
         setError("عذراً، لم نتمكن من العثور على هذه الخدمة");
@@ -41,6 +42,7 @@ const ServiceDetail = React.memo(() => {
 
     fetchService();
   }, [slug]);
+
 
   if (loading) return <Loader />;
   if (error)

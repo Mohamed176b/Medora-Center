@@ -157,6 +157,10 @@ const Analytics = () => {
     topPosts: [],
   });
 
+  useEffect(() => {
+    document.title = "التحليلات | لوحة التحكم | مركز ميدورا";
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -346,20 +350,22 @@ const Analytics = () => {
     computedBookingsData,
     computedEngagementData,
     processBlogData
-  ]);// eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const logData = async () => {
-      console.log('Loading state:', loading);
-      console.log('Users data:', users);
-      console.log('Doctors data:', doctors);
-      console.log('Services data:', services);
-      console.log('Appointments data:', appointments);
-      console.log('Computed Overview:', computedOverviewData);
-      console.log('Computed Bookings:', computedBookingsData);
-      console.log('Computed Engagement:', computedEngagementData);
-    };
-    logData();
-  }, [loading, users, doctors, services, appointments, computedOverviewData, computedBookingsData, computedEngagementData]);
+  ]);
+
+  // useEffect(() => {
+  //   const logData = async () => {
+  //     console.log('Loading state:', loading);
+  //     console.log('Users data:', users);
+  //     console.log('Doctors data:', doctors);
+  //     console.log('Services data:', services);
+  //     console.log('Appointments data:', appointments);
+  //     console.log('Computed Overview:', computedOverviewData);
+  //     console.log('Computed Bookings:', computedBookingsData);
+  //     console.log('Computed Engagement:', computedEngagementData);
+  //   };
+  //   logData();
+  // }, [loading, users, doctors, services, appointments, computedOverviewData, computedBookingsData, computedEngagementData]);
+  
   if (!isAuthorized) {
     return unauthorizedUI;
   }

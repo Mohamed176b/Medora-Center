@@ -2,14 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
-/**
- * Hook مخصص للتحقق من صلاحيات المستخدم
- * @param {Array} allowedRoles - الأدوار المسموح لها بالوصول
- * @param {string} redirectPath - مسار إعادة التوجيه في حالة عدم التصريح، الافتراضي "/admin"
- * @returns {Object} نتيجة التحقق من التصريح وواجهة المستخدم إذا لم يكن مصرحًا
- */
 const useAuthorization = (allowedRoles, redirectPath = "/admin") => {
-  // Fix destructuring to handle potential null state during logout
   const adminState = useSelector((state) => state.admin);
   const admin = adminState?.admin?.admin;
 
@@ -27,7 +20,6 @@ const useAuthorization = (allowedRoles, redirectPath = "/admin") => {
     }
   }, [isAuthorized]);
 
-  // واجهة المستخدم لعرض رسالة عدم التصريح
   const unauthorizedUI = !isAuthorized ? (
     redirect ? (
       <Navigate to={redirectPath} />
@@ -39,6 +31,7 @@ const useAuthorization = (allowedRoles, redirectPath = "/admin") => {
           textAlign: "center",
           color: "red",
           fontWeight: "bold",
+          marginTop: "20px auto",
         }}
       >
         غير مصرح لك بالدخول إلى هذه الصفحة. سيتم إعادة توجيهك...

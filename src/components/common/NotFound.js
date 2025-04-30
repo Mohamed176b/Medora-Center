@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import "../../style/NotFound.css";
 
 const NotFound = memo(() => {
+  React.useEffect(() => {
+    document.title = "الصفحة غير موجودة | مركز ميدورا";
+  }, []);
   return (
     <div className="not-found-container">
       <div className="not-found-content">

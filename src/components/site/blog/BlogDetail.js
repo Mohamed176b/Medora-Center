@@ -43,6 +43,7 @@ const BlogDetail = React.memo(() => {
             categories: data.categories.map((category) => category.category),
           };
           setPost(transformedPost);
+          document.title = `${transformedPost.title} | مودنة مركز ميدورا`;
           await trackPostView(data.id);
         } else {
           setError("لم يتم العثور على المدونة");

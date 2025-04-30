@@ -1,7 +1,11 @@
 import React from "react";
 import styles from "../../style/CommonPages.module.css";
 
+
 const PrivacyPolicy = () => {
+  React.useEffect(() => {
+    document.title = "سياسة الخصوصية | مركز ميدورا";
+  }, []);
   return (
     <div className={styles.container}>
       <div className={styles.header}>

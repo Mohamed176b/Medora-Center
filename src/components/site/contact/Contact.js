@@ -4,7 +4,7 @@ import useToast from "../../../hooks/useToast";
 import useAdminState from "../../../hooks/useAdminState";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import "../../../style/Contact.css"; 
+import "../../../style/Contact.css";
 import Loader from "../../common/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchContactData } from "../../../redux/slices/siteDataSlice";
@@ -57,7 +57,7 @@ const Contact = () => {
     } else {
       setLoadingPage(false);
     }
-  }, [dispatch]); 
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -148,6 +148,10 @@ const Contact = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    document.title = "اتصل بنا - مركز ميدورا";
+  }, []);
 
   if (loadingPage) {
     return <Loader />;

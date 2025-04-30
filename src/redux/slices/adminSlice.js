@@ -98,7 +98,6 @@ const fetchAllDoctorsData = createAsyncThunk(
         throw error;
       }
 
-      // Transform the services from the nested structure
       const transformedDoctors = data.map((doctor) => ({
         ...doctor,
         services: doctor.doctor_services?.[0]?.services || null,
@@ -184,14 +183,12 @@ const fetchSiteSettings = createAsyncThunk(
   "admin/fetchSiteSettings",
   async (_, { rejectWithValue }) => {
     try {
-      // Fetch home and about settings
       const { data: pagesData, error: pagesError } = await supabase
         .from("pages_content")
         .select("*");
 
       if (pagesError) throw pagesError;
 
-      // Fetch contact settings
       const { data: contactData, error: contactError } = await supabase
         .from("site_contact")
         .select("*")
@@ -234,7 +231,6 @@ const fetchAllBlogPosts = createAsyncThunk(
 
       if (error) throw error;
 
-      // Transform the categories from the nested structure
       const transformedPosts = data.map((post) => ({
         ...post,
         categories: post.categories.map((category) => category.category),
@@ -295,6 +291,7 @@ const adminSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetching all admins data
       .addCase(fetchAllAdminsData.pending, (state) => {
         state.loading = true;
       })
@@ -306,6 +303,7 @@ const adminSlice = createSlice({
         state.loading = false;
         console.error("Error fetching all admins data:", action.payload);
       })
+      // Fetching all appointments data
       .addCase(fetchAllAppointmentsData.pending, (state) => {
         state.loading = true;
       })
@@ -317,6 +315,7 @@ const adminSlice = createSlice({
         state.loading = false;
         console.error("Error fetching all Appointments data:", action.payload);
       })
+      // Fetching all users data
       .addCase(fetchAllUsersData.pending, (state) => {
         state.loading = true;
       })
@@ -328,6 +327,7 @@ const adminSlice = createSlice({
         state.loading = false;
         console.error("Error fetching all users data:", action.payload);
       })
+      // Fetching all doctors data
       .addCase(fetchAllDoctorsData.pending, (state) => {
         state.allDoctorsData = [];
       })
@@ -337,6 +337,7 @@ const adminSlice = createSlice({
       .addCase(fetchAllDoctorsData.rejected, (state) => {
         state.allDoctorsData = [];
       })
+      // Fetching all services data
       .addCase(fetchAllServicesData.pending, (state) => {
         state.allServicesData = [];
       })
@@ -346,6 +347,7 @@ const adminSlice = createSlice({
       .addCase(fetchAllServicesData.rejected, (state) => {
         state.allServicesData = [];
       })
+      // Fetching all messages data
       .addCase(fetchAllMessagesData.pending, (state) => {
         state.allMessagesData = [];
       })
@@ -355,6 +357,7 @@ const adminSlice = createSlice({
       .addCase(fetchAllMessagesData.rejected, (state) => {
         state.allMessagesData = [];
       })
+      // Fetching all testimonials data
       .addCase(fetchAllTestimonialsData.pending, (state) => {
         state.allTestimonialsData = [];
       })
@@ -364,6 +367,7 @@ const adminSlice = createSlice({
       .addCase(fetchAllTestimonialsData.rejected, (state) => {
         state.allTestimonialsData = [];
       })
+      // Fetching site settings
       .addCase(fetchSiteSettings.pending, (state) => {
         state.siteSettings.loading = true;
         state.siteSettings.error = null;
@@ -379,6 +383,7 @@ const adminSlice = createSlice({
         state.siteSettings.loading = false;
         state.siteSettings.error = action.payload;
       })
+      // Fetching all blog posts
       .addCase(fetchAllBlogPosts.pending, (state) => {
         state.blogLoading = true;
         state.blogError = null;
@@ -392,6 +397,7 @@ const adminSlice = createSlice({
         state.blogLoading = false;
         state.blogError = action.payload;
       })
+      // Fetching all blog categories
       .addCase(fetchAllBlogCategories.pending, (state) => {
         state.blogLoading = true;
         state.blogError = null;

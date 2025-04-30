@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { supabase } from "../../supabase/supabaseClient";
 
-// Async Thunks
 export const fetchUserAppointments = createAsyncThunk(
   "user/fetchAppointments",
   async (userId, { rejectWithValue }) => {
@@ -91,7 +90,6 @@ export const createUserAppointment = createAsyncThunk(
   }
 );
 
-// Messages Thunks
 export const fetchUserMessages = createAsyncThunk(
   "user/fetchMessages",
   async (userId, { rejectWithValue }) => {
@@ -146,7 +144,6 @@ export const deleteUserMessage = createAsyncThunk(
   }
 );
 
-// Testimonials Thunks
 export const fetchUserTestimonials = createAsyncThunk(
   "user/fetchTestimonials",
   async (userId, { rejectWithValue }) => {
@@ -221,11 +218,9 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      // لا تحفظ بيانات المستخدم إذا لم يكن نشطًا
       if (!action.payload || action.payload.is_active !== true) {
         state.user = null;
         state.isAuthenticated = false;
-        // تأكد من حذف بيانات المستخدم من localStorage إذا كانت موجودة
         localStorage.removeItem("user");
         return;
       }

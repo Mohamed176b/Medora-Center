@@ -68,15 +68,17 @@ const BlogCategory = React.memo(() => {
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.content?.toLowerCase().includes(searchTerm.toLowerCase());
-
+        document.title = `مقالات في ${currentCategory.name}  | مودنة مركز ميدورا`;
+      
       return matchesCategory && matchesSearch;
     });
-  }, [allBlogData, categoryId, searchTerm]);
+  }, [allBlogData, categoryId, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const transformedPosts = filteredPosts.map((post) => ({
     ...post,
     categories: post.categories.map((category) => category.category),
   }));
+
 
   if (loading) {
     return <Loader />;

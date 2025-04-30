@@ -10,7 +10,7 @@ A comprehensive medical center management system built with React and Supabase, 
 
 ### Public Website
 
-- **Multilingual Support** with RTL layout (Arabic)
+- **Arabic public website** including full Arabic RTL support
 - **Interactive Appointment Booking System**
 - **Doctor Directory** with specialization filtering
 - **Medical Services Catalog**

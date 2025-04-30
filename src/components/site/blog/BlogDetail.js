@@ -103,7 +103,7 @@ const BlogDetail = React.memo(() => {
             <i className="far fa-calendar-alt"></i>{" "}
             {formatDate(post.published_at)}
           </div>
-          {post.categories.slice(0, 2).map((category) => (
+          {post.categories.map((category) => (
             <div
               key={category.id}
               className={styles["blog-detail-category"]}

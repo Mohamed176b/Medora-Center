@@ -30,7 +30,7 @@ const AboutUs = () => {
 
   const renderDoctors = useCallback(() => (
     doctorsList.length > 0
-      ? doctorsList.map((doctor) => (
+      ? doctorsList.slice(0,3).map((doctor) => (
           <DoctorCard key={doctor.id} doctor={doctor} />
         ))
       : <p>لا يوجد أطباء لعرضهم حالياً</p>

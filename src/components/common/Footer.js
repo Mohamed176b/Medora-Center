@@ -255,6 +255,22 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <div className="footer-bottom">
+        <div
+          className="container"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div className="copyright copyright-mo">
+            <a href="https://surrealism.vercel.app/" target="_blank" rel="noopener noreferrer">
+              Surrealism - دليلك لعالم الترفية
+            </a>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };
